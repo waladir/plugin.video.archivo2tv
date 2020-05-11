@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.archivo2tv"
+version="1.1.0"
+name="Zpětné sledovaní O2TV"
+provider-name="waladir">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0" />
+    <import addon="inputstream.adaptive" version="2.0.0"/>
+  </requires>
+	<extension point="xbmc.python.pluginsource" library="main.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+  <summary lang="cs">Zpětné sledovaní O2TV</summary>
+  <description lang="cs">Umožnuje zpětné sledování pořadů přes O2TV</description>
+  <disclaimer lang="cs">waladir</disclaimer>
+  <assets>
+    <icon>icon.png</icon>
+  </assets>
+  <news>v1.1.0 (2020-05-10) - přidáno živé vysílání
+v1.0.2 (2020-05-09) - přidaná kontrola nastavení, opravené filtrování kanálů podle balíčku O2TV
+v1.0.1 (2020-05-09) - upravené závislosti a opravená možná chyba s kódováním
+v1.0.0 (2020-05-07) - první vydání
+  </news>
+</extension>
+</addon>
