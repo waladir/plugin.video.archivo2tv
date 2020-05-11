@@ -14,7 +14,7 @@
     <description lang="cs_CZ">Umožnuje zpětné sledování pořadů přes O2TV</description>
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
-    <news>i
+    <news>
 v1.2.0 (2020-05-10)
  - přidáno vyhledávání, zobrazení ratingu, jméno pořadu u živého streamu a zobrazení ratingu, ošetření chybného přihlášení, opravy chyb
 
