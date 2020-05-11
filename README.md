@@ -9,6 +9,7 @@ Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (ste
 
 V nastavení doplňku InputStream Adaptive, který se automaticky nainstaluje, si můžete u Stream Selection vybrat volbu Manual video. Pri přehrávání si pak můžete vybrat stream nižší kvality.
 
+1.2.1 - přidání do XBMC-Kodi CZ/SK repozitáře
 1.2.0 - přidáno vyhledávání, zobrazení ratingu, jméno pořadu u živého streamu a zobrazení ratingu, ošetření chybného přihlášení, opravy chyb<br>
 1.1.0 - přidáno živé vysílání<br>
 1.0.2 - přidaná kontrola nastavení, opravené filtrování kanálů podle balíčku O2TV<br>
