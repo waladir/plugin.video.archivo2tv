@@ -1,35 +1,36 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.archivo2tv"
-version="1.2.0"
-name="Zpětné sledování O2TV"
-provider-name="waladir">
+﻿<addon id="plugin.video.archivo2tv" name="Zpětné sledování O2TV" provider-name="waladir" version="1.2.0">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
     <import addon="inputstream.adaptive" version="2.0.0"/>
   </requires>
-	<extension point="xbmc.python.pluginsource" library="main.py">
-		<provides>video</provides>
-	</extension>
-	<extension point="xbmc.addon.metadata">
-  <summary lang="cs">Zpětné sledovaní O2TV</summary>
-  <description lang="cs">Umožnuje zpětné sledování pořadů přes O2TV</description>
-  <disclaimer lang="cs">waladir</disclaimer>
-  <assets>
-    <icon>icon.png</icon>
-  </assets>
-  <news>v1.2.0 (2020-05-10) - přidáno vyhledávání, zobrazení ratingu, jméno pořadu u živého streamu a zobrazení ratingu, ošetření chybného přihlášení, opravy chyb
-v1.1.0 (2020-05-10) - přidáno živé vysílání
-v1.0.2 (2020-05-09) - přidaná kontrola nastavení, opravené filtrování kanálů podle balíčku O2TV
-v1.0.1 (2020-05-09) - upravené závislosti a opravená možná chyba s kódováním
-v1.0.0 (2020-05-07) - první vydání
-  </news>
-  <extension point="xbmc.addon.metadata">
-    <platform>all</platform>
-    <summary>Zpětné sledování O2TV</summary>
-    <description>
-	Umožnuje zpětné sledování pořadů přes O2TV
-    </description>
-    <source>https://github.com/waladir/plugin.video.archivo2tv</source>
+  <extension library="addon.py" point="xbmc.python.pluginsource">
+    <provides>video</provides>
   </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Zpětné sledovaní O2TV</summary>
+    <summary lang="cs_CZ">Zpětné sledovaní O2TV</summary>
+    <description lang="en_GB">Umožnuje zpětné sledování pořadů přes O2TV</description>
+    <description lang="cs_CZ">Umožnuje zpětné sledování pořadů přes O2TV</description>
+    <platform>all</platform>
+    <source>https://github.com/waladir/plugin.video.archivo2tv</source>
+    <news>
+v1.2.0 (2020-05-10)
+ - přidáno vyhledávání, zobrazení ratingu, jméno pořadu u živého streamu a zobrazení ratingu, ošetření chybného přihlášení, opravy chyb
 
+v1.1.0 (2020-05-10)
+- přidáno živé vysílání
+
+v1.0.2 (2020-05-09)
+- přidaná kontrola nastavení, opravené filtrování kanálů podle balíčku O2TV
+
+v1.0.1 (2020-05-09)
+- upravené závislosti a opravená možná chyba s kódováním
+
+v1.0.0 (2020-05-07)
+- první vydání
+    </news>
+    <assets>
+        <icon>icon.png</icon>
+    </assets>
+  </extension>
 </addon>
