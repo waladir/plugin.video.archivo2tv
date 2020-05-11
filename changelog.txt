@@ -1,8 +1,8 @@
-v1.2.1 (2020-05-11)
- - přidání do XBMC-Kodi CZ/SK repozitáře
+v1.2.2 (2020-05-11)
+- přidání do XBMC-Kodi CZ/SK repozitáře
 
 v1.2.0 (2020-05-10)
- - přidáno vyhledávání, zobrazení ratingu, jméno pořadu u živého streamu a zobrazení ratingu, ošetření chybného přihlášení, opravy chyb
+- přidáno vyhledávání, zobrazení ratingu, jméno pořadu u živého streamu a zobrazení ratingu, ošetření chybného přihlášení, opravy chyb
 
 v1.1.0 (2020-05-10)
 - přidáno živé vysílání
