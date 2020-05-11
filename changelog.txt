@@ -1,4 +1,2 @@
-v1.1.0 (2020-05-10) - přidáno živé vysílání
-v1.0.2 (2020-05-09) - přidaná kontrola nastavení, opravené filtrování kanálů podle balíčku O2TV
-v1.0.1 (2020-05-09) - upravené závislosti a opravená možná chyba s kódováním
-v1.0.0 (2020-05-07) - první vydání
+v1.0.0 (2020-05-07)
+- První vydání
