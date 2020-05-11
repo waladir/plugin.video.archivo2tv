@@ -1,9 +1,9 @@
-﻿<addon id="plugin.video.archivo2tv" name="Zpětné sledování O2TV" provider-name="waladir" version="1.2.2">
+﻿<addon id="plugin.video.archivo2tv" name="Zpětné sledování O2TV" provider-name="waladir" version="1.2.3">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
     <import addon="inputstream.adaptive" version="2.0.0"/>
   </requires>
-  <extension library="addon.py" point="xbmc.python.pluginsource">
+  <extension library="main.py" point="xbmc.python.pluginsource">
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
