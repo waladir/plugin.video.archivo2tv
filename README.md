@@ -2,7 +2,7 @@
 <p>
 Kodi doplňek Archiv O2TV umožňuje zpětné sledovaní pořadů v O2TV.
 <p>
-<a href="https://www.xbmc-kodi.cz/prispevek-zpetne-sledovani-o2tv-ott">Vlákno na foru XBMC-Kodi.cz</a>
+<a href="https://www.xbmc-kodi.cz/prispevek-zpetne-sledovani-o2tv-ott">Vlákno na foru XBMC-Kodi.cz</a><br>
 Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se snažil udělat něco podobného pro OTT O2TV, který umožnuje přehrávání pořadů až 7 dní zpátky.i
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné. Pokud nemáte uživatelské jméno ve tvaru emailu, zkuste použít jako Login přihlášení do Moje O2.
