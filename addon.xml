@@ -23,5 +23,13 @@ v1.0.2 (2020-05-09) - přidaná kontrola nastavení, opravené filtrování kan�
 v1.0.1 (2020-05-09) - upravené závislosti a opravená možná chyba s kódováním
 v1.0.0 (2020-05-07) - první vydání
   </news>
-</extension>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <summary>Zpětné sledování O2TV</summary>
+    <description>
+	Umožnuje zpětné sledování pořadů přes O2TV
+    </description>
+    <source>https://github.com/waladir/plugin.video.archivo2tv</source>
+  </extension>
+
 </addon>
