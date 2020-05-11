@@ -9,9 +9,9 @@ Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (ste
 
 V nastavení doplňku InputStream Adaptive, který se automaticky nainstaluje, si můžete u Stream Selection vybrat volbu Manual video. Pri přehrávání si pak můžete vybrat stream nižší kvality.
 
-1.2.0 - přidáno vyhledávání, zobrazení ratingu, jméno pořadu u živého streamu a zobrazení ratingu, ošetření chybného přihlášení, opravy chyb
-1.1.0 - přidáno živé vysílání
-1.0.2 - přidaná kontrola nastavení, opravené filtrování kanálů podle balíčku O2TV
-1.0.1 - upraveny závislosti na inputstream.adaptive doplňku + opravený možný problém s kódováním kanálů
-1.0.0 - první vydání 
+1.2.0 - přidáno vyhledávání, zobrazení ratingu, jméno pořadu u živého streamu a zobrazení ratingu, ošetření chybného přihlášení, opravy chyb<br>
+1.1.0 - přidáno živé vysílání<br>
+1.0.2 - přidaná kontrola nastavení, opravené filtrování kanálů podle balíčku O2TV<br>
+1.0.1 - upraveny závislosti na inputstream.adaptive doplňku + opravený možný problém s kódováním kanálů<br>
+1.0.0 - první vydání<br>
 </p>
