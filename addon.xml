@@ -2,7 +2,6 @@
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
     <import addon="inputstream.adaptive" version="2.0.0"/>
-
   </requires>
   <extension library="addon.py" point="xbmc.python.pluginsource">
     <provides>video</provides>
