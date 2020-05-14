@@ -3,8 +3,18 @@
 	<category label="Přihlášení">
         <setting label="Login" type="text" id="username" default=""/>
         <setting label="Heslo" type="text" id="password" option="hidden" enable="!eq(-1,false)" default=""/>
-        <setting label="Device Id" type="text" id="deviceid" default=""/>
+        <setting label="Device Id (libovolný alfanumerický řetězec)" type="text" id="deviceid" default=""/>
         <setting label="Device Name" type="text" id="devicename" default="tvbox"/>
         <setting label="Device Type" type="text" id="devicetype" default="STB"/>
+	</category>
+	<category label="Nastavení">
+        <setting label="Pouze SD kvalita" type="bool" id="only_sd" default="false"/>
+        <setting label="Načítat detaily pořadů a postery (pomalejší)" type="bool" id="details" default="true"/>
+        <setting label="Přehrávat i po konci pořadu (minut)" type="slider" id="offset" range="0,5,120" option="int"/>
+	</category>
+	<category label="Logování">
+        <setting label="Logování požadavků - URL" type="bool" id="log_request_url" default="false"/>
+        <setting label="Logování požadavků - data (logují se i citlivá data!)" type="bool" id="log_request_data" default="false"/>
+        <setting label="Logování odpovědí" type="bool" id="log_response" default="false"/>
 	</category>
 </settings>

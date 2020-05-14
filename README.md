@@ -5,14 +5,36 @@ Kodi doplňek Archiv O2TV umožňuje zpětné sledovaní pořadů v O2TV.
 <a href="https://www.xbmc-kodi.cz/prispevek-zpetne-sledovani-o2tv-ott">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se snažil udělat něco podobného pro OTT O2TV. Doplněk umožnuje přehrávání pořadů až 7 dní zpátky.
 
-Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné. Pokud nemáte uživatelské jméno ve tvaru emailu, zkuste použít jako Login přihlášení do Moje O2.
+Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.
 
-V nastavení doplňku InputStream Adaptive, který se automaticky nainstaluje, si můžete u Stream Selection vybrat volbu Manual video. Pri přehrávání si pak můžete vybrat stream nižší kvality.
+v1.3.0 (2020-05-15)<br>
+- přechod na jiné API O2<br>
+- zrušení závislosti na InputStream Adaptive<br>
+- volba SD/HD kvality v nastavení<br>
+- možnost nastavení pokračování pořadu i po jeho skončení podle EPG<br>
+- možnost vypnutí zobrazení detailních informace, log a posterů<br>
+- doplnění informací k live streamu<br>
+- historie vyhledávání<br>
+- nastavení pořadí programů<br><br>
 
-1.2.3 - přidání do XBMC-Kodi CZ/SK repozitáře
-1.2.0 - přidáno vyhledávání, zobrazení ratingu, jméno pořadu u živého streamu a zobrazení ratingu, ošetření chybného přihlášení, opravy chyb<br>
-1.1.0 - přidáno živé vysílání<br>
-1.0.2 - přidaná kontrola nastavení, opravené filtrování kanálů podle balíčku O2TV<br>
-1.0.1 - upraveny závislosti na inputstream.adaptive doplňku + opravený možný problém s kódováním kanálů<br>
-1.0.0 - první vydání<br>
+v1.2.3 (2020-05-11)<br>
+- přidání do XBMC-Kodi CZ/SK repozitáře<br><br>
+
+v1.2.0 (2020-05-10)<br>
+- přidáno vyhledávání<br>
+- zobrazení ratingu<br>
+- jméno pořadu u živého streamu<br>
+- ošetření chybného přihlášení<br><br>
+
+v1.1.0 (2020-05-10)<br>
+- přidáno živé vysílání<br><br>
+
+v1.0.2 (2020-05-09)<br>
+- přidaná kontrola nastavení, opravené filtrování kanálů podle balíčku O2TV<br><br>
+
+v1.0.1 (2020-05-09)<br>
+- upravené závislosti a opravená možná chyba s kódováním<br><br>
+
+v1.0.0 (2020-05-07)<br><br>
+- první vydání<br>
 </p>

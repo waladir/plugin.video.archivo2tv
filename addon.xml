@@ -1,7 +1,6 @@
-﻿<addon id="plugin.video.archivo2tv" name="Zpětné sledování O2TV" provider-name="waladir" version="1.2.3">
+﻿<addon id="plugin.video.archivo2tv" name="Zpětné sledování O2TV" provider-name="waladir" version="1.3.0">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
-    <import addon="inputstream.adaptive" version="2.0.0"/>
   </requires>
   <extension library="main.py" point="xbmc.python.pluginsource">
     <provides>video</provides>
@@ -14,11 +13,24 @@
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.3.0 (2020-05-15)
+- přechod na jiné API O2
+- zrušení závislosti na InputStream Adaptive
+- volba SD/HD kvality v nastaveni
+- možnost nastavení pokračování pořadu i po jeho skončení podle EPG
+- možnost vypnutí zobrazení detailních informace, log a posterů
+- doplnění informací k live streamu
+- historie vyhledávání
+- nastavení pořadí programů
+
 v1.2.3 (2020-05-11)
- - přidání do XBMC-Kodi CZ/SK repozitáře
+- přidání do XBMC-Kodi CZ/SK repozitáře
 
 v1.2.0 (2020-05-10)
- - přidáno vyhledávání, zobrazení ratingu, jméno pořadu u živého streamu a zobrazení ratingu, ošetření chybného přihlášení, opravy chyb
+- přidáno vyhledávání
+- zobrazení ratingu
+- jméno pořadu u živého streamu
+- ošetření chybného přihlášení
 
 v1.1.0 (2020-05-10)
 - přidáno živé vysílání
