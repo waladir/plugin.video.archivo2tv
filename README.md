@@ -6,6 +6,9 @@ Kodi doplňek Archiv O2TV umožňuje zpětné sledovaní pořadů v O2TV.
 Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se snažil udělat něco podobného pro OTT O2TV. Doplněk umožnuje přehrávání pořadů až 7 dní zpátky.
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.
+v1.3.1 (2020-05-15)<br>
+- oprava seznamu kanálů u více balíčků<br>
+- nastavení historie<br><br>
 
 v1.3.0 (2020-05-15)<br>
 - přechod na jiné API O2<br>

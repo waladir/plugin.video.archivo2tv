@@ -1,3 +1,7 @@
+v1.3.1 (2020-05-15)
+- oprava seznamu kanálů u více balíčků
+- nastavení historie
+
 v1.3.0 (2020-05-15)
 - přechod na jiné API O2
 - zrušení závislosti na InputStream Adaptive

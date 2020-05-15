@@ -33,7 +33,7 @@ def check_settings():
       sys.exit()
 
 def save_search_history(query):
-    max_history = 10
+    max_history = int(addon.getSetting("search_history"))
     cnt = 0
     history = []
     filename = addon_userdata_dir + "search_history.txt"
@@ -488,12 +488,12 @@ def load_channels():
           for channel in data["channels"]:
             if data["channels"][channel]["channelType"] == "TV":
               channels.update({data["channels"][channel]["channelNumber"] : data["channels"][channel]["channelName"]})
-        if len(channels) > 0:
-          with open(filename, "w") as file:
-            for key in sorted(channels.keys()):
-              line = channels[key].encode("utf-8")+";"+str(key)
-              channels_ordered.append((channels[key].encode("utf-8"), key)) 
-              file.write('%s\n' % line)
+      if len(channels) > 0:
+        with open(filename, "w") as file:
+          for key in sorted(channels.keys()):
+            line = channels[key].encode("utf-8")+";"+str(key)
+            channels_ordered.append((channels[key].encode("utf-8"), key)) 
+            file.write('%s\n' % line)
     return channels_ordered         
 
 def edit_channel(channelName):

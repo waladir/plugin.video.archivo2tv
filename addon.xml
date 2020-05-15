@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Zpětné sledování O2TV" provider-name="waladir" version="1.3.0">
+﻿<addon id="plugin.video.archivo2tv" name="Zpětné sledování O2TV" provider-name="waladir" version="1.3.1">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -13,6 +13,10 @@
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.3.1 (2020-05-15)
+- oprava seznamu kanálů u více balíčků
+- nastavení historie
+
 v1.3.0 (2020-05-15)
 - přechod na jiné API O2
 - zrušení závislosti na InputStream Adaptive

@@ -11,6 +11,7 @@
         <setting label="Pouze SD kvalita" type="bool" id="only_sd" default="false"/>
         <setting label="Načítat detaily pořadů a postery (pomalejší)" type="bool" id="details" default="true"/>
         <setting label="Přehrávat i po konci pořadu (minut)" type="slider" id="offset" range="0,5,120" option="int"/>
+        <setting label="Historie vyhledávání" type="number" id="search_history" default="10"/>
 	</category>
 	<category label="Logování">
         <setting label="Logování požadavků - URL" type="bool" id="log_request_url" default="false"/>
