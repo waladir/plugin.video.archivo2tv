@@ -1,11 +1,21 @@
 <h1>Archiv O2TV</h1>
 <p>
-Kodi doplňek Archiv O2TV umožňuje zpětné sledovaní pořadů v O2TV.
+Kodi doplňek Sledování O2TV umožňuje sledovaní O2TV.
 <p>
 <a href="https://www.xbmc-kodi.cz/prispevek-zpetne-sledovani-o2tv-ott">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se snažil udělat něco podobného pro OTT O2TV. Doplněk umožnuje přehrávání pořadů až 7 dní zpátky.
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.
+
+v1.4.0 (2020-05-16)<br>
+- přejmenování addonu<br>
+- generovaní device id, pokud není vyplněné<br>
+- možnost skrýt položku Pořadí kanálů v menu<br>
+- možnost načíst uživatelský seznam kanálů z O2, resetnout celý seznam, oprava chyby v pořadí kanálů<br>
+- upravený formát titulku pořadu<br>
+- přidáno přehrávání nahrávek<br>
+- generování playlistu a streamu pro IPTV Simple Clienta<br><br>
+
 v1.3.1 (2020-05-15)<br>
 - oprava seznamu kanálů u více balíčků<br>
 - nastavení historie<br><br>

@@ -1,3 +1,12 @@
+v1.4.0 (2020-05-16)
+- přejmenování addonu
+- generovaní device id, pokud není vyplněné
+- možnost skrýt položku Pořadí kanálů v menu
+- možnost načíst uživatelský seznam kanálů z O2, resetnout celý seznam, oprava chyby v pořadí kanálů
+- upravený formát titulku pořadu
+- přidáno přehrávání nahrávek
+- generování playlistu a streamu pro IPTV Simple Clienta
+
 v1.3.1 (2020-05-15)
 - oprava seznamu kanálů u více balíčků
 - nastavení historie

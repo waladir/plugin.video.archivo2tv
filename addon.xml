@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Zpětné sledování O2TV" provider-name="waladir" version="1.3.1">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.4.0">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -6,13 +6,22 @@
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en_GB">Zpětné sledovaní O2TV</summary>
-    <summary lang="cs_CZ">Zpětné sledovaní O2TV</summary>
-    <description lang="en_GB">Umožnuje zpětné sledování pořadů přes O2TV</description>
-    <description lang="cs_CZ">Umožnuje zpětné sledování pořadů přes O2TV</description>
+    <summary lang="en_GB">Sledovaní O2TV</summary>
+    <summary lang="cs_CZ">Sledovaní O2TV</summary>
+    <description lang="en_GB">Umožnuje sledování O2TV</description>
+    <description lang="cs_CZ">Umožnuje sledování O2TV</description>
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.4.0 (2020-05-16)
+- přejmenování addonu
+- generovaní device id, pokud není vyplněné
+- možnost skrýt položku Pořadí kanálů v menu
+- možnost načíst uživatelský seznam kanálů z O2, resetnout celý seznam, oprava chyby v pořadí kanálů
+- upravený formát titulku pořadu
+- přidáno přehrávání nahrávek
+- generování playlistu a streamu pro IPTV Simple Clienta
+
 v1.3.1 (2020-05-15)
 - oprava seznamu kanálů u více balíčků
 - nastavení historie
