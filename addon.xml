@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.4.0">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.4.1">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -8,11 +8,16 @@
   <extension point="xbmc.addon.metadata">
     <summary lang="en_GB">Sledovaní O2TV</summary>
     <summary lang="cs_CZ">Sledovaní O2TV</summary>
-    <description lang="en_GB">Umožnuje sledování O2TV</description>
-    <description lang="cs_CZ">Umožnuje sledování O2TV</description>
+    <description lang="en_GB">Umožnuje sledování O2TV, včetně základní práce s nahrávkami</description>
+    <description lang="cs_CZ">Umožnuje sledování O2TV, včetně základní práce s nahrávkami</description>
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.4.1 (2020-05-18)
+- přidání mazání a pláonování nahrávek do kontextového menu (c)
+- zobrazení budoucího programu pro nastavení nahrávek (zobrazení detailů je možné samostatně zapnout v nastavení, načtení seznamu je ale výrazně pomalejší)
+- opravy chyb v nahrávkách 
+
 v1.4.0 (2020-05-16)
 - přejmenování addonu
 - generovaní device id, pokud není vyplněné

@@ -3,9 +3,14 @@
 Kodi doplňek Sledování O2TV umožňuje sledovaní O2TV.
 <p>
 <a href="https://www.xbmc-kodi.cz/prispevek-zpetne-sledovani-o2tv-ott">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
-Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se snažil udělat něco podobného pro OTT O2TV. Doplněk umožnuje přehrávání pořadů až 7 dní zpátky.
+Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se snažil udělat něco podobného pro OTT O2TV. Doplněk umožnuje zpětné přehrávání pořadů a základní práci s nahrávkami.
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.
+
+v1.4.1 (2020-05-18)
+- přidání mazání a pláonování nahrávek do kontextového menu (c)
+- zobrazení budoucího programu pro nastavení nahrávek (zobrazení detailů je možné samostatně zapnout v nastavení, načtení seznamu je ale výrazně pomalejší)
+- opravy chyb v nahrávkách 
 
 v1.4.0 (2020-05-16)<br>
 - přejmenování addonu<br>

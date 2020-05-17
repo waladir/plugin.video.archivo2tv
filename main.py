@@ -82,6 +82,7 @@ def call_o2_api(url, data, header):
       xbmc.log(url)
     if addon.getSetting("log_request_data") == "true" and data <> None:
       xbmc.log(data)
+#    html = urlopen(request).read()
 
     try:
       html = urlopen(request).read()
@@ -262,7 +263,6 @@ def list_days(channelKey):
       list_item = xbmcgui.ListItem(label= "Živě: " + data["name"].encode("utf-8") + " (" + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + ")")
     else:
       list_item = xbmcgui.ListItem(label= "Živě")
-      
     list_item.setProperty("IsPlayable", "true")
 
     if addon.getSetting("details") == "true" and epgId <> 0:  
@@ -278,6 +278,10 @@ def list_days(channelKey):
     list_item.setContentLookup(False)          
     url = get_url(action='play_live', channelKey = channelKey, title = data["name"].encode("utf-8") + " (" + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + ")") 
     xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+
+    list_item = xbmcgui.ListItem(label="Budoucí (nastavení nahrávek)")
+    url = get_url(action='future_program', channelKey = channelKey)  
+    xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
    
     for i in range (7):
       day = date.today() - timedelta(days = i)
@@ -307,7 +311,7 @@ def list_program(channelKey, day_min):
       xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
 
-    if "epg" in data and len(data["epg"]["items"][0]["programs"]) > 0:
+    if "epg" in data and len(data["epg"]) > 0 and len(data["epg"]["items"]) > 0 and len(data["epg"]["items"][0]["programs"]) > 0:
       for programs in data["epg"]["items"][0]["programs"]:
         startts = programs["start"]
         start = datetime.fromtimestamp(programs["start"]/1000)
@@ -341,6 +345,7 @@ def list_program(channelKey, day_min):
             list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"]})
     
           list_item.setContentLookup(False)          
+          list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
           url = get_url(action='play_video', channelKey = channelKey, start = startts, end = endts, epgId = epgId)
           xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     else:
@@ -348,23 +353,100 @@ def list_program(channelKey, day_min):
         sys.exit()    
     xbmcplugin.endOfDirectory(_handle)
 
+def future_program(channelKey):
+    from_datetime = datetime.now()
+    from_ts = int(time.mktime(from_datetime.timetuple()))
+    to_ts = from_ts
+    
+    for i in range(7):
+      from_ts = to_ts
+      to_ts = from_ts + 24*60*60
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?channelKey=" + quote(channelKey) + "&from=" + str(from_ts*1000) + "&to=" + str(to_ts*1000) + "&forceLimit=true&limit=500", data = None, header = header_unity)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+
+      if "epg" in data and len(data["epg"]) > 0 and len(data["epg"]["items"]) > 0 and len(data["epg"]["items"][0]["programs"]) > 0:
+        for programs in data["epg"]["items"][0]["programs"]:
+          startts = programs["start"]
+          start = datetime.fromtimestamp(programs["start"]/1000)
+          endts = programs["end"]
+          end = datetime.fromtimestamp(programs["end"]/1000)
+          epgId = programs["epgId"]
+  
+          if addon.getSetting("details_future") == "true":  
+            data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = header_unity)
+            if "err" in data:
+              xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+              sys.exit()  
+  
+            img = "";
+            plot = "";
+            if "images" in data and len(data["images"]) > 0:
+               plot = data["longDescription"]
+               img = data["images"][0]["cover"]
+   
+          list_item = xbmcgui.ListItem(label= start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
+          list_item.setProperty("IsPlayable", "false")
+          if addon.getSetting("details_future") == "true":  
+            list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
+            list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"], "plot":plot})
+  
+            if "ratings" in data and len(data["ratings"]) > 0:
+              for rating, rating_value in data["ratings"].items():
+                list_item.setRating(rating, rating_value/10)
+          else:
+            list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"]})
+          list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
+          url = get_url(action='add_recording', channelKey = channelKey, epgId = epgId)
+          xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+      else:
+          xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+          sys.exit()    
+    xbmcplugin.endOfDirectory(_handle)
+
 ############### nahravky ################
 
 def list_recordings():
     recordings = {}
-    data_pvr = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/settings/subscription-configuration.json", data = None, header = header)
-    if "err" in data_pvr:
+
+    list_item = xbmcgui.ListItem(label="Budoucí nahrávky")
+    url = get_url(action='list_future_recordings')  
+    xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
+    header_unity2 = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : str(access_token), "x-o2tv-device-id" : addon.getSetting("deviceid"), "x-o2tv-device-name" : addon.getSetting("devicename")}
+    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/user/profile/", data = None, header = header_unity2)
+    if "err" in data:
       xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()   
+    sdata = data["sdata"]
+    
+    header_unity2.update({"x-o2tv-sdata" : str(sdata)})
+
+    data_pvr = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/", data = None, header = header_unity2)
+    if "err" in data_pvr:
+      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
+ #     sys.exit()   
  
-    if "pvrPrograms" and len(data_pvr["pvrPrograms"]) > 0:
-      for program in data_pvr["pvrPrograms"]:
-        pvrProgramId = data_pvr["pvrPrograms"][program]["pvrProgramId"]
-        data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + program+ "/", data = None, header = header_unity)
-        if "err" in data:
-          xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením nahrávky", xbmcgui.NOTIFICATION_ERROR, 4000)
-          sys.exit() 
-        recordings.update({data["start"] : {"pvrProgramId" : pvrProgramId, "name" : data["name"], "channelKey" : data["channelKey"], "start" : datetime.fromtimestamp(data["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(data["end"]/1000).strftime("%H:%M"), "plot" : data["longDescription"], "img" : data["images"][0]["cover"], "ratings" : data["ratings"]}}) 
+    if "result" in data_pvr and len(data_pvr["result"]) > 0:
+      for program in data_pvr["result"]:
+        if program["state"] == "DONE":
+          pvrProgramId = program["pvrProgramId"]
+          epgId = program["program"]["epgId"]
+          if "ratings" in program["program"] and len(program["program"]["ratings"]) > 0:
+            ratings = program["program"]["ratings"]
+          else:
+            ratings = {}
+          if "longDecription" in program["program"] and len(program["program"]["longDecription"]) > 0:
+            plot = program["program"]["longDecription"]
+          else:
+            plot = ""
+          if "images" in program["program"] and len(program["program"]["images"]) > 0:
+            img = program["program"]["images"][0]["cover"]
+          else:
+            img = ""
+          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
+
       for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")
         list_item.setProperty("IsPlayable", "true")
@@ -376,9 +458,64 @@ def list_recordings():
         else:
           list_item.setInfo("video", {"mediatype":"movie", "title":recordings[recording]["name"]})
         list_item.setContentLookup(False)   
-  #      list_item.addContextMenuItems([("Smazat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_recording&pvrProgramId=" + str(pvrProgramId) + ")",)])       
+        list_item.addContextMenuItems([("Smazat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_recording&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")",)])       
         url = get_url(action='play_recording', pvrProgramId = recordings[recording]["pvrProgramId"], title = recordings[recording]["name"].encode("utf-8"))
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+      xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
+    else:
+        xbmcgui.Dialog().notification("Archiv O2TV","Nenalezena žádná nahrávka", xbmcgui.NOTIFICATION_INFO, 4000)
+        sys.exit() 
+
+def list_future_recordings():
+    recordings = {}
+
+    header_unity2 = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : str(access_token), "x-o2tv-device-id" : addon.getSetting("deviceid"), "x-o2tv-device-name" : addon.getSetting("devicename")}
+    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/user/profile/", data = None, header = header_unity2)
+    if "err" in data:
+      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
+      sys.exit()   
+    sdata = data["sdata"]
+    
+    header_unity2.update({"x-o2tv-sdata" : str(sdata)})
+
+    data_pvr = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/", data = None, header = header_unity2)
+    if "err" in data_pvr:
+      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
+  #    sys.exit()   
+    
+    if "result" in data_pvr and len(data_pvr["result"]) > 0:
+      for program in data_pvr["result"]:
+        if program["state"] != "DONE":
+          pvrProgramId = program["pvrProgramId"]
+          epgId = program["program"]["epgId"]
+          if "ratings" in program["program"] and len(program["program"]["ratings"]) > 0:
+            ratings = program["program"]["ratings"]
+          else:
+            ratings = {}
+          if "longDecription" in program["program"] and len(program["program"]["longDecription"]) > 0:
+            plot = program["program"]["longDecription"]
+          else:
+            plot = ""
+          if "images" in program["program"] and len(program["program"]["images"]) > 0:
+            img = program["program"]["images"][0]["cover"]
+          else:
+            img = ""
+
+          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
+
+      for recording in sorted(recordings.keys(), reverse = True):
+        list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")
+        list_item.setProperty("IsPlayable", "true")
+        if addon.getSetting("details") == "true":  
+          list_item.setArt({'thumb': "https://www.o2tv.cz/" + recordings[recording]["img"], 'icon': "https://www.o2tv.cz/" + recordings[recording]["img"]})
+          list_item.setInfo("video", {"mediatype":"movie", "title":recordings[recording]["name"], "plot":recordings[recording]["plot"]})
+          for rating, rating_value in recordings[recording]["ratings"].items():
+            list_item.setRating(rating, rating_value/10)
+        else:
+          list_item.setInfo("video", {"mediatype":"movie", "title":recordings[recording]["name"]})
+        list_item.addContextMenuItems([("Smazat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_recording&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")",)])       
+        url = get_url(action='list_future_recordings')  
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
       xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
     else:
         xbmcgui.Dialog().notification("Archiv O2TV","Nenalezena žádná nahrávka", xbmcgui.NOTIFICATION_INFO, 4000)
@@ -387,8 +524,16 @@ def list_recordings():
 def delete_recording(pvrProgramId):
     post = {"pvrProgramId" : int(pvrProgramId)}
     data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/vod/pvr-remove-program.json", data = urlencode(post), header = header)
-    xbmcgui.Dialog().notification("Archiv O2TV","Aktualizujte seznam nahrávek", xbmcgui.NOTIFICATION_INFO, 4000)
-    list_recordings()
+    xbmcgui.Dialog().notification("Archiv O2TV","Nahrávka odstraněna", xbmcgui.NOTIFICATION_INFO, 4000)
+    xbmc.executebuiltin('Container.Refresh')
+
+def add_recording(epgId):
+    post = {"epgId" : int(epgId)}
+    data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/vod/pvr-add-program.json", data = urlencode(post), header = header)
+    if "err" in data:
+      xbmcgui.Dialog().notification("Archiv O2TV","Problém s přidáním nahrávky", xbmcgui.NOTIFICATION_ERROR, 4000)
+      sys.exit() 
+    xbmcgui.Dialog().notification("Archiv O2TV","Nahrávka přidána", xbmcgui.NOTIFICATION_INFO, 4000)
 
 ############### prehravani ################
     
@@ -764,8 +909,13 @@ def get_stream_url(channelKey):
       xbmcgui.Dialog().notification("Archiv O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
 
+    url = ""
     if "uris" in data and len(data["uris"]) > 0 and "uri" in data["uris"][0] and len(data["uris"][0]["uri"]) > 0 :
-      url = data["uris"][0]["uri"]
+      for uris in data["uris"]:
+        if addon.getSetting("only_sd") <> "true" and uris["resolution"] == "HD":
+          url = uris["uri"]
+      if url == "":
+        url = data["uris"][0]["uri"]
 
       epgId = 0
       data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = header_unity)
@@ -815,10 +965,16 @@ def router(paramstring):
             list_days(params["channelKey"])
         elif params['action'] == 'list_program':
             list_program(params["channelKey"], params["day_min"])
+        elif params['action'] == 'future_program':
+            future_program(params["channelKey"])
         elif params["action"] == "list_recordings":
             list_recordings()
+        elif params["action"] == "list_future_recordings":
+            list_future_recordings()
         elif params["action"] == "delete_recording":
             delete_recording(params["pvrProgramId"])
+        elif params["action"] == "add_recording":
+            add_recording(params["epgId"])
         elif params['action'] == 'play_video':
             play_video(params["channelKey"], params["start"], params["end"], params["epgId"])
         elif params['action'] == 'play_live':
