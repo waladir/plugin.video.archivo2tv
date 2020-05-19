@@ -290,7 +290,7 @@ def list_days(channelKey):
       elif i == 1:
         den = "Včera"
       else:
-        den = day.strftime("%d.%m.%Y");
+        den = day_translation[day.strftime("%A")].decode("utf-8") + " " + day.strftime("%d.%m.%Y");
       list_item = xbmcgui.ListItem(label=den)
       url = get_url(action='list_program', channelKey = channelKey, day_min = i)  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
@@ -332,12 +332,11 @@ def list_program(channelKey, day_min):
                plot = data["longDescription"]
                img = data["images"][0]["cover"]
    
-          list_item = xbmcgui.ListItem(label= start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
+          list_item = xbmcgui.ListItem(label= day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
           list_item.setProperty("IsPlayable", "true")
           if addon.getSetting("details") == "true":  
             list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
             list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"], "plot":plot})
-
             if "ratings" in data and len(data["ratings"]) > 0:
               for rating, rating_value in data["ratings"].items():
                 list_item.setRating(rating, rating_value/10)
@@ -345,7 +344,7 @@ def list_program(channelKey, day_min):
             list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"]})
     
           list_item.setContentLookup(False)          
-          list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
+          list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=dd_recording&epgId=" + str(epgId) + ")",)])       
           url = get_url(action='play_video', channelKey = channelKey, start = startts, end = endts, epgId = epgId)
           xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     else:
@@ -386,17 +385,17 @@ def future_program(channelKey):
                plot = data["longDescription"]
                img = data["images"][0]["cover"]
    
-          list_item = xbmcgui.ListItem(label= start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
+          list_item = xbmcgui.ListItem(label= day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
           list_item.setProperty("IsPlayable", "false")
           if addon.getSetting("details_future") == "true":  
             list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
-            list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"], "plot":plot})
+            list_item.setInfo("video", {"mediatype":"video", "title":programs["name"], "plot":plot})
   
             if "ratings" in data and len(data["ratings"]) > 0:
               for rating, rating_value in data["ratings"].items():
                 list_item.setRating(rating, rating_value/10)
           else:
-            list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"]})
+            list_item.setInfo("video", {"mediatype":"video", "title":programs["name"]})
           list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
           url = get_url(action='add_recording', channelKey = channelKey, epgId = epgId)
           xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
@@ -437,15 +436,15 @@ def list_recordings():
             ratings = program["program"]["ratings"]
           else:
             ratings = {}
-          if "longDecription" in program["program"] and len(program["program"]["longDecription"]) > 0:
-            plot = program["program"]["longDecription"]
+          if "longDescription" in program["program"] and len(program["program"]["longDescription"]) > 0:
+            plot = program["program"]["longDescription"]
           else:
             plot = ""
           if "images" in program["program"] and len(program["program"]["images"]) > 0:
             img = program["program"]["images"][0]["cover"]
           else:
             img = ""
-          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
+          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%A")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
 
       for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")
@@ -492,8 +491,8 @@ def list_future_recordings():
             ratings = program["program"]["ratings"]
           else:
             ratings = {}
-          if "longDecription" in program["program"] and len(program["program"]["longDecription"]) > 0:
-            plot = program["program"]["longDecription"]
+          if "longDescription" in program["program"] and len(program["program"]["longDescription"]) > 0:
+            plot = program["program"]["longDescription"]
           else:
             plot = ""
           if "images" in program["program"] and len(program["program"]["images"]) > 0:
@@ -501,7 +500,7 @@ def list_future_recordings():
           else:
             img = ""
 
-          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
+          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%A")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
 
       for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")
@@ -655,8 +654,8 @@ def program_search(query):
           if "images" in data and len(data["images"]) > 0:
              plot = data["longDescription"]
              img = data["images"][0]["cover"]
- 
-        list_item = xbmcgui.ListItem(label = start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " " + programs["channelKey"] + " - " + programs["name"])
+
+        list_item = xbmcgui.ListItem(label = programs["name"] + " (" + programs["channelKey"] + " | " + day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
         list_item.setProperty("IsPlayable", "true")
         if addon.getSetting("details") == "true":  
           list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
@@ -696,7 +695,7 @@ def get_o2_channels_lists():
     if "listUserChannelNumbers" in data and len(data["listUserChannelNumbers"]) > 0:
       for list in data["listUserChannelNumbers"]:
         list_item = xbmcgui.ListItem(label= list.replace("user::",""))
-        url = get_url(action="load_o2_channel_list", list = list)  
+        url = get_url(action="load_o2_channel_list", list = list.encode("utf-8"))  
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
       xbmcplugin.endOfDirectory(_handle)
     else:
@@ -949,13 +948,15 @@ def get_stream_url(channelKey):
 
 ############### main ################
 
-
 check_settings() 
 if "@" in addon.getSetting("username"):
   access_token, subscription, isp, locality, offers, tariff = get_auth_token()
 else:
   access_token, subscription, isp, locality, offers, tariff = get_auth_password()
-  
+
+day_translation = {"Monday" : "Pondělí", "Tuesday" : "Úterý", "Wednesday" : "Středa", "Thursday" : "Čtvrtek", "Friday" : "Pátek", "Saturday" : "Sobota", "Sunday" : "Neděle"}  
+day_translation_short = {"Monday" : "Po", "Tuesday" : "Út", "Wednesday" : "St", "Thursday" : "Čt", "Friday" : "Pá", "Saturday" : "So", "Sunday" : "Ne"}  
+
 def router(paramstring):
     params = dict(parse_qsl(paramstring))
     if params:

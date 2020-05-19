@@ -13,8 +13,14 @@
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.4.2 (2020-05-20)
+- u datumů se zobrazuje den v týdnu 
+- oprava načítání uživatelského seznamu kanálů, pokud obsahuje diakritiku
+- upravené titulek u položek ve vyhledání (sjednoceno s nahrávkami)
+- opravené zobrazení popisu u nahrávek    
+    
 v1.4.1 (2020-05-18)
-- přidání mazání a pláonování nahrávek do kontextového menu (c)
+- přidání mazání a plánování nahrávek do kontextového menu (c)
 - zobrazení budoucího programu pro nastavení nahrávek (zobrazení detailů je možné samostatně zapnout v nastavení, načtení seznamu je ale výrazně pomalejší)
 - opravy chyb v nahrávkách 
 
