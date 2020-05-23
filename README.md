@@ -7,10 +7,13 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.
 
+v1.4.3 (2020-05-23)<br>
+- možnost v nastavení zakázat automatické přidávání kanálů, které nejsou v současném seznamu kanálů<br><br>
+
 v1.4.2 (2020-05-20)<br>
 - u datumů se zobrazuje den v týdnu<br> 
 - oprava načítání uživatelského seznamu kanálů, pokud obsahuje diakritiku<br>
-- upravené titulek u položek ve vyhledání (sjednoceno s nahrávkami)<br>
+- upravený titulek u položek ve vyhledání (sjednoceno s nahrávkami)<br>
 - opravené zobrazení popisu u nahrávek<br><br>
 
 v1.4.1 (2020-05-18)<br>

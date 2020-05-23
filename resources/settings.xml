@@ -14,6 +14,7 @@
         <setting label="Přehrávat i po konci pořadu (minut)" type="slider" id="offset" range="0,5,120" option="int"/>
         <setting label="Historie vyhledávání" type="number" id="search_history" default="10"/>
         <setting label="Skrýt položku Pořadí kanálů v menu" type="bool" id="hide_channel_list_edit" default="false"/>
+        <setting label="Nepřidávat nové kanály do seznamu kanálů" type="bool" id="disable_channels_adding" default="false"/>
 	</category>
 	<category label="IPTV Simple Client">
         <setting label="Adresář pro playlist" type="folder" id="output_dir" default=""/>

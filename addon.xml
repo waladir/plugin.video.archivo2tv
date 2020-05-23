@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.4.2">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.4.3">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -13,10 +13,13 @@
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.4.3 (2020-05-23)
+- možnost v nastavení zakázat automatické přidávání kanálů, které nejsou v současném seznamu kanálů
+    
 v1.4.2 (2020-05-20)
 - u datumů se zobrazuje den v týdnu 
 - oprava načítání uživatelského seznamu kanálů, pokud obsahuje diakritiku
-- upravené titulek u položek ve vyhledání (sjednoceno s nahrávkami)
+- upravený titulek u položek ve vyhledání (sjednoceno s nahrávkami)
 - opravené zobrazení popisu u nahrávek    
     
 v1.4.1 (2020-05-18)

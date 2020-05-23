@@ -1,7 +1,10 @@
+v1.4.3 (2020-05-23)
+- možnost v nastavení zakázat automatické přidávání kanálů, které nejsou v současném seznamu kanálů
+
 v1.4.2 (2020-05-20)
 - u datumů se zobrazuje den v týdnu 
 - oprava načítání uživatelského seznamu kanálů, pokud obsahuje diakritiku
-- upravené titulek u položek ve vyhledání (sjednoceno s nahrávkami)
+- upravený titulek u položek ve vyhledání (sjednoceno s nahrávkami)
 - opravené zobrazení popisu u nahrávek
 
 v1.4.1 (2020-05-18)
