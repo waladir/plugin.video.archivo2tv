@@ -1,3 +1,8 @@
+v1.4.4 (2020-05-25)
+- oprava načítání uživatelského seznamu kanálů, pokud obsahuje diakritiku
+- doplněné mapování ID kanálů z uživatelského seznamu na jméno kanálu
+- přidaný aktuální pořad do nabídky kanálů 
+
 v1.4.3 (2020-05-23)
 - možnost v nastavení zakázat automatické přidávání kanálů, které nejsou v současném seznamu kanálů
 

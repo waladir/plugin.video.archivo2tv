@@ -201,7 +201,7 @@ def list_channels():
     channels = {}
     channel_data = {}
     num = 0
-    print(channels_ordered)
+
     for offer in offers:
       post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
       data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
@@ -223,12 +223,23 @@ def list_channels():
         sys.exit()  
       if "result" in data and len(data["result"]) > 0:
         for channel in data["result"]:
-          channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]});
+          if addon.getSetting("details") == "true" and "live" in channel:
+            channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"], "live" : { "name" : channel["live"]["name"], "start" : channel["live"]["start"], "end" : channel["live"]["end"] }}});
+          else:
+            channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]}});
+            
 
     for num in sorted(channels.keys()):  
-      list_item = xbmcgui.ListItem(label=channels[num]["channelName"])
+      if channels[num]["channelKey"].encode("utf-8") in channel_data and "live" in channel_data[channels[num]["channelKey"].encode("utf-8")]:
+        
+        start = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["start"])/1000)
+        end = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["end"])/1000)
+        live = " (" + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + ")"
+      else: 
+        live = ""
+      list_item = xbmcgui.ListItem(label=channels[num]["channelName"] + live)
       if addon.getSetting("details") == "true" and channels[num]["channelKey"].encode("utf-8") in channel_data:
-        list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]})
+        list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
       url = get_url(action='list_days', channelKey = channels[num]["channelKey"].encode("utf-8"))  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle)
@@ -704,20 +715,35 @@ def get_o2_channels_lists():
 
 def load_o2_channel_list(list):
     channels = {}
+    channels_mapping = {}
     filename = addon_userdata_dir + "channels.txt"
+
+    for offer in offers:
+      post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
+      data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
+      if "err" in data:
+        xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      if "channels" in data and len(data["channels"]) > 0:
+        for channel in data["channels"]:
+          if data["channels"][channel]["channelType"] == "TV":
+             channels_mapping.update({data["channels"][channel]["channelKey"] : data["channels"][channel]["channelName"].encode("utf-8")})
+
+
     data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/settings/get-user-pref.json?name=nangu.channelListUserChannelNumbers", data = None, header = header)
     if "err" in data:
       xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením seznamu kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit() 
     if "listUserChannelNumbers" in data and len(data["listUserChannelNumbers"]) > 0:
       for list2 in data["listUserChannelNumbers"]:
-        if list == list2:
-          for channel in data["listUserChannelNumbers"][list]:
-            channels.update({int(data["listUserChannelNumbers"][list][channel]) : channel})
+        if list == list2.encode("utf-8"):
+          for channel in data["listUserChannelNumbers"][list.decode("utf-8")]:
+            channels.update({int(data["listUserChannelNumbers"][list.decode("utf-8")][channel]) : channel})
 
           with open(filename, "w") as file:
             for key in sorted(channels.keys()):
-              line = channels[key].encode("utf-8")+";"+str(key)
+              if channels[key] in channels_mapping: 
+                line = channels_mapping[channels[key]]+";"+str(key)
               file.write('%s\n' % line)
       xbmcgui.Dialog().notification("Archiv O2TV","Seznam kanálů byl načtený", xbmcgui.NOTIFICATION_INFO, 4000)          
     else:
