@@ -82,7 +82,6 @@ def call_o2_api(url, data, header):
       xbmc.log(url)
     if addon.getSetting("log_request_data") == "true" and data <> None:
       xbmc.log(data)
-#    html = urlopen(request).read()
 
     try:
       html = urlopen(request).read()
@@ -231,10 +230,9 @@ def list_channels():
 
     for num in sorted(channels.keys()):  
       if channels[num]["channelKey"].encode("utf-8") in channel_data and "live" in channel_data[channels[num]["channelKey"].encode("utf-8")]:
-        
         start = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["start"])/1000)
         end = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["end"])/1000)
-        live = " (" + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + ")"
+        live = "[COLOR dimgrey] | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + "[/COLOR]"
       else: 
         live = ""
       list_item = xbmcgui.ListItem(label=channels[num]["channelName"] + live)
@@ -436,7 +434,6 @@ def list_recordings():
     data_pvr = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/", data = None, header = header_unity2)
     if "err" in data_pvr:
       xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
- #     sys.exit()   
  
     if "result" in data_pvr and len(data_pvr["result"]) > 0:
       for program in data_pvr["result"]:
@@ -491,7 +488,6 @@ def list_future_recordings():
     data_pvr = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/", data = None, header = header_unity2)
     if "err" in data_pvr:
       xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
-  #    sys.exit()   
     
     if "result" in data_pvr and len(data_pvr["result"]) > 0:
       for program in data_pvr["result"]:
@@ -729,7 +725,6 @@ def load_o2_channel_list(list):
           if data["channels"][channel]["channelType"] == "TV":
              channels_mapping.update({data["channels"][channel]["channelKey"] : data["channels"][channel]["channelName"].encode("utf-8")})
 
-
     data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/settings/get-user-pref.json?name=nangu.channelListUserChannelNumbers", data = None, header = header)
     if "err" in data:
       xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením seznamu kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
@@ -739,12 +734,11 @@ def load_o2_channel_list(list):
         if list == list2.encode("utf-8"):
           for channel in data["listUserChannelNumbers"][list.decode("utf-8")]:
             channels.update({int(data["listUserChannelNumbers"][list.decode("utf-8")][channel]) : channel})
-
           with open(filename, "w") as file:
             for key in sorted(channels.keys()):
               if channels[key] in channels_mapping: 
                 line = channels_mapping[channels[key]]+";"+str(key)
-              file.write('%s\n' % line)
+                file.write('%s\n' % line)
       xbmcgui.Dialog().notification("Archiv O2TV","Seznam kanálů byl načtený", xbmcgui.NOTIFICATION_INFO, 4000)          
     else:
       xbmcgui.Dialog().notification("Archiv O2TV","Nanalezen žádný seznam v O2", xbmcgui.NOTIFICATION_ERROR, 4000)
