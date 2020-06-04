@@ -35,9 +35,13 @@ def check_settings():
       addon.setSetting("deviceid",''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(15)))
 
     if not addon.getSetting("username") or not addon.getSetting("password") or not addon.getSetting("deviceid") or not addon.getSetting("devicename") or  not addon.getSetting("devicetype"):
-      xbmcgui.Dialog().notification("Archiv O2TV","V nastavení je nutné mít vyplněné všechny přihlašovací údaje", xbmcgui.NOTIFICATION_ERROR, 5000)
+      xbmcgui.Dialog().notification("Sledování O2TV","V nastavení je nutné mít vyplněné všechny přihlašovací údaje", xbmcgui.NOTIFICATION_ERROR, 10000)
       sys.exit()
 
+    if (addon.getSetting("stream_type") == "MPEG-DASH" or addon.getSetting("stream_type") == "MPEG-DASH-web") and not xbmc.getCondVisibility('System.HasAddon(inputstream.adaptive)'):
+      xbmcgui.Dialog().notification("Sledování O2TV","Při použítí streamu MPEG-DASH je nutné mít nainstalovaný doplněk InputStream Adaptive", xbmcgui.NOTIFICATION_ERROR, 20000)
+      sys.exit()
+      
 ############### hledani - historie ################
 
 def save_search_history(query):
@@ -100,7 +104,7 @@ def get_auth_token():
     post = {"username" : addon.getSetting("username"), "password" : addon.getSetting("password")} 
     data = call_o2_api(url = "https://ottmediator.o2tv.cz:4443/ottmediator-war/login", data = urlencode(post), header = header)
     if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()            
 
     if "services" in data and "remote_access_token" in data and len(data["remote_access_token"]) > 0 and "service_id" in data["services"][0] and len(data["services"][0]["service_id"]) > 0:
@@ -110,13 +114,13 @@ def get_auth_token():
         post = {"service_id" : service_id, "remote_access_token" : remote_access_token}
         data = call_o2_api(url = "https://ottmediator.o2tv.cz:4443/ottmediator-war/loginChoiceService", data = urlencode(post), header = header)
         if "err" in data:
-          xbmcgui.Dialog().notification("Archiv O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
+          xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
           sys.exit()  
 
         post = {"grant_type" : "remote_access_token", "client_id" : "tef-web-portal-etnetera", "client_secret" : "2b16ac9984cd60dd0154f779ef200679", "platform_id" : "231a7d6678d00c65f6f3b2aaa699a0d0", "language" : "cs", "remote_access_token" : str(remote_access_token), "authority" :  "tef-sso", "isp_id" : "1"}
         data = call_o2_api(url = "https://oauth.o2tv.cz/oauth/token", data = urlencode(post), header = header)
         if "err" in data:
-          xbmcgui.Dialog().notification("Archiv O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
+          xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
           sys.exit()  
 
         if "access_token" in data and len(data["access_token"]) > 0:
@@ -124,7 +128,7 @@ def get_auth_token():
           header.update({"X-NanguTv-Access-Token" : str(access_token), "X-NanguTv-Device-Id" : addon.getSetting("deviceid")})
           data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/settings/subscription-configuration.json", data = None, header = header)
           if "err" in data:
-            xbmcgui.Dialog().notification("Archiv O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
+            xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
             sys.exit()  
           if "isp" in data and len(data["isp"]) > 0 and "locality" in data and len(data["locality"]) > 0 and "billingParams" in data and len(data["billingParams"]) > 0 and "offers" in data["billingParams"] and len(data["billingParams"]["offers"]) > 0 and "tariff" in data["billingParams"] and len(data["billingParams"]["tariff"]) > 0:
             subscription = data["subscription"]
@@ -135,20 +139,20 @@ def get_auth_token():
             header_unity = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : access_token}
             return access_token, subscription, isp, locality, offers, tariff
           else:
-              xbmcgui.Dialog().notification("Archiv O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
+              xbmcgui.Dialog().notification("Sledování O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
               sys.exit()            
         else:
-            xbmcgui.Dialog().notification("Archiv O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
+            xbmcgui.Dialog().notification("Sledování O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
             sys.exit()
     else:
-        xbmcgui.Dialog().notification("Archiv O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()
 
 def get_auth_password():
     post = {"grant_type" : "password", "client_id" : "tef-web-portal-etnetera", "client_secret" : "2b16ac9984cd60dd0154f779ef200679", "platform_id" : "231a7d6678d00c65f6f3b2aaa699a0d0", "language" : "cs", "username" : addon.getSetting("username"), "password" : addon.getSetting("password")}
     data = call_o2_api(url = "https://oauth.o2tv.cz/oauth/token", data = urlencode(post), header = header)
     if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
 
     if "access_token" in data and len(data["access_token"]) > 0:
@@ -156,7 +160,7 @@ def get_auth_password():
       header.update({"X-NanguTv-Access-Token" : str(access_token), "X-NanguTv-Device-Id" : addon.getSetting("deviceid")})
       data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/settings/subscription-configuration.json", data = None, header = header)
       if "err" in data:
-        xbmcgui.Dialog().notification("Archiv O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
          
       if "isp" in data and len(data["isp"]) > 0 and "locality" in data and len(data["locality"]) > 0 and "billingParams" in data and len(data["billingParams"]) > 0 and "offers" in data["billingParams"] and len(data["billingParams"]["offers"]) > 0 and "tariff" in data["billingParams"] and len(data["billingParams"]["tariff"]) > 0:
@@ -168,18 +172,19 @@ def get_auth_password():
         header_unity = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : access_token}
         return access_token, subscription, isp, locality, offers, tariff
       else:
-        xbmcgui.Dialog().notification("Archiv O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()            
     else:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()
 
 ############### menu ################
-
-
 def list_menu():
-    list_item = xbmcgui.ListItem(label="Kanály")
-    url = get_url(action='list_channels')  
+    list_item = xbmcgui.ListItem(label="Živé vysílání")
+    url = get_url(action='list_live')  
+    xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+    list_item = xbmcgui.ListItem(label="Archiv")
+    url = get_url(action='list_archiv')  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     list_item = xbmcgui.ListItem(label="Nahrávky")
     url = get_url(action='list_recordings')  
@@ -192,10 +197,9 @@ def list_menu():
       url = get_url(action='list_channels_list')  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle)
-    
-############### kanaly ################
 
-def list_channels():
+############### live streamy ################
+def list_live():
     channels_ordered = load_channels()  
     channels = {}
     channel_data = {}
@@ -205,7 +209,83 @@ def list_channels():
       post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
       data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
       if "err" in data:
-        xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      if "channels" in data and len(data["channels"]) > 0:
+        for channel in data["channels"]:
+          if data["channels"][channel]["channelType"] == "TV":
+            for channel_ordered in channels_ordered:
+              if(channel_ordered[0] == data["channels"][channel]["channelName"].encode("utf-8")):
+                num = channel_ordered[1]
+                channels.update({ num : {"channelName" : data["channels"][channel]["channelName"], "channelKey" : data["channels"][channel]["channelKey"]}})
+
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = header_unity)                                                               
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      if "result" in data and len(data["result"]) > 0:
+        for channel in data["result"]:
+          if addon.getSetting("details") == "true" and "live" in channel:
+            channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"], "live" : { "epgId" : channel["live"]["epgId"], "name" : channel["live"]["name"], "start" : channel["live"]["start"], "end" : channel["live"]["end"] }}});
+          else:
+            channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]}});
+            
+
+    for num in sorted(channels.keys()):  
+      if channels[num]["channelKey"].encode("utf-8") in channel_data and "live" in channel_data[channels[num]["channelKey"].encode("utf-8")]:
+        if addon.getSetting("details_live") == "true":  
+          data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["epgId"]) + "/", data = None, header = header_unity)
+          if "err" in data:
+            xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+            sys.exit()  
+          img = ""
+          plot = ""
+          if "images" in data and len(data["images"]) > 0:
+             plot = data["longDescription"]
+             img = data["images"][0]["cover"]
+
+        start = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["start"])/1000)
+        end = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["end"])/1000)
+        live = "[COLOR dimgrey] | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + "[/COLOR]"
+      else: 
+        live = ""
+        
+      list_item = xbmcgui.ListItem(label=channels[num]["channelName"] + live)
+      if addon.getSetting("details_live") == "true" and channels[num]["channelKey"].encode("utf-8") in channel_data:
+        if len(img) > 0:
+          list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
+        else:
+          list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
+        if len(plot) > 0:
+          list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live, "plot":plot})
+        else:
+          list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live})
+        if "ratings" in data and len(data["ratings"]) > 0:
+          for rating, rating_value in data["ratings"].items():
+            list_item.setRating(rating, rating_value/10)
+      else:
+        list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live})
+        if channels[num]["channelKey"].encode("utf-8") in channel_data: 
+          list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
+
+      list_item.setContentLookup(False)          
+      list_item.setProperty("IsPlayable", "true")
+      url = get_url(action='play_live', channelKey = channels[num]["channelKey"].encode("utf-8"), title = (channels[num]["channelName"] + live).encode("utf-8"))
+      xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+    xbmcplugin.endOfDirectory(_handle)
+
+############### archiv ################
+def list_archiv():
+    channels_ordered = load_channels()  
+    channels = {}
+    channel_data = {}
+    num = 0
+
+    for offer in offers:
+      post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
+      data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
 
       if "channels" in data and len(data["channels"]) > 0:
@@ -218,80 +298,21 @@ def list_channels():
 
       data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = header_unity)                                                               
       if "err" in data:
-        xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
       if "result" in data and len(data["result"]) > 0:
         for channel in data["result"]:
-          if addon.getSetting("details") == "true" and "live" in channel:
-            channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"], "live" : { "name" : channel["live"]["name"], "start" : channel["live"]["start"], "end" : channel["live"]["end"] }}});
-          else:
-            channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]}});
-            
+          channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]}});
 
     for num in sorted(channels.keys()):  
-      if channels[num]["channelKey"].encode("utf-8") in channel_data and "live" in channel_data[channels[num]["channelKey"].encode("utf-8")]:
-        start = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["start"])/1000)
-        end = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["end"])/1000)
-        live = "[COLOR dimgrey] | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + "[/COLOR]"
-      else: 
-        live = ""
-      list_item = xbmcgui.ListItem(label=channels[num]["channelName"] + live)
+      list_item = xbmcgui.ListItem(label=channels[num]["channelName"])
       if addon.getSetting("details") == "true" and channels[num]["channelKey"].encode("utf-8") in channel_data:
         list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
-      url = get_url(action='list_days', channelKey = channels[num]["channelKey"].encode("utf-8"))  
+      url = get_url(action='list_arch_days', channelKey = channels[num]["channelKey"].encode("utf-8"))  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle)
-        
-def list_days(channelKey):
-    epgId = 0
-    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = header_unity)
-    if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
-      sys.exit()  
 
-    if "result" in data and len(data["result"]) > 0:
-      for channel in data["result"]:
-        if channel["channel"]["channelKey"].encode("utf-8") == channelKey and "live" in channel:
-          epgId = channel["live"]["epgId"]
-
-    if epgId <> 0:
-      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = header_unity)
-      if "err" in data:
-        xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
-
-      img = "";
-      plot = "";
-      if "images" in data and len(data["images"]) > 0:
-         plot = data["longDescription"]
-         img = data["images"][0]["cover"]
- 
-    if epgId <> 0:
-      start = datetime.fromtimestamp(data["start"]/1000)
-      end = datetime.fromtimestamp(data["end"]/1000)
-      list_item = xbmcgui.ListItem(label= "Živě: " + data["name"].encode("utf-8") + " (" + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + ")")
-    else:
-      list_item = xbmcgui.ListItem(label= "Živě")
-    list_item.setProperty("IsPlayable", "true")
-
-    if addon.getSetting("details") == "true" and epgId <> 0:  
-      list_item.setArt({"thumb": "https://www.o2tv.cz/" + img, "icon": "https://www.o2tv.cz/" + img})
-      list_item.setInfo("video", {"mediatype":"movie", "title":data["name"], "plot":plot})
-
-      if "ratings" in data and len(data["ratings"]) > 0:
-        for rating, rating_value in data["ratings"].items():
-          list_item.setRating(rating, rating_value/10)
-    else:
-      list_item.setInfo("video", {"mediatype":"movie", "title":channelKey})
-
-    list_item.setContentLookup(False)          
-    url = get_url(action='play_live', channelKey = channelKey, title = data["name"].encode("utf-8") + " (" + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + ")") 
-    xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
-
-    list_item = xbmcgui.ListItem(label="Budoucí (nastavení nahrávek)")
-    url = get_url(action='future_program', channelKey = channelKey)  
-    xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-   
+def list_arch_days(channelKey):
     for i in range (7):
       day = date.today() - timedelta(days = i)
       if i == 0:
@@ -317,7 +338,7 @@ def list_program(channelKey, day_min):
 
     data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?channelKey=" + quote(channelKey) + "&from=" + str(from_ts*1000) + "&to=" + str(to_ts*1000) + "&forceLimit=true&limit=500", data = None, header = header_unity)
     if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
 
     if "epg" in data and len(data["epg"]) > 0 and len(data["epg"]["items"]) > 0 and len(data["epg"]["items"][0]["programs"]) > 0:
@@ -332,7 +353,7 @@ def list_program(channelKey, day_min):
           if addon.getSetting("details") == "true":  
             data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = header_unity)
             if "err" in data:
-              xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+              xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
               sys.exit()  
   
             img = "";
@@ -353,87 +374,144 @@ def list_program(channelKey, day_min):
             list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"]})
     
           list_item.setContentLookup(False)          
-          list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=dd_recording&epgId=" + str(epgId) + ")",)])       
+          list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
           url = get_url(action='play_video', channelKey = channelKey, start = startts, end = endts, epgId = epgId)
           xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     else:
-        xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()    
     xbmcplugin.endOfDirectory(_handle)
+        
+############### nahravky ################
 
-def future_program(channelKey):
-    from_datetime = datetime.now()
-    from_ts = int(time.mktime(from_datetime.timetuple()))
-    to_ts = from_ts
+def list_planning_recordings():
+    channels_ordered = load_channels()  
+    channels = {}
+    channel_data = {}
+    num = 0
     
-    for i in range(7):
-      from_ts = to_ts
-      to_ts = from_ts + 24*60*60
-      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?channelKey=" + quote(channelKey) + "&from=" + str(from_ts*1000) + "&to=" + str(to_ts*1000) + "&forceLimit=true&limit=500", data = None, header = header_unity)
+    for offer in offers:
+      post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
+      data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
       if "err" in data:
-        xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
 
-      if "epg" in data and len(data["epg"]) > 0 and len(data["epg"]["items"]) > 0 and len(data["epg"]["items"][0]["programs"]) > 0:
-        for programs in data["epg"]["items"][0]["programs"]:
-          startts = programs["start"]
-          start = datetime.fromtimestamp(programs["start"]/1000)
-          endts = programs["end"]
-          end = datetime.fromtimestamp(programs["end"]/1000)
-          epgId = programs["epgId"]
-  
-          if addon.getSetting("details_future") == "true":  
-            data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = header_unity)
-            if "err" in data:
-              xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
-              sys.exit()  
-  
-            img = "";
-            plot = "";
-            if "images" in data and len(data["images"]) > 0:
-               plot = data["longDescription"]
-               img = data["images"][0]["cover"]
-   
-          list_item = xbmcgui.ListItem(label= day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
-          list_item.setProperty("IsPlayable", "false")
-          if addon.getSetting("details_future") == "true":  
-            list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
-            list_item.setInfo("video", {"mediatype":"video", "title":programs["name"], "plot":plot})
-  
-            if "ratings" in data and len(data["ratings"]) > 0:
-              for rating, rating_value in data["ratings"].items():
-                list_item.setRating(rating, rating_value/10)
-          else:
-            list_item.setInfo("video", {"mediatype":"video", "title":programs["name"]})
-          list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
-          url = get_url(action='add_recording', channelKey = channelKey, epgId = epgId)
-          xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+      if "channels" in data and len(data["channels"]) > 0:
+        for channel in data["channels"]:
+          if data["channels"][channel]["channelType"] == "TV":
+            for channel_ordered in channels_ordered:
+              if(channel_ordered[0] == data["channels"][channel]["channelName"].encode("utf-8")):
+                num = channel_ordered[1]
+                channels.update({ num : {"channelName" : data["channels"][channel]["channelName"], "channelKey" : data["channels"][channel]["channelKey"]}})
+
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = header_unity)                                                               
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      if "result" in data and len(data["result"]) > 0:
+        for channel in data["result"]:
+          channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]}});
+
+    for num in sorted(channels.keys()):  
+      list_item = xbmcgui.ListItem(label=channels[num]["channelName"])
+      if addon.getSetting("details") == "true" and channels[num]["channelKey"].encode("utf-8") in channel_data:
+        list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
+      url = get_url(action='list_rec_days', channelKey = channels[num]["channelKey"].encode("utf-8"))  
+      xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+    xbmcplugin.endOfDirectory(_handle)
+    
+def list_rec_days(channelKey):
+    for i in range (7):
+      day = date.today() + timedelta(days = i)
+      if i == 0:
+        den = "Dnes"
+      elif i == 1:
+        den = "Zítra"
       else:
-          xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
-          sys.exit()    
+        den = day_translation[day.strftime("%A")].decode("utf-8") + " " + day.strftime("%d.%m.%Y");
+      list_item = xbmcgui.ListItem(label=den)
+      url = get_url(action='future_program', channelKey = channelKey, day = i)  
+      xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle)
 
-############### nahravky ################
+def future_program(channelKey, day):
+    if int(day) == 0:
+      from_datetime = datetime.now()
+      to_datetime = datetime.combine(date.today(), datetime.max.time())
+    else:
+      from_datetime = datetime.combine(date.today(), datetime.min.time()) + timedelta(days = int(day))
+      to_datetime = datetime.combine(from_datetime, datetime.max.time())
+    from_ts = int(time.mktime(from_datetime.timetuple()))
+    to_ts = int(time.mktime(to_datetime.timetuple()))
+
+    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?channelKey=" + quote(channelKey) + "&from=" + str(from_ts*1000) + "&to=" + str(to_ts*1000) + "&forceLimit=true&limit=500", data = None, header = header_unity)
+    if "err" in data:
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+      sys.exit()  
+
+    if "epg" in data and len(data["epg"]) > 0 and len(data["epg"]["items"]) > 0 and len(data["epg"]["items"][0]["programs"]) > 0:
+      for programs in data["epg"]["items"][0]["programs"]:
+        startts = programs["start"]
+        start = datetime.fromtimestamp(programs["start"]/1000)
+        endts = programs["end"]
+        end = datetime.fromtimestamp(programs["end"]/1000)
+        epgId = programs["epgId"]
+
+        if addon.getSetting("details") == "true":  
+          data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = header_unity)
+          if "err" in data:
+            xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+            sys.exit()  
+
+          img = "";
+          plot = "";
+          if "images" in data and len(data["images"]) > 0:
+             plot = data["longDescription"]
+             img = data["images"][0]["cover"]
+ 
+        list_item = xbmcgui.ListItem(label= day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
+        list_item.setProperty("IsPlayable", "false")
+        if addon.getSetting("details") == "true":  
+          list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
+          list_item.setInfo("video", {"mediatype":"video", "title":programs["name"], "plot":plot})
+
+          if "ratings" in data and len(data["ratings"]) > 0:
+            for rating, rating_value in data["ratings"].items():
+              list_item.setRating(rating, rating_value/10)
+        else:
+          list_item.setInfo("video", {"mediatype":"video", "title":programs["name"]})
+        list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
+        url = get_url(action='add_recording', channelKey = channelKey, epgId = epgId)
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+    else:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()    
+    
+    xbmcplugin.endOfDirectory(_handle)
 
 def list_recordings():
     recordings = {}
 
-    list_item = xbmcgui.ListItem(label="Budoucí nahrávky")
+    list_item = xbmcgui.ListItem(label="Plánování nahrávek")
+    url = get_url(action='list_planning_recordings')  
+    xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
+    list_item = xbmcgui.ListItem(label="Náplánované nahrávky")
     url = get_url(action='list_future_recordings')  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
     header_unity2 = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : str(access_token), "x-o2tv-device-id" : addon.getSetting("deviceid"), "x-o2tv-device-name" : addon.getSetting("devicename")}
     data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/user/profile/", data = None, header = header_unity2)
     if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()   
     sdata = data["sdata"]
-    
     header_unity2.update({"x-o2tv-sdata" : str(sdata)})
 
     data_pvr = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/", data = None, header = header_unity2)
     if "err" in data_pvr:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
  
     if "result" in data_pvr and len(data_pvr["result"]) > 0:
       for program in data_pvr["result"]:
@@ -448,7 +526,7 @@ def list_recordings():
             plot = program["program"]["longDescription"]
           else:
             plot = ""
-          if "images" in program["program"] and len(program["program"]["images"]) > 0:
+          if "images" in program["program"] and len(program["program"]["images"]) > 0 and "cover" in program["program"]["images"][0]:
             img = program["program"]["images"][0]["cover"]
           else:
             img = ""
@@ -470,7 +548,7 @@ def list_recordings():
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
       xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
     else:
-        xbmcgui.Dialog().notification("Archiv O2TV","Nenalezena žádná nahrávka", xbmcgui.NOTIFICATION_INFO, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Nenalezena žádná nahrávka", xbmcgui.NOTIFICATION_INFO, 4000)
         sys.exit() 
 
 def list_future_recordings():
@@ -479,7 +557,7 @@ def list_future_recordings():
     header_unity2 = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : str(access_token), "x-o2tv-device-id" : addon.getSetting("deviceid"), "x-o2tv-device-name" : addon.getSetting("devicename")}
     data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/user/profile/", data = None, header = header_unity2)
     if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()   
     sdata = data["sdata"]
     
@@ -487,7 +565,7 @@ def list_future_recordings():
 
     data_pvr = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/", data = None, header = header_unity2)
     if "err" in data_pvr:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
     
     if "result" in data_pvr and len(data_pvr["result"]) > 0:
       for program in data_pvr["result"]:
@@ -502,7 +580,7 @@ def list_future_recordings():
             plot = program["program"]["longDescription"]
           else:
             plot = ""
-          if "images" in program["program"] and len(program["program"]["images"]) > 0:
+          if "images" in program["program"] and len(program["program"]["images"]) > 0 and "cover" in program["program"]["images"][0]:
             img = program["program"]["images"][0]["cover"]
           else:
             img = ""
@@ -524,90 +602,206 @@ def list_future_recordings():
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
       xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
     else:
-        xbmcgui.Dialog().notification("Archiv O2TV","Nenalezena žádná nahrávka", xbmcgui.NOTIFICATION_INFO, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Nenalezena žádná nahrávka", xbmcgui.NOTIFICATION_INFO, 4000)
         sys.exit() 
 
 def delete_recording(pvrProgramId):
     post = {"pvrProgramId" : int(pvrProgramId)}
     data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/vod/pvr-remove-program.json", data = urlencode(post), header = header)
-    xbmcgui.Dialog().notification("Archiv O2TV","Nahrávka odstraněna", xbmcgui.NOTIFICATION_INFO, 4000)
+    xbmcgui.Dialog().notification("Sledování O2TV","Nahrávka odstraněna", xbmcgui.NOTIFICATION_INFO, 4000)
     xbmc.executebuiltin('Container.Refresh')
 
 def add_recording(epgId):
     post = {"epgId" : int(epgId)}
     data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/vod/pvr-add-program.json", data = urlencode(post), header = header)
     if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s přidáním nahrávky", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s přidáním nahrávky", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit() 
-    xbmcgui.Dialog().notification("Archiv O2TV","Nahrávka přidána", xbmcgui.NOTIFICATION_INFO, 4000)
+    xbmcgui.Dialog().notification("Sledování O2TV","Nahrávka přidána", xbmcgui.NOTIFICATION_INFO, 4000)
 
 ############### prehravani ################
     
 def play_video(channelKey, start, end, epgId):
-    post = {"serviceType" : "TIMESHIFT_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : "HLS",  "subscriptionCode" : subscription, "channelKey" : channelKey, "fromTimestamp" : start, "toTimestamp" : str(int(end) + (int(addon.getSetting("offset"))*60*1000)), "id" : epgId, "encryptionType" : "NONE"}
-    if addon.getSetting("only_sd") == "true":
-      post.update({"resolution" : "SD"})
-    data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = header)
+    if addon.getSetting("stream_type") == "MPEG-DASH":
+      stream_type = "DASH"
+    else:
+      stream_type = "HLS"
 
-    if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
-      sys.exit()  
+    if addon.getSetting("stream_type") == "MPEG-DASH-web":
+      header_unity2 = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : str(access_token), "x-o2tv-device-id" : addon.getSetting("deviceid"), "x-o2tv-device-name" : addon.getSetting("devicename")}
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/user/profile/", data = None, header = header_unity2)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()   
+      sdata = data["sdata"]
+      header_unity2.update({"x-o2tv-sdata" : str(sdata)})
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) +"/playlist/", data = None, header = header_unity2)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      if "playlist" in data and len(data["playlist"]) > 0 and "streamUrls" in data["playlist"][0] and "main" in data["playlist"][0]["streamUrls"] and len(data["playlist"][0]["streamUrls"]["main"]) > 0:
+        url = data["playlist"][0]["streamUrls"]["main"]
+        request = Request(url = url , data = None, headers = header)
+        response = urlopen(request)
+        url = response.geturl()
+      else:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+    else:
+      post = {"serviceType" : "TIMESHIFT_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type,  "subscriptionCode" : subscription, "channelKey" : channelKey, "fromTimestamp" : start, "toTimestamp" : str(int(end) + (int(addon.getSetting("offset"))*60*1000)), "id" : epgId, "encryptionType" : "NONE"}
+      if addon.getSetting("stream_type") <> "MPEG-DASH" and addon.getSetting("only_sd") == "true":
+        post.update({"resolution" : "SD"})
+      data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = header)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      url = ""
+      if "uris" in data and len(data["uris"]) > 0 and "uri" in data["uris"][0] and len(data["uris"][0]["uri"]) > 0 :
+        for uris in data["uris"]:
+          if addon.getSetting("only_sd") <> "true" and uris["resolution"] == "HD":
+            url = uris["uri"]
+          if addon.getSetting("only_sd") == "true" and uris["resolution"] == "SD": 
+            url = uris["uri"]
+        if url == "":
+          url = data["uris"][0]["uri"]
+        if addon.getSetting("stream_type") == "MPEG-DASH":
+          request = Request(url = url , data = None, headers = header)
+          response = urlopen(request)
+          url = response.geturl()
+      else:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()
 
-    url = ""
-    if "uris" in data and len(data["uris"]) > 0 and "uri" in data["uris"][0] and len(data["uris"][0]["uri"]) > 0 :
-      for uris in data["uris"]:
-        if addon.getSetting("only_sd") <> "true" and uris["resolution"] == "HD":
-          url = uris["uri"]
-      if url == "":
-        url = data["uris"][0]["uri"]
-      listitem = xbmcgui.ListItem(path = url)
-      listitem.setContentLookup(False)       
-      xbmcplugin.setResolvedUrl(_handle, True, listitem)
+    listitem = xbmcgui.ListItem(path = url)
+    if addon.getSetting("stream_type") == "MPEG-DASH" or addon.getSetting("stream_type") == "MPEG-DASH-web":
+      listitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
+      listitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+      listitem.setMimeType('application/dash+xml')
+      
+    listitem.setContentLookup(False)       
+    xbmcplugin.setResolvedUrl(_handle, True, listitem)
 
 def play_live(channelKey,title):
-    post = {"serviceType" : "LIVE_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : "HLS", "subscriptionCode" : subscription, "channelKey" : channelKey, "encryptionType" : "NONE"}
-    if addon.getSetting("only_sd") == "true":
-      post.update({"resolution" : "SD"})
-    data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = header)
+    if addon.getSetting("stream_type") == "MPEG-DASH":
+      stream_type = "DASH"
+    else:
+      stream_type = "HLS"
 
-    if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
-      sys.exit()  
+    if addon.getSetting("stream_type") == "MPEG-DASH-web":
+      header_unity2 = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : str(access_token), "x-o2tv-device-id" : addon.getSetting("deviceid"), "x-o2tv-device-name" : addon.getSetting("devicename")}
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/user/profile/", data = None, header = header_unity2)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()   
+      sdata = data["sdata"]
+      header_unity2.update({"x-o2tv-sdata" : str(sdata)})
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/playlist/?channelKey=" + quote(channelKey), data = None, header = header_unity2)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      if "playlist" in data and len(data["playlist"]) > 0 and "streamUrls" in data["playlist"][0] and "main" in data["playlist"][0]["streamUrls"] and len(data["playlist"][0]["streamUrls"]["main"]) > 0:
+        url = data["playlist"][0]["streamUrls"]["main"]
+        request = Request(url = url , data = None, headers = header)
+        response = urlopen(request)
+        url = response.geturl()
+      else:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit() 
+    else:
+      post = {"serviceType" : "LIVE_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : subscription, "channelKey" : channelKey, "encryptionType" : "NONE"}
+      if addon.getSetting("stream_type") <> "MPEG-DASH" and addon.getSetting("only_sd") == "true":
+        post.update({"resolution" : "SD"})
+      data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = header)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      url = ""
+      if "uris" in data and len(data["uris"]) > 0 and "uri" in data["uris"][0] and len(data["uris"][0]["uri"]) > 0 :
+        for uris in data["uris"]:
+          if addon.getSetting("only_sd") <> "true" and uris["resolution"] == "HD":
+            url = uris["uri"]
+          if addon.getSetting("only_sd") == "true" and uris["resolution"] == "SD": 
+            url = uris["uri"]
+        if url == "":
+          url = data["uris"][0]["uri"]
+        if addon.getSetting("stream_type") == "MPEG-DASH":
+          request = Request(url = url , data = None, headers = header)
+          response = urlopen(request)
+          url = response.geturl()
+      else:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()
 
-    url = ""
-    if "uris" in data and len(data["uris"]) > 0 and "uri" in data["uris"][0] and len(data["uris"][0]["uri"]) > 0 :
-      for uris in data["uris"]:
-        if addon.getSetting("only_sd") <> "true" and uris["resolution"] == "HD":
-          url = uris["uri"]
-      if url == "":
-        url = data["uris"][0]["uri"]
-      listitem = xbmcgui.ListItem(path = url)
-      listitem.setInfo("video", {"mediatype":"movie", "title":title})
-      listitem.setContentLookup(False)       
-      xbmcplugin.setResolvedUrl(_handle, True, listitem)
+    listitem = xbmcgui.ListItem(path = url)
+    listitem.setInfo("video", {"mediatype":"movie", "title":title})
+    if addon.getSetting("stream_type") == "MPEG-DASH" or addon.getSetting("stream_type") == "MPEG-DASH-web":
+      listitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
+      listitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+      listitem.setMimeType('application/dash+xml')
+
+    listitem.setContentLookup(False)       
+    xbmcplugin.setResolvedUrl(_handle, True, listitem)
 
 def play_recording(pvrProgramId, title):
-    post = {"serviceType" : "NPVR", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : "HLS", "subscriptionCode" : subscription, "contentId" : pvrProgramId, "encryptionType" : "NONE"}
-    if addon.getSetting("only_sd") == "true":
-      post.update({"resolution" : "SD"})
-    data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = header)
+    if addon.getSetting("stream_type") == "MPEG-DASH":
+      stream_type = "DASH"
+    else:
+      stream_type = "HLS"
 
-    if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
-      sys.exit()  
+    if addon.getSetting("stream_type") == "MPEG-DASH-web":
+      header_unity2 = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : str(access_token), "x-o2tv-device-id" : addon.getSetting("deviceid"), "x-o2tv-device-name" : addon.getSetting("devicename")}
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/user/profile/", data = None, header = header_unity2)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením nahrávek", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()   
+      sdata = data["sdata"]
+      header_unity2.update({"x-o2tv-sdata" : str(sdata)})
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/" + str(pvrProgramId) +"/playlist/", data = None, header = header_unity2)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      if "playlist" in data and len(data["playlist"]) > 0 and "streamUrls" in data["playlist"][0] and "main" in data["playlist"][0]["streamUrls"] and len(data["playlist"][0]["streamUrls"]["main"]) > 0:
+        url = data["playlist"][0]["streamUrls"]["main"]
+        request = Request(url = url , data = None, headers = header)
+        response = urlopen(request)
+        url = response.geturl()
+      else:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+    else:
+      post = {"serviceType" : "NPVR", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : subscription, "contentId" : pvrProgramId, "encryptionType" : "NONE"}
+      if addon.getSetting("stream_type") <> "MPEG-DASH" and addon.getSetting("only_sd") == "true":
+        post.update({"resolution" : "SD"})
+      data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = header)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      url = ""
+      if "uris" in data and len(data["uris"]) > 0 and "uri" in data["uris"][0] and len(data["uris"][0]["uri"]) > 0 :
+        for uris in data["uris"]:
+          if addon.getSetting("only_sd") <> "true" and uris["resolution"] == "HD":
+            url = uris["uri"]
+          if addon.getSetting("only_sd") == "true" and uris["resolution"] == "SD": 
+            url = uris["uri"]
+        if url == "":
+          url = data["uris"][0]["uri"]
+        if addon.getSetting("stream_type") == "MPEG-DASH":
+          request = Request(url = url , data = None, headers = header)
+          response = urlopen(request)
+          url = response.geturl()
+      else:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()
 
-    url = ""
-    if "uris" in data and len(data["uris"]) > 0 and "uri" in data["uris"][0] and len(data["uris"][0]["uri"]) > 0 :
-      for uris in data["uris"]:
-        if addon.getSetting("only_sd") <> "true" and uris["resolution"] == "HD":
-          url = uris["uri"]
-      if url == "":
-        url = data["uris"][0]["uri"]
-      listitem = xbmcgui.ListItem(path = url)
-      listitem.setInfo("video", {"mediatype":"movie", "title": title})
-      listitem.setContentLookup(False)       
-      xbmcplugin.setResolvedUrl(_handle, True, listitem)
+    listitem = xbmcgui.ListItem(path = url)
+    listitem.setInfo("video", {"mediatype":"movie", "title":title})
+    if addon.getSetting("stream_type") == "MPEG-DASH" or addon.getSetting("stream_type") == "MPEG-DASH-web":
+      listitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
+      listitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+      listitem.setMimeType('application/dash+xml')
 
+    listitem.setContentLookup(False)       
+    xbmcplugin.setResolvedUrl(_handle, True, listitem)
 
 ############### hledani ################
 
@@ -631,7 +825,7 @@ def program_search(query):
         return
       query = input.getText()
       if len(query) == 0:
-        xbmcgui.Dialog().notification("Archiv O2TV","Je potřeba zadat vyhledávaný řetězec", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Je potřeba zadat vyhledávaný řetězec", xbmcgui.NOTIFICATION_ERROR, 4000)
         return   
       else:
         save_search_history(query)
@@ -639,7 +833,7 @@ def program_search(query):
     max_ts = int(time.mktime(datetime.now().timetuple()))
     data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/search/tv/depr/?groupLimit=1&maxEnd=" + str(max_ts*1000) + "&q=" + quote(query), data = None, header = header_unity)
     if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém při hledání", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém při hledání", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
     
     if "groupedSearch" in data and "groups" in data["groupedSearch"] and len(data["groupedSearch"]["groups"]) > 0:
@@ -654,7 +848,7 @@ def program_search(query):
         if addon.getSetting("details") == "true":
           data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = header_unity)
           if "err" in data:
-            xbmcgui.Dialog().notification("Archiv O2TV","Problém při hledání", xbmcgui.NOTIFICATION_ERROR, 4000)
+            xbmcgui.Dialog().notification("Sledování O2TV","Problém při hledání", xbmcgui.NOTIFICATION_ERROR, 4000)
             sys.exit()  
           img = "";
           plot = "";
@@ -678,7 +872,7 @@ def program_search(query):
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
       xbmcplugin.endOfDirectory(_handle)
     else:
-      xbmcgui.Dialog().notification("Archiv O2TV","Nic nenalezeno", xbmcgui.NOTIFICATION_INFO, 3000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Nic nenalezeno", xbmcgui.NOTIFICATION_INFO, 3000)
 
 ############### editace kanalu ################
 
@@ -697,7 +891,7 @@ def list_channels_list():
 def get_o2_channels_lists():
     data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/settings/get-user-pref.json?name=nangu.channelListUserChannelNumbers", data = None, header = header)
     if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením seznamu kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením seznamu kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
     if "listUserChannelNumbers" in data and len(data["listUserChannelNumbers"]) > 0:
       for list in data["listUserChannelNumbers"]:
@@ -706,7 +900,7 @@ def get_o2_channels_lists():
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
       xbmcplugin.endOfDirectory(_handle)
     else:
-      xbmcgui.Dialog().notification("Archiv O2TV","Nanalezen žádný seznam v O2", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Nanalezen žádný seznam v O2", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
 
 def load_o2_channel_list(list):
@@ -718,7 +912,7 @@ def load_o2_channel_list(list):
       post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
       data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
       if "err" in data:
-        xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
       if "channels" in data and len(data["channels"]) > 0:
         for channel in data["channels"]:
@@ -727,7 +921,7 @@ def load_o2_channel_list(list):
 
     data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/settings/get-user-pref.json?name=nangu.channelListUserChannelNumbers", data = None, header = header)
     if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením seznamu kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením seznamu kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit() 
     if "listUserChannelNumbers" in data and len(data["listUserChannelNumbers"]) > 0:
       for list2 in data["listUserChannelNumbers"]:
@@ -739,9 +933,9 @@ def load_o2_channel_list(list):
               if channels[key] in channels_mapping: 
                 line = channels_mapping[channels[key]]+";"+str(key)
                 file.write('%s\n' % line)
-      xbmcgui.Dialog().notification("Archiv O2TV","Seznam kanálů byl načtený", xbmcgui.NOTIFICATION_INFO, 4000)          
+      xbmcgui.Dialog().notification("Sledování O2TV","Seznam kanálů byl načtený", xbmcgui.NOTIFICATION_INFO, 4000)          
     else:
-      xbmcgui.Dialog().notification("Archiv O2TV","Nanalezen žádný seznam v O2", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Nanalezen žádný seznam v O2", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
       
 def reset_channel_list():     
@@ -749,7 +943,7 @@ def reset_channel_list():
     if os.path.exists(filename):
       os.remove(filename) 
     channels = load_channels()
-    xbmcgui.Dialog().notification("Archiv O2TV","Seznam kanálů byl resetovaný", xbmcgui.NOTIFICATION_INFO, 4000) 
+    xbmcgui.Dialog().notification("Sledování O2TV","Seznam kanálů byl resetovaný", xbmcgui.NOTIFICATION_INFO, 4000) 
     
 def list_channels_edit():
     channels = load_channels()
@@ -778,7 +972,7 @@ def load_channels():
           post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
           data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
           if "err" in data:
-            xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+            xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
             sys.exit()  
           if "channels" in data and len(data["channels"]) > 0:
             for channel in data["channels"]:
@@ -802,7 +996,7 @@ def load_channels():
         post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
         data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
         if "err" in data:
-          xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+          xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
           sys.exit()  
         if "channels" in data and len(data["channels"]) > 0:
           for channel in data["channels"]:
@@ -827,14 +1021,14 @@ def edit_channel(channelName):
           channel = line[:-1].split(";")
           channels_ordered.append((channel[0], int(channel[1])))
     except IOError:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
 
     if addon.getSetting("disable_channels_adding") != "true":
       for offer in offers:
         post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
         data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
         if "err" in data:
-          xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+          xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
           sys.exit()  
         if "channels" in data and len(data["channels"]) > 0:
           for channel in data["channels"]:
@@ -860,7 +1054,7 @@ def edit_channel(channelName):
     new_num = xbmcgui.Dialog().numeric(0, "Číslo kanálu", str(num))
     if int(new_num) > 0:
       if int(new_num) in channels.keys():
-        xbmcgui.Dialog().notification("Archiv O2TV","Číslo kanálu " + new_num + " je už použité u kanálu " + channels[int(new_num)], xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Číslo kanálu " + new_num + " je už použité u kanálu " + channels[int(new_num)], xbmcgui.NOTIFICATION_ERROR, 4000)
       else:  
         channels[int(new_num)] = channelName
         channels.update({ int(new_num) : channelName})
@@ -873,7 +1067,7 @@ def edit_channel(channelName):
 
 def generate_playlist():
     if addon.getSetting("output_dir") is None or len(addon.getSetting("output_dir")) == 0:
-      xbmcgui.Dialog().notification("Archiv O2TV","Nastav adresář pro playlist!", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Nastav adresář pro playlist!", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit() 
              
     channels_ordered = load_channels()    
@@ -886,7 +1080,7 @@ def generate_playlist():
       post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
       data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
       if "err" in data:
-        xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
 
       if "channels" in data and len(data["channels"]) > 0:
@@ -900,7 +1094,7 @@ def generate_playlist():
 
     data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = header_unity)                                                               
     if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
     if "result" in data and len(data["result"]) > 0:
       for channel in data["result"]:
@@ -918,7 +1112,7 @@ def generate_playlist():
         line = "plugin://plugin.video.archivo2tv/?action=get_stream_url&channelKey=" + channels[channel]["channelKey"].encode("utf-8")
         file.write('%s\n' % line)
           
-    xbmcgui.Dialog().notification("Archiv O2TV","Playlist byl uložený", xbmcgui.NOTIFICATION_INFO, 4000)    
+    xbmcgui.Dialog().notification("Sledování O2TV","Playlist byl uložený", xbmcgui.NOTIFICATION_INFO, 4000)    
 
 def get_stream_url(channelKey):
     post = {"serviceType" : "LIVE_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : "HLS", "subscriptionCode" : subscription, "channelKey" : channelKey, "encryptionType" : "NONE"}
@@ -927,7 +1121,7 @@ def get_stream_url(channelKey):
     data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = header)
 
     if "err" in data:
-      xbmcgui.Dialog().notification("Archiv O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
 
     url = ""
@@ -941,7 +1135,7 @@ def get_stream_url(channelKey):
       epgId = 0
       data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = header_unity)
       if "err" in data:
-        xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením datailů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením datailů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
   
       if "result" in data and len(data["result"]) > 0:
@@ -951,7 +1145,7 @@ def get_stream_url(channelKey):
       if epgId <> 0:
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = header_unity)
         if "err" in data:
-          xbmcgui.Dialog().notification("Archiv O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
+          xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
           sys.exit()  
   
         img = "";
@@ -981,14 +1175,20 @@ day_translation_short = {"Monday" : "Po", "Tuesday" : "Út", "Wednesday" : "St",
 def router(paramstring):
     params = dict(parse_qsl(paramstring))
     if params:
-        if params["action"] == "list_channels":
-            list_channels()
-        elif params["action"] == "list_days":
-            list_days(params["channelKey"])
+        if params["action"] == "list_live":
+            list_live()
+        elif params["action"] == "list_archiv":
+            list_archiv()
+        elif params["action"] == "list_arch_days":
+            list_arch_days(params["channelKey"])
         elif params['action'] == 'list_program':
             list_program(params["channelKey"], params["day_min"])
+        elif params['action'] == 'list_planning_recordings':
+            list_planning_recordings()
+        elif params["action"] == "list_rec_days":
+            list_rec_days(params["channelKey"])
         elif params['action'] == 'future_program':
-            future_program(params["channelKey"])
+            future_program(params["channelKey"], params["day"])
         elif params["action"] == "list_recordings":
             list_recordings()
         elif params["action"] == "list_future_recordings":

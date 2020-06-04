@@ -5,7 +5,16 @@ Kodi doplňek Sledování O2TV umožňuje sledovaní O2TV.
 <a href="https://www.xbmc-kodi.cz/prispevek-zpetne-sledovani-o2tv-ott">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se snažil udělat něco podobného pro OTT O2TV. Doplněk umožnuje zpětné přehrávání pořadů a základní práci s nahrávkami.
 
-Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.
+Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br>
+
+
+
+v1.5.0 (2020-06-04)<br>
+- upravené jméno doplňku u chybových hlášek<br>
+- přidaná možnost v nastavení měnit typ streamu mezi HLS, a adaptivní MPEG-DASH (až 1080p) a MPEG-DASH-web (až 720p). MPEG-DASH vyžaduje nainstalovaný InputStream Adaptive, v kterém lze nastavit i podmínky pro výběr streamu.<br>
+- přepracované menu, u plánování nahrávek je výběr po dnech se zobrazením detailů<br>
+- u živého vysílání je možné zapnout dotažení detailních informací v nastavení (trvá delší dobu)<br><br>
+
 v1.4.5 (2020-05-31)<br>
 - úprava zobrazení aktuálního pořadí u kanálů<br>
 - upravené zdvojování kanálů při načtení uživatelského seznamu<br><br>

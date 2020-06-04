@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.4.5">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.5.0">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -13,6 +13,12 @@
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.5.0 (2020-06-04)
+- upravené jméno doplňku u chybových hlášek
+- přidaná možnost v nastavení měnit typ streamu mezi HLS, a adaptivní MPEG-DASH (až 1080p) a MPEG-DASH-web (až 720p). MPEG-DASH vyžaduje nainstalovaný InputStream Adaptive, v kterém lze nastavit i podmínky pro výběr streamu.
+- přepracované menu, u plánování nahrávek je výběr po dnech se zobrazením detailů
+- u živého vysílání je možné zapnout dotažení detailních informací v nastavení (trvá delší dobu)
+
 v1.4.5 (2020-05-31)
 - úprava zobrazení aktuálního pořadí u kanálů
 - upravené zdvojování kanálů při načtení uživatelského seznamu
