@@ -8,8 +8,6 @@
         <setting label="Device Type" type="text" id="devicetype" default="STB"/>
 	</category>
 	<category label="Nastavení">
-        <setting label="Pouze SD kvalita" type="bool" id="only_sd" default="false"/>
-        <setting label="Typ streamu" type="select" id="stream_type" values="HLS|MPEG-DASH|MPEG-DASH-web" default="HLS"/>
         <setting label="Načítat detaily pořadů a postery (pomalejší)" type="bool" id="details" default="true"/>
         <setting label="Zobrazovat detaily u živého vysílání (pomalé)" type="bool" id="details_live" default="false"/>
         <setting label="Přehrávat i po konci pořadu (minut)" type="slider" id="offset" range="0,5,120" option="int"/>
@@ -17,10 +15,14 @@
         <setting label="Skrýt položku Pořadí kanálů v menu" type="bool" id="hide_channel_list_edit" default="false"/>
         <setting label="Nepřidávat nové kanály do seznamu kanálů" type="bool" id="disable_channels_adding" default="false"/>
 	</category>
+	<category label="Stream">
+        <setting label="Pouze SD kvalita" type="bool" id="only_sd" default="false"/>
+        <setting label="Výběr kvality před přehráváním streamu (pouze u HLS a HD kvalitě)" type="bool" id="select_resolution" default="false"/>
+        <setting label="Typ streamu" type="select" id="stream_type" values="HLS|MPEG-DASH|MPEG-DASH-web" default="HLS"/>
+	</category>
 	<category label="IPTV Simple Client">
         <setting label="Adresář pro playlist" type="folder" id="output_dir" default=""/>
         <setting label="Generovat playlist" type="action" action="RunPlugin(plugin://plugin.video.archivo2tv?action=generate_playlist)"/>
-
 	</category>    
 	<category label="Logování">
         <setting label="Logování požadavků - URL" type="bool" id="log_request_url" default="false"/>

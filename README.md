@@ -7,6 +7,12 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br>
 
+v1.5.2 (2020-06-09)<br>
+- oddělení nastavení streamu do samostatné záložky<br>
+- možnost nastavit dotaz z výběrem HD/SD při spuštění streamu (funguje u HLS streamu a nesmí být zaškrtlé Pouze SD)<br>
+- opravené spouštění živého vysílání z IPTV Simple Clienta + přidání informací o pořadu včetně loga<br>
+- úprava barvy titulku u živého vysílání<br><br>
+
 v1.5.1 (2020-06-07)<br>
 - aktualizace seznamu živého vysílání po ukončení přehrávání (pokud není zapnutné načítání detailů)<br> 
 - optimalizace kódu<br><br>

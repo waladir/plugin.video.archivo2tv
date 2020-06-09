@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.5.1">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.5.2">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -13,6 +13,12 @@
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.5.2 (2020-06-09)
+- oddělení nastavení streamu do samostatné záložky
+- možnost nastavit dotaz z výběrem HD/SD při spuštění streamu (funguje u HLS streamu a nesmí být zaškrtlé Pouze SD)
+- opravené spouštění živého vysílání z IPTV Simple Clienta + přidání informací o pořadu včetně loga
+- úprava barvy titulku u živého vysílání
+
 v1.5.1 (2020-06-07)
 - aktualizace seznamu živého vysílání po ukončení přehrávání (pokud není zapnutné načítání detailů) 
 - optimalizace kódu

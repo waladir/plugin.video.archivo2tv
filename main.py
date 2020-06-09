@@ -269,8 +269,10 @@ def list_live():
         start = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["start"])/1000)
         end = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["end"])/1000)
         live = "[COLOR dimgrey] | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + "[/COLOR]"
+        live_noncolor = " | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M")
       else: 
         live = ""
+        live_noncolor = ""
         
       list_item = xbmcgui.ListItem(label=channels[num]["channelName"] + live)
       if addon.getSetting("details_live") == "true" and channels[num]["channelKey"].encode("utf-8") in channel_data:
@@ -279,19 +281,19 @@ def list_live():
         else:
           list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
         if len(plot) > 0:
-          list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live, "plot":plot})
+          list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor, "plot":plot})
         else:
-          list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live})
+          list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor})
         for rating_name,rating in ratings.items():
           list_item.setRating(rating_name, int(rating)/10)
       else:
-        list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live})
+        list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor})
         if channels[num]["channelKey"].encode("utf-8") in channel_data: 
           list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
 
       list_item.setContentLookup(False)          
-      list_item.setProperty("IsPlayable", "true")
-      url = get_url(action='play_live', channelKey = channels[num]["channelKey"].encode("utf-8"), title = (channels[num]["channelName"] + live).encode("utf-8"))
+      list_item.setProperty("IsPlayable", "true")                                                                                                                                 
+      url = get_url(action='play_live', channelKey = channels[num]["channelKey"].encode("utf-8"), title = (channels[num]["channelName"] + live_noncolor).encode("utf-8"))
       xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     if addon.getSetting("details_live") == "true":
       xbmcplugin.endOfDirectory(_handle)
@@ -608,6 +610,11 @@ def add_recording(epgId):
 ############### prehravani ################
     
 def play_video(type, channelKey, start, end, epgId, title):
+    if addon.getSetting("select_resolution") == "true" and addon.getSetting("stream_type") == "HLS" and addon.getSetting("only_sd") <> "true":
+      resolution = xbmcgui.Dialog().select('Rozlišení', ['HD', 'SD' ], preselect = 0)
+    else:
+      resolution = -1  
+
     if addon.getSetting("stream_type") == "MPEG-DASH":
       stream_type = "DASH"
     else:
@@ -616,7 +623,7 @@ def play_video(type, channelKey, start, end, epgId, title):
     if addon.getSetting("stream_type") == "MPEG-DASH-web":
       if type == "archiv":
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) +"/playlist/", data = None, header = header_unity)
-      if type == "live":
+      if type == "live" or type == "live_iptv":
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/playlist/?channelKey=" + quote(channelKey), data = None, header = header_unity)
       if type == "recording":
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/" + str(epgId) +"/playlist/", data = None, header = header_unity)
@@ -634,11 +641,11 @@ def play_video(type, channelKey, start, end, epgId, title):
     else:
       if type == "archiv":
         post = {"serviceType" : "TIMESHIFT_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type,  "subscriptionCode" : subscription, "channelKey" : channelKey, "fromTimestamp" : start, "toTimestamp" : str(int(end) + (int(addon.getSetting("offset"))*60*1000)), "id" : epgId, "encryptionType" : "NONE"}
-      if type == "live":
+      if type == "live" or type == "live_iptv":
         post = {"serviceType" : "LIVE_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : subscription, "channelKey" : channelKey, "encryptionType" : "NONE"}
       if type == "recording":
         post = {"serviceType" : "NPVR", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : subscription, "contentId" : epgId, "encryptionType" : "NONE"}
-      if addon.getSetting("stream_type") <> "MPEG-DASH" and addon.getSetting("only_sd") == "true":
+      if addon.getSetting("stream_type") <> "MPEG-DASH" and (addon.getSetting("only_sd") == "true" or resolution == 1):
         post.update({"resolution" : "SD"})
       data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = header)
       if "err" in data:
@@ -647,9 +654,9 @@ def play_video(type, channelKey, start, end, epgId, title):
       url = ""
       if "uris" in data and len(data["uris"]) > 0 and "uri" in data["uris"][0] and len(data["uris"][0]["uri"]) > 0 :
         for uris in data["uris"]:
-          if addon.getSetting("only_sd") <> "true" and uris["resolution"] == "HD":
+          if addon.getSetting("only_sd") <> "true" and resolution <> 1 and uris["resolution"] == "HD":
             url = uris["uri"]
-          if addon.getSetting("only_sd") == "true" and uris["resolution"] == "SD": 
+          if (addon.getSetting("only_sd") == "true" or resolution == 1) and uris["resolution"] == "SD": 
             url = uris["uri"]
         if url == "":
           url = data["uris"][0]["uri"]
@@ -661,14 +668,57 @@ def play_video(type, channelKey, start, end, epgId, title):
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()
 
-    listitem = xbmcgui.ListItem(path = url)
+    if type == "live_iptv":
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = header_unity)                                                               
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      if "result" in data and len(data["result"]) > 0:
+        img = ""
+        plot = ""
+        ratings = {}
+        logo = ""
+        live = channelKey
+        for channel in data["result"]:
+          if "live" in channel and channel["channel"]["channelKey"].encode("utf-8") == channelKey:
+            start = datetime.fromtimestamp(int(channel["live"]["start"])/1000)
+            end = datetime.fromtimestamp(int(channel["live"]["end"])/1000)
+            live = channel["channel"]["name"] + " | " + channel["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M")
+            logo = "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]
+            img, plot,ratings = get_epg_details(str(channel["live"]["epgId"]))
+      else:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      list_item = xbmcgui.ListItem(live)
+
+      if len(img) > 0:
+        list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
+      elif len(logo) > 0:
+        list_item.setArt({'thumb': logo, 'icon': logo})
+      if len(plot) > 0:
+        list_item.setInfo("video", {"mediatype":"movie", "title": live, "plot":plot})
+      else:
+        list_item.setInfo("video", {"mediatype":"movie", "title": live})
+      for rating_name,rating in ratings.items():
+        list_item.setRating(rating_name, int(rating)/10)
+
+    else:
+      list_item = xbmcgui.ListItem(path = url)
+
     if addon.getSetting("stream_type") == "MPEG-DASH" or addon.getSetting("stream_type") == "MPEG-DASH-web":
-      listitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
-      listitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-      listitem.setMimeType('application/dash+xml')
+      list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
+      list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+      list_item.setMimeType('application/dash+xml')
       
-    listitem.setContentLookup(False)       
-    xbmcplugin.setResolvedUrl(_handle, True, listitem)
+    if type == "live_iptv":
+      playlist=xbmc.PlayList(1)
+      playlist.clear()
+      xbmc.PlayList(1).add(url, list_item)
+      xbmc.Player().play(playlist)
+    else:
+      list_item.setContentLookup(False)       
+      xbmcplugin.setResolvedUrl(_handle, True, list_item)
+
 
 ############### hledani ################
 
@@ -969,43 +1019,6 @@ def generate_playlist():
           
     xbmcgui.Dialog().notification("Sledování O2TV","Playlist byl uložený", xbmcgui.NOTIFICATION_INFO, 4000)    
 
-def get_stream_url(channelKey):
-    post = {"serviceType" : "LIVE_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : "HLS", "subscriptionCode" : subscription, "channelKey" : channelKey, "encryptionType" : "NONE"}
-    if addon.getSetting("only_sd") == "true":
-      post.update({"resolution" : "SD"})
-    data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = header)
-
-    if "err" in data:
-      xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
-      sys.exit()  
-
-    url = ""
-    if "uris" in data and len(data["uris"]) > 0 and "uri" in data["uris"][0] and len(data["uris"][0]["uri"]) > 0 :
-      for uris in data["uris"]:
-        if addon.getSetting("only_sd") <> "true" and uris["resolution"] == "HD":
-          url = uris["uri"]
-      if url == "":
-        url = data["uris"][0]["uri"]
-
-      epgId = 0
-      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = header_unity)
-      if "err" in data:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením datailů", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
-  
-      if "result" in data and len(data["result"]) > 0:
-        for channel in data["result"]:
-          if channel["channel"]["channelKey"].encode("utf-8") == channelKey and "live" in channel:
-            epgId = channel["live"]["epgId"]
-      if epgId <> 0:
-        img, plot, ratings = get_epg_details(str(epgId))
-
-      playlist=xbmc.PlayList(1)
-      playlist.clear()
-      list_item = xbmcgui.ListItem(data["name"].encode("utf-8"))
-      xbmc.PlayList(1).add(url, list_item)
-      xbmc.Player().play(playlist)
-
 ############### main ################
 
 check_settings() 
@@ -1067,7 +1080,7 @@ def router(paramstring):
         elif params['action'] == 'generate_playlist':
             generate_playlist()
         elif params['action'] == 'get_stream_url':
-            get_stream_url(params["channelKey"])
+            play_video(type = "live_iptv", channelKey = params["channelKey"], start = None, end = None, epgId = None, title = None)
         else:
             raise ValueError('Invalid paramstring: {0}!'.format(paramstring))
     else:
