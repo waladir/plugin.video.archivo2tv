@@ -1019,8 +1019,11 @@ def generate_playlist():
           
     xbmcgui.Dialog().notification("Sledování O2TV","Playlist byl uložený", xbmcgui.NOTIFICATION_INFO, 4000)    
 
+def generate_epg():
+    import epg
+    epg.load_epg()    
+    
 ############### main ################
-
 check_settings() 
 if "@" in addon.getSetting("username"):
   access_token, subscription, isp, locality, offers, tariff, sdata = get_auth_token()
@@ -1079,6 +1082,8 @@ def router(paramstring):
             edit_channel(params["channelName"])
         elif params['action'] == 'generate_playlist':
             generate_playlist()
+        elif params['action'] == 'generate_epg':
+            generate_epg()
         elif params['action'] == 'get_stream_url':
             play_video(type = "live_iptv", channelKey = params["channelKey"], start = None, end = None, epgId = None, title = None)
         else:

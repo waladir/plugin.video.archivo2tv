@@ -1,4 +1,4 @@
-<h1>Archiv O2TV</h1>
+<h1>Sledování O2TV</h1>
 <p>
 Kodi doplňek Sledování O2TV umožňuje sledovaní O2TV.
 <p>
@@ -6,6 +6,11 @@ Kodi doplňek Sledování O2TV umožňuje sledovaní O2TV.
 Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se snažil udělat něco podobného pro OTT O2TV. Doplněk umožnuje zpětné přehrávání pořadů a základní práci s nahrávkami.
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br>
+
+v1.5.3 (2020-06-11)<br>
+- přidané generování EPG v XMLTV pro IPTV Simple Clienta<br>   
+- generování EPG je možné pouštět automaticky při startu Kodi a následně v nastavitelném intervalu<br><br>
+    
 
 v1.5.2 (2020-06-09)<br>
 - oddělení nastavení streamu do samostatné záložky<br>

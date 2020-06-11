@@ -21,8 +21,13 @@
         <setting label="Typ streamu" type="select" id="stream_type" values="HLS|MPEG-DASH|MPEG-DASH-web" default="HLS"/>
 	</category>
 	<category label="IPTV Simple Client">
-        <setting label="Adresář pro playlist" type="folder" id="output_dir" default=""/>
+        <setting label="Adresář pro playlist/epg" type="folder" id="output_dir" default=""/>
+        <setting label="Počet dnů pro generování EPG - zpětně" type="slider" id="epg_min" range="1,1,7" default="1" option="int"/>
+        <setting label="Počet dnů pro generování EPG - dopředu" type="slider" id="epg_fut" range="1,1,7" default="3" option="int"/>
+        <setting label="Automaticky generovat EPG" type="bool" id="autogen" default="false"/>
+        <setting label="Interval pro generování EPG (hod.)" type="slider" id="epg_interval" range="1,1,24" default="12" option="int"/>
         <setting label="Generovat playlist" type="action" action="RunPlugin(plugin://plugin.video.archivo2tv?action=generate_playlist)"/>
+        <setting label="Generovat EPG" type="action" action="RunPlugin(plugin://plugin.video.archivo2tv?action=generate_epg)"/>
 	</category>    
 	<category label="Logování">
         <setting label="Logování požadavků - URL" type="bool" id="log_request_url" default="false"/>
