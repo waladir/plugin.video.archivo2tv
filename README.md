@@ -7,6 +7,10 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br>
 
+v1.6.0 (2020-06-14)<br>
+- přidání kontextového menu do PVR klienta umožnujující přehrávání a nastavení nahrávek u O2 (vyžaduje shodné pojmenování kanálů, ideálně použít EPG Z doplňku)<br>
+- do EPG doplňeno stahování detailních informací o pořadech, pokud jsou k dispozici <br><br>
+  
 v1.5.3 (2020-06-11)<br>
 - přidané generování EPG v XMLTV pro IPTV Simple Clienta<br>   
 - generování EPG je možné pouštět automaticky při startu Kodi a následně v nastavitelném intervalu<br><br>

@@ -502,7 +502,7 @@ def list_recordings():
     url = get_url(action='list_planning_recordings')  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
-    list_item = xbmcgui.ListItem(label="Náplánované nahrávky")
+    list_item = xbmcgui.ListItem(label="Naplánované nahrávky")
     url = get_url(action='list_future_recordings')  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
@@ -621,7 +621,7 @@ def play_video(type, channelKey, start, end, epgId, title):
       stream_type = "HLS"
 
     if addon.getSetting("stream_type") == "MPEG-DASH-web":
-      if type == "archiv":
+      if type == "archiv" or type == "archiv_iptv":
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) +"/playlist/", data = None, header = header_unity)
       if type == "live" or type == "live_iptv":
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/playlist/?channelKey=" + quote(channelKey), data = None, header = header_unity)
@@ -639,7 +639,7 @@ def play_video(type, channelKey, start, end, epgId, title):
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
     else:
-      if type == "archiv":
+      if type == "archiv" or type == "archiv_iptv":
         post = {"serviceType" : "TIMESHIFT_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type,  "subscriptionCode" : subscription, "channelKey" : channelKey, "fromTimestamp" : start, "toTimestamp" : str(int(end) + (int(addon.getSetting("offset"))*60*1000)), "id" : epgId, "encryptionType" : "NONE"}
       if type == "live" or type == "live_iptv":
         post = {"serviceType" : "LIVE_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : subscription, "channelKey" : channelKey, "encryptionType" : "NONE"}
@@ -701,7 +701,20 @@ def play_video(type, channelKey, start, end, epgId, title):
         list_item.setInfo("video", {"mediatype":"movie", "title": live})
       for rating_name,rating in ratings.items():
         list_item.setRating(rating_name, int(rating)/10)
-
+    elif type == "archiv_iptv":
+      img = ""
+      plot = ""
+      ratings = {}
+      list_item = xbmcgui.ListItem(title)
+      img, plot,ratings = get_epg_details(str(epgId))
+      if len(img) > 0:
+        list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
+      if len(plot) > 0:
+        list_item.setInfo("video", {"mediatype":"movie", "title": title, "plot":plot})
+      else:
+        list_item.setInfo("video", {"mediatype":"movie", "title": title})
+      for rating_name,rating in ratings.items():
+        list_item.setRating(rating_name, int(rating)/10)
     else:
       list_item = xbmcgui.ListItem(path = url)
 
@@ -710,7 +723,7 @@ def play_video(type, channelKey, start, end, epgId, title):
       list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
       list_item.setMimeType('application/dash+xml')
       
-    if type == "live_iptv":
+    if type == "live_iptv" or type == "archiv_iptv":
       playlist=xbmc.PlayList(1)
       playlist.clear()
       xbmc.PlayList(1).add(url, list_item)
@@ -1021,8 +1034,86 @@ def generate_playlist():
 
 def generate_epg():
     import epg
-    epg.load_epg()    
+    epg.load_epg()  
     
+def iptv_sc_play(channelName, startdatetime):
+    epgId = -1
+    channels_mapping = {}
+
+    from_ts = int(time.mktime(time.strptime(startdatetime, "%d.%m.%Y %H:%M")))
+    if from_ts > int(time.mktime(datetime.now().timetuple())):
+        xbmcgui.Dialog().notification("Sledování O2TV","Nelze přehrát budoucí pořad!", xbmcgui.NOTIFICATION_ERROR, 5000)
+        sys.exit()  
+    else:
+      for offer in offers:
+        post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
+        data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
+        if "err" in data:
+          xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+          sys.exit()  
+        if "channels" in data and len(data["channels"]) > 0:
+          for channel in data["channels"]:
+            if data["channels"][channel]["channelType"] == "TV":
+               channels_mapping.update({data["channels"][channel]["channelName"].encode("utf-8") : data["channels"][channel]["channelKey"].encode("utf-8")})
+
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?channelKey=" + quote(channels_mapping[channelName]) + "&from=" + str(from_ts*1000) + "&forceLimit=true&limit=500", data = None, header = header_unity)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit() 
+      if "epg" in data and len(data["epg"]) > 0 and len(data["epg"]["items"]) > 0 and len(data["epg"]["items"][0]["programs"]) > 0:
+        for programs in data["epg"]["items"][0]["programs"]:
+          if str(programs["start"]) == str(from_ts*1000):
+            startts = programs["start"]
+            start = datetime.fromtimestamp(programs["start"]/1000)
+            endts = programs["end"]
+            end = datetime.fromtimestamp(programs["end"]/1000)        
+            epgId = programs["epgId"]
+            title = day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"]
+      if int(epgId) > 0:
+        if int(endts/1000) < int(time.mktime(datetime.now().timetuple())):
+          play_video(type = "archiv_iptv", channelKey = channels_mapping[channelName], start = startts, end = endts, epgId = epgId, title = title)
+        else:
+          play_video(type = "live_iptv", channelKey =channels_mapping[channelName], start = None, end = None, epgId = None, title = None)
+      else:
+        xbmcgui.Dialog().notification("Sledování O2TV","Pořad u O2 nenalezen! Používáte EPG z doplňku Sledování O2TV?", xbmcgui.NOTIFICATION_ERROR, 10000)
+        sys.exit()  
+
+def iptv_sc_rec(channelName, startdatetime):
+    epgId = -1
+    channels_mapping = {}
+
+    from_ts = int(time.mktime(time.strptime(startdatetime, "%d.%m.%Y %H:%M")))
+
+    for offer in offers:
+      post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
+      data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = header)                                                               
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      if "channels" in data and len(data["channels"]) > 0:
+        for channel in data["channels"]:
+          if data["channels"][channel]["channelType"] == "TV":
+             channels_mapping.update({data["channels"][channel]["channelName"].encode("utf-8") : data["channels"][channel]["channelKey"].encode("utf-8")})
+
+    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?channelKey=" + quote(channels_mapping[channelName]) + "&from=" + str(from_ts*1000) + "&forceLimit=true&limit=500", data = None, header = header_unity)
+    if "err" in data:
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+      sys.exit() 
+    if "epg" in data and len(data["epg"]) > 0 and len(data["epg"]["items"]) > 0 and len(data["epg"]["items"][0]["programs"]) > 0:
+      for programs in data["epg"]["items"][0]["programs"]:
+        if str(programs["start"]) == str(from_ts*1000):
+          startts = programs["start"]
+          start = datetime.fromtimestamp(programs["start"]/1000)
+          endts = programs["end"]
+          end = datetime.fromtimestamp(programs["end"]/1000)        
+          epgId = programs["epgId"]
+          title = day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"]
+    if int(epgId) > 0:
+      add_recording(epgId)
+    else:
+      xbmcgui.Dialog().notification("Sledování O2TV","Pořad u O2 nenalezen! Používáte EPG z doplňku Sledování O2TV?", xbmcgui.NOTIFICATION_ERROR, 10000)
+      sys.exit()  
+        
 ############### main ################
 check_settings() 
 if "@" in addon.getSetting("username"):
@@ -1086,6 +1177,10 @@ def router(paramstring):
             generate_epg()
         elif params['action'] == 'get_stream_url':
             play_video(type = "live_iptv", channelKey = params["channelKey"], start = None, end = None, epgId = None, title = None)
+        elif params['action'] == 'iptv_sc_play':
+            iptv_sc_play(params["channel"], params["startdatetime"])
+        elif params['action'] == 'iptv_sc_rec':
+            iptv_sc_rec(params["channel"], params["startdatetime"])
         else:
             raise ValueError('Invalid paramstring: {0}!'.format(paramstring))
     else:

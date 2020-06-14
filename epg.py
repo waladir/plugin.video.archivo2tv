@@ -222,6 +222,37 @@ def load_epg():
             else:  
               events_data[channel["channel"]["channelKey"]].update({event["start"] : {"epgId" : event["epgId"], "startTime" : int(event["start"]/1000), "endTime" : int(event["end"]/1000), "channel" : channel["channel"]["name"], "title" : event["name"]}})
 
+    url = "https://www.o2tv.cz/unity/api/v1/epg/"
+    data = call_o2_api(url = url, data = None, header = header_unity)
+    if "err" in data:
+      print("Chyba API O2 při načítání detailních dat pro EPG!")
+      sys.exit()
+    if "result" in data and len(data["result"]) > 0 and "count" in data and data["count"] > 0:
+      offset = 0
+      step = 50
+      cnt = data["count"]
+      for offset in range(0, cnt + step, step):
+        url = "https://www.o2tv.cz/unity/api/v1/epg/?offset=" + str(offset)
+        data = call_o2_api(url = url, data = None, header = header_unity)
+        if "err" in data:
+          print("Chyba API O2 při načítání detailních dat pro EPG!")
+          sys.exit()
+        if "result" in data and len(data["result"]) > 0:
+          for event in data["result"]:
+            if "shortDescription" in event:
+              desc = event["shortDescription"]
+            else:
+              desc = ""
+            if "images" in event and "cover" in event["images"][0]:
+              img = event["images"][0]["cover"]
+            else:
+              img = ""
+            events_detailed_data.update({event["epgId"] : {"name" : event["name"], "desc" : desc, "icon" : "https://www.o2tv.cz" + img}})
+    else:
+      print("Chyba při načítání detailních dat pro EPG!")
+      sys.exit()
+
+
     if len(channels_data) > 0:
       try:
         with codecs.open(addon.getSetting("output_dir") + "o2_epg.xml", "w", encoding="utf-8") as file:
@@ -242,7 +273,11 @@ def load_epg():
                 endtime = datetime.fromtimestamp(events_data[channel][event]["endTime"]).strftime("%Y%m%d%H%M%S")
                 file.write('    <programme start="' + starttime + ' +0' + str(tz_offset) + '00" stop="' + endtime + ' +0' + str(tz_offset) + '00" channel="' + events_data[channel][event]["channel"] + '">\n')
                 file.write('       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;") + '</title>\n')
-                file.write('       <desc lang="cs"></desc>\n')
+                if events_data[channel][event]["epgId"] in events_detailed_data:
+                  file.write('       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;") + '</desc>\n')
+                  file.write('       <icon src="' + events_detailed_data[events_data[channel][event]["epgId"]]["icon"] + '"/>\n')
+                else:
+                  file.write('       <desc lang="cs"></desc>\n')
                 file.write('    </programme>\n')
           file.write('</tv>\n')
           xbmcgui.Dialog().notification("Sledování O2TV","EPG bylo uložené", xbmcgui.NOTIFICATION_INFO, 3000)    
