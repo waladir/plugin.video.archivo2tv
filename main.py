@@ -41,6 +41,13 @@ def check_settings():
     if (addon.getSetting("stream_type") == "MPEG-DASH" or addon.getSetting("stream_type") == "MPEG-DASH-web") and not xbmc.getCondVisibility('System.HasAddon(inputstream.adaptive)'):
       xbmcgui.Dialog().notification("Sledování O2TV","Při použítí streamu MPEG-DASH je nutné mít nainstalovaný doplněk InputStream Adaptive", xbmcgui.NOTIFICATION_ERROR, 20000)
       sys.exit()
+
+def get_color(settings_color):
+    if len(settings_color) >2 and settings_color.find("]") > 1:
+      color = settings_color[1:settings_color.find("]")].replace("COLOR ","")
+      return color
+    else:
+      return ""
       
 ############### hledani - historie ################
 
@@ -261,6 +268,9 @@ def list_live():
           else:
             channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]}});
 
+    color = get_color(addon.getSetting("label_color_live"))    
+    print(color)   
+
     for num in sorted(channels.keys()):  
       if channels[num]["channelKey"].encode("utf-8") in channel_data and "live" in channel_data[channels[num]["channelKey"].encode("utf-8")]:
         if addon.getSetting("details_live") == "true":  
@@ -268,7 +278,8 @@ def list_live():
 
         start = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["start"])/1000)
         end = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["end"])/1000)
-        live = "[COLOR dimgrey] | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + "[/COLOR]"
+        
+        live = "[COLOR " + str(color) + "] | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + "[/COLOR]"
         live_noncolor = " | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M")
       else: 
         live = ""

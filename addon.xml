@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.6.0">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.6.1">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -30,6 +30,9 @@
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.6.1 (2020-06-21)
+- přidáno nastavení barvy popisku u živého vysílání
+    
 v1.6.0 (2020-06-14)
 - přidání kontextového menu do PVR klienta umožnujující přehrávání a nastavení nahrávek u O2 (vyžaduje shodné pojmenování kanálů, ideálně použít EPG Z doplňku)
 - do EPG doplňeno stahování detailních informací o pořadech, pokud jsou k dispozici
