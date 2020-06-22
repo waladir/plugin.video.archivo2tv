@@ -269,7 +269,6 @@ def list_live():
             channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]}});
 
     color = get_color(addon.getSetting("label_color_live"))    
-    print(color)   
 
     for num in sorted(channels.keys()):  
       if channels[num]["channelKey"].encode("utf-8") in channel_data and "live" in channel_data[channels[num]["channelKey"].encode("utf-8")]:
