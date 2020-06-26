@@ -1,3 +1,8 @@
+v1.6.2 (2020-06-26)
+- opravena defaultní barva popisku u živého vysílání
+- přidání informací o hercích a režisérech
+- stránkování kanálů u živého vysílání
+
 v1.6.1 (2020-06-21)
 - přidáno nastavení barvy popisku u živého vysílání
 

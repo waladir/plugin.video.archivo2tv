@@ -10,6 +10,7 @@
 	<category label="Nastavení">
         <setting label="Načítat detaily pořadů a postery (pomalejší)" type="bool" id="details" default="true"/>
         <setting label="Zobrazovat detaily u živého vysílání (pomalé)" type="bool" id="details_live" default="false"/>
+        <setting label="Počet kanálů živého vysílání na stránku" type="slider" id="live_pagesize" range="10,5,400" default="20" option="int"/>
         <setting label="Přehrávat i po konci pořadu (minut)" type="slider" id="offset" range="0,5,120" option="int"/>
         <setting label="Historie vyhledávání" type="number" id="search_history" default="10"/>
         <setting label="Skrýt položku Pořadí kanálů v menu" type="bool" id="hide_channel_list_edit" default="false"/>

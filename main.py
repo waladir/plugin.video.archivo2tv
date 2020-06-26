@@ -207,6 +207,8 @@ def get_epg_details(epgId):
     img = "";
     plot = "";
     ratings = {} 
+    cast = []
+    directors = []
     if "images" in data and len(data["images"]) > 0:
        img = data["images"][0]["cover"] 
     if "longDescription" in data and len(data["longDescription"]) > 0:
@@ -214,12 +216,18 @@ def get_epg_details(epgId):
     if "ratings" in data and len(data["ratings"]) > 0:
        for rating, rating_value in data["ratings"].items():
          ratings.update({ rating : rating_value })
-    return img, plot, ratings
+    if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "cast" in data["castAndCrew"] and len(data["castAndCrew"]["cast"]) > 0:
+       for person in data["castAndCrew"]["cast"]:      
+         cast.append(person["name"].encode("utf-8"))
+    if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "directors" in data["castAndCrew"] and len(data["castAndCrew"]["directors"]) > 0:
+       for person in data["castAndCrew"]["directors"]:      
+         directors.append(person["name"].encode("utf-8"))
+    return img, plot, ratings, cast, directors
 
 ############### menu ################
 def list_menu():
     list_item = xbmcgui.ListItem(label="Živé vysílání")
-    url = get_url(action='list_live')  
+    url = get_url(action='list_live', page = 1)  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     list_item = xbmcgui.ListItem(label="Archiv")
     url = get_url(action='list_archiv')  
@@ -237,11 +245,12 @@ def list_menu():
     xbmcplugin.endOfDirectory(_handle)
 
 ############### live streamy ################
-def list_live():
+def list_live(page):
     channels_ordered = load_channels()  
     channels = {}
-    channel_data = {}
+    channel_data = {}     
     num = 0
+    pagesize = int(addon.getSetting("live_pagesize"))
 
     for offer in offers:
       post = {"locality" : locality, "tariff" : tariff, "isp" : isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
@@ -268,48 +277,60 @@ def list_live():
           else:
             channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]}});
 
-    color = get_color(addon.getSetting("label_color_live"))    
-
+    color = get_color(addon.getSetting("label_color_live"))   
+    startitem = (int(page)-1) * pagesize
+    i = 0
     for num in sorted(channels.keys()):  
-      if channels[num]["channelKey"].encode("utf-8") in channel_data and "live" in channel_data[channels[num]["channelKey"].encode("utf-8")]:
-        if addon.getSetting("details_live") == "true":  
-          img, plot,ratings = get_epg_details(str(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["epgId"]))
-
-        start = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["start"])/1000)
-        end = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["end"])/1000)
-        
-        live = "[COLOR " + str(color) + "] | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + "[/COLOR]"
-        live_noncolor = " | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M")
-      else: 
-        live = ""
-        live_noncolor = ""
-        
-      list_item = xbmcgui.ListItem(label=channels[num]["channelName"] + live)
-      if addon.getSetting("details_live") == "true" and channels[num]["channelKey"].encode("utf-8") in channel_data:
-        if len(img) > 0:
-          list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
-        else:
-          list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
-        if len(plot) > 0:
-          list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor, "plot":plot})
+      if i >= startitem and i < startitem + pagesize: 
+        if channels[num]["channelKey"].encode("utf-8") in channel_data and "live" in channel_data[channels[num]["channelKey"].encode("utf-8")]:
+          print(str(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["epgId"]))
+          if addon.getSetting("details_live") == "true":  
+            img, plot, ratings, cast, directors = get_epg_details(str(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["epgId"]))
+          start = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["start"])/1000)
+          end = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["end"])/1000)
+          
+          live = "[COLOR " + str(color) + "] | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + "[/COLOR]"
+          live_noncolor = " | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M")
+        else: 
+          live = ""
+          live_noncolor = ""
+          
+        list_item = xbmcgui.ListItem(label=channels[num]["channelName"] + live)
+        if addon.getSetting("details_live") == "true" and channels[num]["channelKey"].encode("utf-8") in channel_data:
+          if len(img) > 0:
+            list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
+          else:
+            list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
+          if len(plot) > 0:
+            list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor, "plot":plot})
+          else:
+            list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor})
+          if len(directors) > 0:
+            list_item.setInfo("video", {"director" : directors})
+          if len(cast) > 0:
+            list_item.setInfo("video", {"cast" : cast})
+          for rating_name,rating in ratings.items():
+            list_item.setRating(rating_name, int(rating)/10)
         else:
           list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor})
-        for rating_name,rating in ratings.items():
-          list_item.setRating(rating_name, int(rating)/10)
-      else:
-        list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor})
-        if channels[num]["channelKey"].encode("utf-8") in channel_data: 
-          list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
-
-      list_item.setContentLookup(False)          
-      list_item.setProperty("IsPlayable", "true")                                                                                                                                 
-      url = get_url(action='play_live', channelKey = channels[num]["channelKey"].encode("utf-8"), title = (channels[num]["channelName"] + live_noncolor).encode("utf-8"))
-      xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+          if channels[num]["channelKey"].encode("utf-8") in channel_data: 
+            list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
+  
+        list_item.setContentLookup(False)          
+        list_item.setProperty("IsPlayable", "true")                                                                                                                                 
+        url = get_url(action='play_live', channelKey = channels[num]["channelKey"].encode("utf-8"), title = (channels[num]["channelName"] + live_noncolor).encode("utf-8"))
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+      i = i + 1
+    if int(page) * pagesize <= i:
+      list_item = xbmcgui.ListItem(label="další strana")
+      url = get_url(action='list_live', page = int(page) + 1)  
+      list_item.setProperty("IsPlayable", "false")
+      xbmcplugin.addDirectoryItem(_handle, url, list_item, True)     
     if addon.getSetting("details_live") == "true":
       xbmcplugin.endOfDirectory(_handle)
     else:
       xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)
-
+      
 ############### archiv ################
 def list_archiv():
     channels_ordered = load_channels()  
@@ -387,13 +408,17 @@ def list_program(channelKey, day_min):
 
         if to_ts > int(programs["end"]/1000):      
           if addon.getSetting("details") == "true":  
-            img, plot, ratings = get_epg_details(str(epgId))
+            img, plot, ratings, cast, directors = get_epg_details(str(epgId))
    
           list_item = xbmcgui.ListItem(label= day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
           list_item.setProperty("IsPlayable", "true")
           if addon.getSetting("details") == "true":  
-            list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
+            list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img, 'poster': "https://www.o2tv.cz/" + img})
             list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"], "plot":plot})
+            if len(directors) > 0:
+              list_item.setInfo("video", {"director" : directors})
+            if len(cast) > 0:
+              list_item.setInfo("video", {"cast" : cast})
             for rating_name,rating in ratings.items():
               list_item.setRating(rating_name, int(rating)/10)
           else:
@@ -485,13 +510,17 @@ def future_program(channelKey, day):
         epgId = programs["epgId"]
 
         if addon.getSetting("details") == "true":  
-          img, plot, ratings = get_epg_details(str(epgId))
+          img, plot, ratings, cast, directors = get_epg_details(str(epgId))
 
         list_item = xbmcgui.ListItem(label= day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
         list_item.setProperty("IsPlayable", "false")
         if addon.getSetting("details") == "true":  
           list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
           list_item.setInfo("video", {"mediatype":"video", "title":programs["name"], "plot":plot})
+          if len(directors) > 0:
+            list_item.setInfo("video", {"director" : directors})
+          if len(cast) > 0:
+            list_item.setInfo("video", {"cast" : cast})
           for rating_name,rating in ratings.items():
             list_item.setRating(rating_name, int(rating)/10)
         else:
@@ -695,7 +724,7 @@ def play_video(type, channelKey, start, end, epgId, title):
             end = datetime.fromtimestamp(int(channel["live"]["end"])/1000)
             live = channel["channel"]["name"] + " | " + channel["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M")
             logo = "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]
-            img, plot,ratings = get_epg_details(str(channel["live"]["epgId"]))
+            img, plot, ratings, cast, directors = get_epg_details(str(channel["live"]["epgId"]))
       else:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
@@ -709,6 +738,10 @@ def play_video(type, channelKey, start, end, epgId, title):
         list_item.setInfo("video", {"mediatype":"movie", "title": live, "plot":plot})
       else:
         list_item.setInfo("video", {"mediatype":"movie", "title": live})
+      if len(directors) > 0:
+        list_item.setInfo("video", {"director" : directors})
+      if len(cast) > 0:
+        list_item.setInfo("video", {"cast" : cast})
       for rating_name,rating in ratings.items():
         list_item.setRating(rating_name, int(rating)/10)
     elif type == "archiv_iptv":
@@ -716,13 +749,17 @@ def play_video(type, channelKey, start, end, epgId, title):
       plot = ""
       ratings = {}
       list_item = xbmcgui.ListItem(title)
-      img, plot,ratings = get_epg_details(str(epgId))
+      img, plot, ratings, cast, directors = get_epg_details(str(epgId))
       if len(img) > 0:
         list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
       if len(plot) > 0:
         list_item.setInfo("video", {"mediatype":"movie", "title": title, "plot":plot})
       else:
         list_item.setInfo("video", {"mediatype":"movie", "title": title})
+      if len(directors) > 0:
+        list_item.setInfo("video", {"director" : directors})
+      if len(cast) > 0:
+        list_item.setInfo("video", {"cast" : cast})
       for rating_name,rating in ratings.items():
         list_item.setRating(rating_name, int(rating)/10)
     else:
@@ -785,13 +822,16 @@ def program_search(query):
         epgId = programs["epgId"]
         
         if addon.getSetting("details") == "true":
-          img, plot, ratings = get_epg_details(str(epgId))
-
+          img, plot, ratings, cast, directors = get_epg_details(str(epgId))
         list_item = xbmcgui.ListItem(label = programs["name"] + " (" + programs["channelKey"] + " | " + day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
         list_item.setProperty("IsPlayable", "true")
         if addon.getSetting("details") == "true":  
           list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
           list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"], "plot":plot})
+          if len(directors) > 0:
+            list_item.setInfo("video", {"director" : directors})
+          if len(cast) > 0:
+            list_item.setInfo("video", {"cast" : cast})
           for rating_name,rating in ratings.items():
             list_item.setRating(rating_name, int(rating)/10)
         else:
@@ -1138,7 +1178,7 @@ def router(paramstring):
     params = dict(parse_qsl(paramstring))
     if params:
         if params["action"] == "list_live":
-            list_live()
+            list_live(params["page"])
         elif params["action"] == "list_archiv":
             list_archiv()
         elif params["action"] == "list_arch_days":
