@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.6.2">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.6.3">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -25,12 +25,29 @@
   <extension point="xbmc.addon.metadata">
     <summary lang="en_GB">Sledovaní O2TV</summary>
     <summary lang="cs_CZ">Sledovaní O2TV</summary>
-    <description lang="en_GB">Umožnuje sledování O2TV, včetně základní práce s nahrávkami</description>
-    <description lang="cs_CZ">Umožnuje sledování O2TV, včetně základní práce s nahrávkami</description>
+    <description lang="en_GB">
+Umožnuje sledování O2TV, včetně základní práce s nahrávkami a IPTV SC
+Poděkování:
+* manželce (aneb cherchez la femme) a Sorosovi za inspiraci
+* djlucasovi za nápad s EPG v IPTV Simple Clientovi a pomoc s realizací
+* všem kdo doplňek používají, pomáhají s odhalováním chyb a zásobují mě náměty
+Ani bez jednoho by doplňek buď neexistoval nebo by nebyl takový, jaký teď je. Díky! 
+    </description>
+    <description lang="cs_CZ">
+Umožnuje sledování O2TV, včetně základní práce s nahrávkami a IPTV SC
+Poděkování:
+* manželce (aneb cherchez la femme) a Sorosovi za inspiraci
+* djlucasovi za nápad s EPG v IPTV Simple Clientovi a pomoc s realizací
+* všem kdo doplňek používají, pomáhají s odhalováním chyb a zásobují mě náměty
+Ani bez jednoho by doplňek buď neexistoval nebo by nebyl takový, jaký teď je. Díky! 
+    </description>
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
-v1.6.2 (2020-06-26)
+v1.6.3 (2020-06-27)
+- opraveno přehrávání aktuálně běžícího pořadu z IPTV Simple Clienta s nastaveným MPEG-DASH-web streamem
+    
+v1.6.2 (2020-06-27)
 - opravena defaultní barva popisku u živého vysílání
 - přidání informací o hercích a režisérech
 - stránkování kanálů u živého vysílání

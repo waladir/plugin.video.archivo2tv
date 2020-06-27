@@ -661,7 +661,7 @@ def play_video(type, channelKey, start, end, epgId, title):
     if addon.getSetting("stream_type") == "MPEG-DASH-web":
       if type == "archiv" or type == "archiv_iptv":
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) +"/playlist/", data = None, header = header_unity)
-      if type == "live" or type == "live_iptv":
+      if type == "live" or type == "live_iptv" or type == "live_iptv_epg":
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/playlist/?channelKey=" + quote(channelKey), data = None, header = header_unity)
       if type == "recording":
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/" + str(epgId) +"/playlist/", data = None, header = header_unity)
