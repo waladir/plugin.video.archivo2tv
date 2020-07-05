@@ -259,7 +259,7 @@ def load_epg():
             channel = channels_ordered[channel_num]
             if channel in channels_data:
               file.write('    <channel id="' + channels_data[channel]["name"].replace("&","&amp;") + '">\n')
-              file.write('            <display-name lang="cs">' + channels_data[channel]["name"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</display-name>\n')
+              file.write('            <display-name lang="cs">' + channels_data[channel]["name"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</display-name>\n')
               file.write('            <icon src="' + channels_data[channel]['logo'] + '" />\n')
               file.write('    </channel>\n')
           for channel_num in sorted(channels_ordered.keys()):
@@ -269,9 +269,9 @@ def load_epg():
                 starttime = datetime.fromtimestamp(events_data[channel][event]["startTime"]).strftime("%Y%m%d%H%M%S")
                 endtime = datetime.fromtimestamp(events_data[channel][event]["endTime"]).strftime("%Y%m%d%H%M%S")
                 file.write('    <programme start="' + starttime + ' +0' + str(tz_offset) + '00" stop="' + endtime + ' +0' + str(tz_offset) + '00" channel="' + events_data[channel][event]["channel"] + '">\n')
-                file.write('       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</title>\n')
+                file.write('       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</title>\n')
                 if events_data[channel][event]["epgId"] in events_detailed_data:
-                  file.write('       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</desc>\n')
+                  file.write('       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</desc>\n')
                   file.write('       <icon src="' + events_detailed_data[events_data[channel][event]["epgId"]]["icon"] + '"/>\n')
                 else:
                   file.write('       <desc lang="cs"></desc>\n')
