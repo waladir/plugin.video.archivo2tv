@@ -8,22 +8,18 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-if sys.version_info.major<3:
-  from urllib2 import Request, urlopen, HTTPError, URLError
-  from urllib import urlencode, quote
-else:
-  from urllib.request import Request, urlopen
-  from urllib.error import URLError, HTTPError
-  from urllib.parse import urlencode, quote
+from urllib2 import Request, urlopen, HTTPError, URLError
+from urllib import urlencode, quote
 
 from datetime import date, datetime, timedelta
 import time
+import string, random 
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 addon_userdata_dir = xbmc.translatePath( addon.getAddonInfo('profile') ) 
 
 header_unity = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type":"application/json"}
-header = {"X-NanguTv-App-Version" : "Android#6.4.1", "User-Agent" : "Dalvik/2.1.0", "Accept-Encoding" : "gzip", "Connection" : "Keep-Alive", "Content-Type" : "application/x-www-form-urlencoded;charset=UTF-8", "X-NanguTv-Device-Name" : addon.getSetting("deviceid"), "X-NanguTv-Device-Name" : addon.getSetting("devicename")}
+header = {"X-NanguTv-App-Version" : "Android#6.4.1", "User-Agent" : "Dalvik/2.1.0", "Accept-Encoding" : "gzip", "Connection" : "Keep-Alive", "Content-Type" : "application/x-www-form-urlencoded;charset=UTF-8", "X-NanguTv-Device-Id" : addon.getSetting("deviceid"), "X-NanguTv-Device-Name" : addon.getSetting("devicename")}
 tz_offset = int((time.mktime(datetime.now().timetuple())-time.mktime(datetime.utcnow().timetuple()))/3600)
 
 def call_o2_api(url, data, header):
@@ -72,9 +68,10 @@ def get_auth_token():
       xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
       return None, None, None, None, None, None, None          
 
-    if "services" in data and "remote_access_token" in data and len(data["remote_access_token"]) > 0 and "service_id" in data["services"][0] and len(data["services"][0]["service_id"]) > 0:
+    serviceid_order = int(addon.getSetting("serviceid_order"))  
+    if "services" in data and "remote_access_token" in data and len(data["remote_access_token"]) > 0 and serviceid_order + 1 <= len(data["services"]) and "service_id" in data["services"][serviceid_order] and len(data["services"][serviceid_order]["service_id"]) > 0:
         remote_access_token = data["remote_access_token"]
-        service_id = data["services"][0]['service_id']
+        service_id = data["services"][serviceid_order]['service_id']
 
         post = {"service_id" : service_id, "remote_access_token" : remote_access_token}
         data = call_o2_api(url = "https://ottmediator.o2tv.cz:4443/ottmediator-war/loginChoiceService", data = urlencode(post), header = header)
@@ -208,7 +205,7 @@ def load_epg():
       from_ts = int(time.mktime(from_datetime.timetuple()))
       to_ts = from_ts+(24*60*60)-1
 
-      url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?forceLimit=true&limit=500" + params + "&from=" + str(from_ts*1000) + "&from=" + str(from_ts*1000) 
+      url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?forceLimit=true&limit=500" + params + "&from=" + str(from_ts*1000) + "&to=" + str(to_ts*1000) 
       data = call_o2_api(url = url, data = None, header = header_unity)
       if "err" in data:
         xbmcgui.Dialog().notification("Sledování O2TV","Chyba API O2 při načítání EPG!", xbmcgui.NOTIFICATION_ERROR, 4000)
@@ -262,7 +259,7 @@ def load_epg():
             channel = channels_ordered[channel_num]
             if channel in channels_data:
               file.write('    <channel id="' + channels_data[channel]["name"].replace("&","&amp;") + '">\n')
-              file.write('            <display-name lang="cs">' + channels_data[channel]["name"].replace("&","&amp;") + '</display-name>\n')
+              file.write('            <display-name lang="cs">' + channels_data[channel]["name"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</display-name>\n')
               file.write('            <icon src="' + channels_data[channel]['logo'] + '" />\n')
               file.write('    </channel>\n')
           for channel_num in sorted(channels_ordered.keys()):
@@ -272,9 +269,9 @@ def load_epg():
                 starttime = datetime.fromtimestamp(events_data[channel][event]["startTime"]).strftime("%Y%m%d%H%M%S")
                 endtime = datetime.fromtimestamp(events_data[channel][event]["endTime"]).strftime("%Y%m%d%H%M%S")
                 file.write('    <programme start="' + starttime + ' +0' + str(tz_offset) + '00" stop="' + endtime + ' +0' + str(tz_offset) + '00" channel="' + events_data[channel][event]["channel"] + '">\n')
-                file.write('       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;") + '</title>\n')
+                file.write('       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</title>\n')
                 if events_data[channel][event]["epgId"] in events_detailed_data:
-                  file.write('       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;") + '</desc>\n')
+                  file.write('       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</desc>\n')
                   file.write('       <icon src="' + events_detailed_data[events_data[channel][event]["epgId"]]["icon"] + '"/>\n')
                 else:
                   file.write('       <desc lang="cs"></desc>\n')

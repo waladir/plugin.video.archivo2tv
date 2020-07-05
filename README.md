@@ -5,7 +5,17 @@ Kodi doplňek Sledování O2TV umožňuje sledovaní O2TV.
 <a href="https://www.xbmc-kodi.cz/prispevek-zpetne-sledovani-o2tv-ott">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se snažil udělat něco podobného pro OTT O2TV. Doplněk umožnuje zpětné přehrávání pořadů a základní práci s nahrávkami.
 
-Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br>
+Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
+
+v1.7.0 (2020-07-05)<br>
+- přidaná podpora přetáčení u živých pořadů s MPEG-DASH/MPEG-DASH-web (lze vypnout v nastavení)<br>    
+- přidané zobrazení polohy v nabídkách (musí podporovat použité téma)<br>
+- rozdělení kódu do modulů<br>
+- oprava drobných chyb<br>
+- přehrávání pořadu v EPG IPTV Simple Clienta při Přepnout na kanál (funguje i u pořadů z archivu)<br>
+- pokud v IPTV Simple Clientovi chybí EPG, spustí se live stream (končilo chybou)<br>
+- oprava generování playlistu pro oomezenou skupinu kanálů<br>
+- v nastavení přidaná možnost vybrat jinou O2 službu něž první<br><br>
 
 v1.6.3 (2020-06-27)<br>
 - opraveno přehrávání aktuálně běžícího pořadu z IPTV Simple Clienta s nastaveným MPEG-DASH-web streamem<br><br>

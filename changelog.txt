@@ -1,3 +1,13 @@
+v1.7.0 (2020-07-05)
+- přidaná podpora přetáčení u živých pořadů s MPEG-DASH/MPEG-DASH-web (lze vypnout v nastavení)    
+- přidané zobrazení polohy v nabídkách (musí podporovat použité téma)
+- rozdělení kódu do modulů
+- oprava drobných chyb
+- přehrávání pořadu v EPG IPTV Simple Clienta při Přepnout na kanál (funguje i u pořadů z archivu)
+- pokud v IPTV Simple Clientovi chybí EPG, spustí se live stream (končilo chybou)
+- oprava generování playlistu pro oomezenou skupinu kanálů
+- v nastavení přidaná možnost vybrat jinou O2 službu něž první
+
 v1.6.3 (2020-06-27)
 - opraveno přehrávání aktuálně běžícího pořadu z IPTV Simple Clienta s nastaveným MPEG-DASH-web streamem
 
@@ -13,11 +23,11 @@ v1.6.1 (2020-06-21)
 v1.6.0 (2020-06-14)
 - přidání kontextového menu do PVR klienta umožnujující přehrávání a nastavení nahrávek u O2 (vyžaduje shodné pojmenování kanálů, ideálně použít EPG Z doplňku)
 - do EPG doplňeno stahování detailních informací o pořadech, pokud jsou k dispozici
-  
+
 v1.5.3 (2020-06-11)
 - přidané generování EPG v XMLTV pro IPTV Simple Clienta
 - generování EPG je možné pouštět automaticky při startu Kodi a následně v nastavitelném intervalu
-    
+
 v1.5.2 (2020-06-09)
 - oddělení nastavení streamu do samostatné záložky
 - možnost nastavit dotaz z výběrem HD/SD při spuštění streamu (funguje u HLS streamu a nesmí být zaškrtlé Pouze SD)
