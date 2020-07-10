@@ -63,7 +63,7 @@ def list_planning_recordings(label):
     
 def list_rec_days(channelKey, label):
     xbmcplugin.setPluginCategory(_handle, label)
-    for i in range (7):
+    for i in range (10):
       day = date.today() + timedelta(days = i)
       if i == 0:
         den_label = "Dnes"
@@ -102,22 +102,13 @@ def future_program(channelKey, day, label):
         end = datetime.fromtimestamp(programs["end"]/1000)
         epgId = programs["epgId"]
 
-        if addon.getSetting("details") == "true":  
-          img, plot, ratings, cast, directors = o2api.get_epg_details(str(epgId))
-
         list_item = xbmcgui.ListItem(label= utils.day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
-        list_item.setProperty("IsPlayable", "false")
+
         if addon.getSetting("details") == "true":  
-          list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
-          list_item.setInfo("video", {"mediatype":"video", "title":programs["name"], "plot":plot})
-          if len(directors) > 0:
-            list_item.setInfo("video", {"director" : directors})
-          if len(cast) > 0:
-            list_item.setInfo("video", {"cast" : cast})
-          for rating_name,rating in ratings.items():
-            list_item.setRating(rating_name, int(rating)/10)
+          list_item = o2api.get_epg_details(list_item, str(epgId), "")
         else:
           list_item.setInfo("video", {"mediatype":"video", "title":programs["name"]})
+        list_item.setProperty("IsPlayable", "false")
         list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
         url = get_url(action='add_recording', channelKey = channelKey, epgId = epgId)
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
@@ -227,7 +218,7 @@ def list_future_recordings(label):
 def delete_recording(pvrProgramId):
     post = {"pvrProgramId" : int(pvrProgramId)}
     data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/vod/pvr-remove-program.json", data = urlencode(post), header = o2api.header)
-    if "err" in data:
+    if data <> None and "err" in data:
       xbmcgui.Dialog().notification("Sledování O2TV","Problém s odstraněním nahrávky", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit() 
     else:  

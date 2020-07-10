@@ -59,38 +59,23 @@ def list_live(page, label):
     for num in sorted(channels.keys()):  
       if i >= startitem and i < startitem + pagesize: 
         if channels[num]["channelKey"].encode("utf-8") in channel_data and "live" in channel_data[channels[num]["channelKey"].encode("utf-8")]:
-          if addon.getSetting("details_live") == "true":  
-            img, plot, ratings, cast, directors = o2api.get_epg_details(str(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["epgId"]))
           start = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["start"])/1000)
           end = datetime.fromtimestamp(int(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["end"])/1000)
-          
           live = "[COLOR " + str(color) + "] | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + "[/COLOR]"
           live_noncolor = " | " + channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M")
+          list_item = xbmcgui.ListItem(label=channels[num]["channelName"] + live)
+          if addon.getSetting("details_live") == "true": 
+            list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor}) 
+            list_item = o2api.get_epg_details(list_item, str(channel_data[channels[num]["channelKey"].encode("utf-8")]["live"]["epgId"]), channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"])
+          else:
+            list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor})
+            if channels[num]["channelKey"].encode("utf-8") in channel_data: 
+              list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
         else: 
           live = ""
           live_noncolor = ""
+          list_item = xbmcgui.ListItem(label=channels[num]["channelName"] + live)
           
-        list_item = xbmcgui.ListItem(label=channels[num]["channelName"] + live)
-        if addon.getSetting("details_live") == "true" and channels[num]["channelKey"].encode("utf-8") in channel_data:
-          if len(img) > 0:
-            list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
-          else:
-            list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
-          if len(plot) > 0:
-            list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor, "plot":plot})
-          else:
-            list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor})
-          if len(directors) > 0:
-            list_item.setInfo("video", {"director" : directors})
-          if len(cast) > 0:
-            list_item.setInfo("video", {"cast" : cast})
-          for rating_name,rating in ratings.items():
-            list_item.setRating(rating_name, int(rating)/10)
-        else:
-          list_item.setInfo("video", {"mediatype":"movie", "title": channels[num]["channelName"] + live_noncolor})
-          if channels[num]["channelKey"].encode("utf-8") in channel_data: 
-            list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
-  
         list_item.setContentLookup(False)          
         list_item.setProperty("IsPlayable", "true")                                                                                                                                 
         url = get_url(action='play_live', channelKey = channels[num]["channelKey"].encode("utf-8"), title = (channels[num]["channelName"] + live_noncolor).encode("utf-8"))

@@ -25,21 +25,32 @@ _handle = int(sys.argv[1])
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 
 def list_menu():
+    icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
+
     list_item = xbmcgui.ListItem(label="Živé vysílání")
     url = get_url(action='list_live', page = 1, label = "Živé vysílání")  
+    list_item.setArt({ "thumb" : os.path.join(icons_dir , 'livetv.png'), "icon" : os.path.join(icons_dir , 'livetv.png') })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
     list_item = xbmcgui.ListItem(label="Archiv")
     url = get_url(action='list_archiv', label = "Archiv")  
+    list_item.setArt({ "thumb" : os.path.join(icons_dir , 'archive.png'), "icon" : os.path.join(icons_dir , 'archive.png') })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
     list_item = xbmcgui.ListItem(label="Nahrávky")
     url = get_url(action='list_recordings', label = "Nahrávky")  
+    list_item.setArt({ "thumb" : os.path.join(icons_dir , 'recordings.png'), "icon" : os.path.join(icons_dir , 'recordings.png') })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
     list_item = xbmcgui.ListItem(label="Vyhledávání")
     url = get_url(action='list_search', label = "Vyhledávání")  
+    list_item.setArt({ "thumb" : os.path.join(icons_dir , 'search.png'), "icon" : os.path.join(icons_dir , 'search.png') })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+    
     if addon.getSetting("hide_channel_list_edit") <> "true":
         list_item = xbmcgui.ListItem(label="Seznam kanálů")
         url = get_url(action='list_channels_list', label = "Seznam kanálů")  
+        list_item.setArt({ "thumb" : os.path.join(icons_dir , 'settings.png'), "icon" : os.path.join(icons_dir , 'settings.png') })
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle)
 
@@ -105,7 +116,10 @@ def router(paramstring):
         elif params['action'] == 'generate_epg':
             generate_epg()
         elif params['action'] == 'get_stream_url':
-            iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), xbmc.getInfoLabel('ListItem.Date'), 0)
+            if addon.getSetting("switch_channel_archiv") == "true":
+                iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), xbmc.getInfoLabel('ListItem.Date'), 0)
+            else:
+                play_video(type = "live_iptv", channelKey = params["channelKey"], start = None, end = None, epgId = None, title = None)
         elif params['action'] == 'iptv_sc_play':
             iptv_sc_play(params["channel"], params["startdatetime"], 1)
         elif params['action'] == 'iptv_sc_rec':

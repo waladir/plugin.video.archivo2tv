@@ -7,15 +7,26 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v1.7.1 (2020-07-10)<br>
+- přidaná možnost v nastavení vypnout spouštění pořadu přepnutím na kanál v EPG IPTV Simple Clienta (funguje pak přepínaní během přehrávání pořadu)<br>
+- oprava chyby, kdy v archivu chyběli pořady, které začínaly před půlnocí a končily až druhý den<br>
+- doplněné ikony k položkám hlavního menu<br>
+- počet dní zobrazovaných pro archiv nebo pro nastavení nahrávek a maximální počty dní pro generování EPG byly rozšířené z původních 7 na 10 dnů<br>
+- optimalizovaná funkce na dotahování detailních informacím o pořadu a jejich rozšíření o rok a zemi vzniku, originální název, žánry a ID v IMDB<br>
+- rozšířené data v EPG o obsazení a řežiséry, zemi a rok vnizku, žánry a hodnocení<br>
+- oprava chyby při mazání nahrávek<br>
+- doplnění odkazu na fórum do informací o doplňku<br><br>
+
 v1.7.0 (2020-07-05)<br>
-- přidaná podpora přetáčení u živých pořadů s MPEG-DASH/MPEG-DASH-web (lze vypnout v nastavení)<br>    
+- přidaná podpora přetáčení u živých pořadů s MPEG-DASH/MPEG-DASH-web (lze vypnout v nastavení)<br>
 - přidané zobrazení polohy v nabídkách (musí podporovat použité téma)<br>
 - rozdělení kódu do modulů<br>
 - oprava drobných chyb<br>
 - přehrávání pořadu v EPG IPTV Simple Clienta při Přepnout na kanál (funguje i u pořadů z archivu)<br>
 - pokud v IPTV Simple Clientovi chybí EPG, spustí se live stream (končilo chybou)<br>
-- oprava generování playlistu pro oomezenou skupinu kanálů<br>
-- v nastavení přidaná možnost vybrat jinou O2 službu něž první<br><br>
+- oprava generování playlistu pro omezenou skupinu kanálů<br>
+- v nastavení přidaná možnost vybrat jinou O2 službu než první<br>
+- nahrazení speciálních znaků v EPG za html entity, odstraňuje problém s importem EPG IPTV Simple Clientem<br><br>
 
 v1.6.3 (2020-06-27)<br>
 - opraveno přehrávání aktuálně běžícího pořadu z IPTV Simple Clienta s nastaveným MPEG-DASH-web streamem<br><br>

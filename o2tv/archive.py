@@ -62,7 +62,7 @@ def list_archiv(label):
 
 def list_arch_days(channelKey, label):
     xbmcplugin.setPluginCategory(_handle, label)
-    for i in range (7):
+    for i in range (10):
       day = date.today() - timedelta(days = i)
       if i == 0:
         den_label = "Dnes"
@@ -94,7 +94,7 @@ def list_program(channelKey, day_min, label):
     if "err" in data:
       xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
-
+    
     if "epg" in data and len(data["epg"]) > 0 and len(data["epg"]["items"]) > 0 and len(data["epg"]["items"][0]["programs"]) > 0:
       for programs in data["epg"]["items"][0]["programs"]:
         startts = programs["start"]
@@ -103,28 +103,17 @@ def list_program(channelKey, day_min, label):
         end = datetime.fromtimestamp(programs["end"]/1000)
         epgId = programs["epgId"]
 
-        if to_ts > int(programs["end"]/1000):      
-          if addon.getSetting("details") == "true":  
-            img, plot, ratings, cast, directors = o2api.get_epg_details(str(epgId))
-   
-          list_item = xbmcgui.ListItem(label = utils.day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
-          list_item.setProperty("IsPlayable", "true")
-          if addon.getSetting("details") == "true":  
-            list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img, 'poster': "https://www.o2tv.cz/" + img})
-            list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"], "plot":plot})
-            if len(directors) > 0:
-              list_item.setInfo("video", {"director" : directors})
-            if len(cast) > 0:
-              list_item.setInfo("video", {"cast" : cast})
-            for rating_name,rating in ratings.items():
-              list_item.setRating(rating_name, int(rating)/10)
-          else:
-            list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"]})
-    
-          list_item.setContentLookup(False)          
-          list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
-          url = get_url(action='play_archiv', channelKey = channelKey, start = startts, end = endts, epgId = epgId)
-          xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+        list_item = xbmcgui.ListItem(label = utils.day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
+        if addon.getSetting("details") == "true":  
+          list_item = o2api.get_epg_details(list_item, str(epgId), "")
+        else:
+          list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"]})
+
+        list_item.setProperty("IsPlayable", "true")
+        list_item.setContentLookup(False)          
+        list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
+        url = get_url(action='play_archiv', channelKey = channelKey, start = startts, end = endts, epgId = epgId)
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     else:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()    

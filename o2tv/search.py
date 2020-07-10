@@ -63,21 +63,12 @@ def program_search(query, label):
         end = datetime.fromtimestamp(programs["end"]/1000)
         epgId = programs["epgId"]
         
-        if addon.getSetting("details") == "true":
-          img, plot, ratings, cast, directors = o2api.get_epg_details(str(epgId))
         list_item = xbmcgui.ListItem(label = programs["name"] + " (" + programs["channelKey"] + " | " + utils.day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
-        list_item.setProperty("IsPlayable", "true")
-        if addon.getSetting("details") == "true":  
-          list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
-          list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"], "plot":plot})
-          if len(directors) > 0:
-            list_item.setInfo("video", {"director" : directors})
-          if len(cast) > 0:
-            list_item.setInfo("video", {"cast" : cast})
-          for rating_name,rating in ratings.items():
-            list_item.setRating(rating_name, int(rating)/10)
+        if addon.getSetting("details") == "true":
+          list_item = o2api.get_epg_details(list_item, str(epgId), "")
         else:
           list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"]})
+        list_item.setProperty("IsPlayable", "true")
         list_item.setContentLookup(False)          
         url = get_url(action='play_archiv', channelKey = programs["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)

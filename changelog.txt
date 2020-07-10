@@ -1,3 +1,13 @@
+v1.7.1 (2020-07-10)
+- přidaná možnost v nastavení vypnout spouštění pořadu přepnutím na kanál v EPG IPTV Simple Clienta (funguje pak přepínaní během přehrávání pořadu)
+- oprava chyby, kdy v archivu chyběli pořady, které začínaly před půlnocí a končily až druhý den
+- doplněné ikony k položkám hlavního menu
+- počet dní zobrazovaných pro archiv nebo pro nastavení nahrávek a maximální počty dní pro generování EPG byly rozšířené z původních 7 na 10 dnů
+- optimalizovaná funkce na dotahování detailních informacím o pořadu a jejich rozšíření o rok a zemi vzniku, originální název, žánry a ID v IMDB
+- rozšířené data v EPG o obsazení a řežiséry, zemi a rok vnizku, žánry a hodnocení
+- oprava chyby při mazání nahrávek
+- doplnění odkazu na fórum do informací o doplňku
+
 v1.7.0 (2020-07-05)
 - přidaná podpora přetáčení u živých pořadů s MPEG-DASH/MPEG-DASH-web (lze vypnout v nastavení)    
 - přidané zobrazení polohy v nabídkách (musí podporovat použité téma)
@@ -5,8 +15,9 @@ v1.7.0 (2020-07-05)
 - oprava drobných chyb
 - přehrávání pořadu v EPG IPTV Simple Clienta při Přepnout na kanál (funguje i u pořadů z archivu)
 - pokud v IPTV Simple Clientovi chybí EPG, spustí se live stream (končilo chybou)
-- oprava generování playlistu pro oomezenou skupinu kanálů
-- v nastavení přidaná možnost vybrat jinou O2 službu něž první
+- oprava generování playlistu pro omezenou skupinu kanálů
+- v nastavení přidaná možnost vybrat jinou O2 službu než první
+- nahrazení speciálních znaků v EPG za html entity, odstraňuje problém s importem EPG IPTV Simple Clientem
 
 v1.6.3 (2020-06-27)
 - opraveno přehrávání aktuálně běžícího pořadu z IPTV Simple Clienta s nastaveným MPEG-DASH-web streamem

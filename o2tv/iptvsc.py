@@ -71,8 +71,11 @@ def generate_epg():
     iptv_sc_epg.load_epg()  
     
 def iptv_sc_play(channelName, startdatetime, epg):
+    print("xxxxxx: " + channelName)
     epgId = -1
     channels_mapping = {}
+    if addon.getSetting("remove_hd") == "true":
+      channelName = channelName.replace(" HD","").replace("O2 ","")
     if len(startdatetime) > 0:
       from_ts = int(time.mktime(time.strptime(startdatetime, "%d.%m.%Y %H:%M")))
     else:
@@ -91,7 +94,10 @@ def iptv_sc_play(channelName, startdatetime, epg):
         if "channels" in data and len(data["channels"]) > 0:
           for channel in data["channels"]:
             if data["channels"][channel]["channelType"] == "TV":
-               channels_mapping.update({data["channels"][channel]["channelName"].encode("utf-8") : data["channels"][channel]["channelKey"].encode("utf-8")})
+               if addon.getSetting("remove_hd") == "true":
+                 channels_mapping.update({data["channels"][channel]["channelName"].replace(" HD","").encode("utf-8") : data["channels"][channel]["channelKey"].encode("utf-8")})
+               else:
+                 channels_mapping.update({data["channels"][channel]["channelName"].encode("utf-8") : data["channels"][channel]["channelKey"].encode("utf-8")})
 
       data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?channelKey=" + quote(channels_mapping[channelName]) + "&from=" + str(from_ts*1000) + "&forceLimit=true&limit=500", data = None, header = o2api.header_unity)
       if "err" in data:

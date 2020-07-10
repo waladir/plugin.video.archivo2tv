@@ -106,6 +106,7 @@ def load_channels():
     channels_ordered = []
     channels_to_add = {}
     filename = addon_userdata_dir + "channels.txt"
+    max_num = 0
 
     try:
       with open(filename, "r") as file:

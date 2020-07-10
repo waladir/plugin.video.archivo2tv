@@ -236,15 +236,36 @@ def load_epg():
           sys.exit()
         if "result" in data and len(data["result"]) > 0:
           for event in data["result"]:
+            desc = ""
+            img = ""
+            cast = []
+            year = -1
+            country = ""
+            directors = []
+            genres = []
+            ratings = {}
             if "shortDescription" in event:
               desc = event["shortDescription"]
-            else:
-              desc = ""
             if "images" in event and "cover" in event["images"][0]:
               img = event["images"][0]["cover"]
-            else:
-              img = ""
-            events_detailed_data.update({event["epgId"] : {"name" : event["name"], "desc" : desc, "icon" : "https://www.o2tv.cz" + img}})
+            if "castAndCrew" in event and len(event["castAndCrew"]) > 0 and "cast" in event["castAndCrew"] and len(event["castAndCrew"]["cast"]) > 0:
+              for person in event["castAndCrew"]["cast"]:      
+                cast.append(person["name"])
+            if "castAndCrew" in event and len(event["castAndCrew"]) > 0 and "directors" in event["castAndCrew"] and len(event["castAndCrew"]["directors"]) > 0:
+              for person in event["castAndCrew"]["directors"]:      
+                directors.append(person["name"])
+            if "origin" in event and len(event["origin"]) > 0:
+              if "year" in event["origin"] and len(str(event["origin"]["year"])) > 0:
+                year =  event["origin"]["year"]
+              if "country" in event["origin"] and len(event["origin"]["country"]) > 0:
+                country = event["origin"]["country"]["name"]
+            if "ratings" in event and len(event["ratings"]) > 0:
+              for rating, rating_value in event["ratings"].items():
+                ratings.update({rating : int(rating_value)/10})
+            if "genreInfo" in event and len(event["genreInfo"]) > 0 and "genres" in event["genreInfo"] and len(event["genreInfo"]["genres"]) > 0:
+              for genre in event["genreInfo"]["genres"]:      
+                genres.append(genre["name"])
+            events_detailed_data.update({event["epgId"] : {"name" : event["name"], "desc" : desc, "icon" : "https://www.o2tv.cz" + img, "cast" : cast, "directors" : directors, "year" : year, "country" : country, "genres" : genres, "ratings" : ratings }})
     else:
       print("Chyba při načítání detailních dat pro EPG!")
       sys.exit()
@@ -259,7 +280,7 @@ def load_epg():
             channel = channels_ordered[channel_num]
             if channel in channels_data:
               file.write('    <channel id="' + channels_data[channel]["name"].replace("&","&amp;") + '">\n')
-              file.write('            <display-name lang="cs">' + channels_data[channel]["name"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</display-name>\n')
+              file.write('            <display-name lang="cs">' + channels_data[channel]["name"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</display-name>\n')
               file.write('            <icon src="' + channels_data[channel]['logo'] + '" />\n')
               file.write('    </channel>\n')
           for channel_num in sorted(channels_ordered.keys()):
@@ -269,10 +290,24 @@ def load_epg():
                 starttime = datetime.fromtimestamp(events_data[channel][event]["startTime"]).strftime("%Y%m%d%H%M%S")
                 endtime = datetime.fromtimestamp(events_data[channel][event]["endTime"]).strftime("%Y%m%d%H%M%S")
                 file.write('    <programme start="' + starttime + ' +0' + str(tz_offset) + '00" stop="' + endtime + ' +0' + str(tz_offset) + '00" channel="' + events_data[channel][event]["channel"] + '">\n')
-                file.write('       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</title>\n')
+                file.write('       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</title>\n')
                 if events_data[channel][event]["epgId"] in events_detailed_data:
-                  file.write('       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</desc>\n')
+                  file.write('       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</desc>\n')
                   file.write('       <icon src="' + events_detailed_data[events_data[channel][event]["epgId"]]["icon"] + '"/>\n')
+                  file.write('       <credits>\n')
+                  for cast in events_detailed_data[events_data[channel][event]["epgId"]]["cast"]: 
+                    file.write('         <actor>' + cast.replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</actor>\n')
+                  for director in events_detailed_data[events_data[channel][event]["epgId"]]["directors"]: 
+                    file.write('         <director>' + director.replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</director>\n')
+                  file.write('       </credits>\n')
+                  for category in events_detailed_data[events_data[channel][event]["epgId"]]["genres"]:
+                    file.write('       <category>' + category.replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</category>\n')
+                  if len(str(events_detailed_data[events_data[channel][event]["epgId"]]["year"])) > 0 and int(year) > 0:
+                    file.write('       <date>' + str(events_detailed_data[events_data[channel][event]["epgId"]]["year"]) + '</date>\n')
+                  if len(events_detailed_data[events_data[channel][event]["epgId"]]["country"]) > 0:
+                    file.write('       <country>' + events_detailed_data[events_data[channel][event]["epgId"]]["country"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</country>\n')
+                  for rating_name,rating in events_detailed_data[events_data[channel][event]["epgId"]]["ratings"].items(): 
+                    file.write('       <rating system="' + rating_name.replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '"><value>' + str(rating) + '/10</value></rating>\n')
                 else:
                   file.write('       <desc lang="cs"></desc>\n')
                 file.write('    </programme>\n')

@@ -37,19 +37,12 @@ def play_video(type, channelKey, start, end, epgId, title):
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
       if "result" in data and len(data["result"]) > 0:
-        img = ""
-        plot = ""
-        ratings = {}
-        logo = ""
-        live = channelKey
         for channel in data["result"]:
           if "live" in channel and channel["channel"]["channelKey"].encode("utf-8") == channelKey:
             start = datetime.fromtimestamp(int(channel["live"]["start"])/1000)
             startts = int(channel["live"]["start"])
             end = datetime.fromtimestamp(int(channel["live"]["end"])/1000)
-            live = channel["channel"]["name"] + " | " + channel["live"]["name"] + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M")
-            logo = "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]
-            img, plot, ratings, cast, directors = o2api.get_epg_details(str(channel["live"]["epgId"]))
+            epgId = str(channel["live"]["epgId"])
       else:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
@@ -112,38 +105,10 @@ def play_video(type, channelKey, start, end, epgId, title):
                                                     
     if type == "live_iptv" or type == "live_iptv_epg":
       list_item = xbmcgui.ListItem(path = url)
-      if len(img) > 0:
-        list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
-      elif len(logo) > 0:
-        list_item.setArt({'thumb': logo, 'icon': logo})
-      if len(plot) > 0:
-        list_item.setInfo("video", {"mediatype":"movie", "title": live, "plot":plot})
-      else:
-        list_item.setInfo("video", {"mediatype":"movie", "title": live})
-      if len(directors) > 0:
-        list_item.setInfo("video", {"director" : directors})
-      if len(cast) > 0:
-        list_item.setInfo("video", {"cast" : cast})
-      for rating_name,rating in ratings.items():
-        list_item.setRating(rating_name, int(rating)/10)
+      list_item = o2api.get_epg_details(list_item, epgId, "")
     elif type == "archiv_iptv":
-      img = ""
-      plot = ""
-      ratings = {}
       list_item = xbmcgui.ListItem(title)
-      img, plot, ratings, cast, directors = o2api.get_epg_details(str(epgId))
-      if len(img) > 0:
-        list_item.setArt({'thumb': "https://www.o2tv.cz/" + img, 'icon': "https://www.o2tv.cz/" + img})
-      if len(plot) > 0:
-        list_item.setInfo("video", {"mediatype":"movie", "title": title, "plot":plot})
-      else:
-        list_item.setInfo("video", {"mediatype":"movie", "title": title})
-      if len(directors) > 0:
-        list_item.setInfo("video", {"director" : directors})
-      if len(cast) > 0:
-        list_item.setInfo("video", {"cast" : cast})
-      for rating_name,rating in ratings.items():
-        list_item.setRating(rating_name, int(rating)/10)
+      list_item = o2api.get_epg_details(list_item, str(epgId), "")
     else:
       list_item = xbmcgui.ListItem(path = url)
 
