@@ -44,7 +44,7 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
-v1.7.2 (2020-07-19)
+v1.7.2 (2020-07-18)
 - přidané uložení O2 session s platností jeden den a automatickou aktualizací
 - přidaná možnost manuálního vygenrování nové O2 session v nastavení
 - ve vyhledávání se nově zobrazují ve výsledcích jen pořady z aktuálního seznamu kanálů

@@ -7,7 +7,7 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
-v1.7.2 (2020-07-19)<br>
+v1.7.2 (2020-07-18)<br>
 - přidané uložení O2 session s platností jeden den a automatickou aktualizací<br>
 - přidaná možnost manuálního vygenrování nové O2 session v nastavení<br>
 - ve vyhledávání se nově zobrazují ve výsledcích jen pořady z aktuálního seznamu kanálů<br>
