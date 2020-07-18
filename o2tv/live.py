@@ -27,7 +27,6 @@ def list_live(page, label):
     channel_data = {}     
     num = 0
     pagesize = int(addon.getSetting("live_pagesize"))
-
     for offer in o2api.offers:
       post = {"locality" : o2api.locality, "tariff" : o2api.tariff, "isp" : o2api.isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
       data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = o2api.header)                                                               

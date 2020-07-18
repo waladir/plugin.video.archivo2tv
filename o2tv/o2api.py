@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import os
 import xbmcgui
 import xbmcplugin
 import xbmcaddon
@@ -11,8 +12,10 @@ import json
 from urllib import urlencode, quote
 from urlparse import parse_qsl
 from urllib2 import urlopen, Request, HTTPError
+import time
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
 
 header_unity = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type":"application/json"}
 header = {"X-NanguTv-App-Version" : "Android#6.4.1", "User-Agent" : "Dalvik/2.1.0", "Accept-Encoding" : "gzip", "Connection" : "Keep-Alive", "Content-Type" : "application/x-www-form-urlencoded;charset=UTF-8", "X-NanguTv-Device-Id" : addon.getSetting("deviceid"), "X-NanguTv-Device-Name" : addon.getSetting("devicename")}
@@ -80,8 +83,9 @@ def get_auth_token():
               xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
               sys.exit()   
             sdata = data["sdata"]
+            encodedChannels = data["encodedChannels"]  
             header_unity.update({"x-o2tv-sdata" : str(sdata)})
-            return access_token, subscription, isp, locality, offers, tariff, sdata
+            return access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels
           else:
               xbmcgui.Dialog().notification("Sledování O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
               sys.exit()            
@@ -120,8 +124,9 @@ def get_auth_password():
           xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
           sys.exit()   
         sdata = data["sdata"]
+        encodedChannels = data["encodedChannels"]  
         header_unity.update({"x-o2tv-sdata" : str(sdata)})
-        return access_token, subscription, isp, locality, offers, tariff, sdata
+        return access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels
       else:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()            
@@ -139,7 +144,6 @@ def get_epg_details(list_item, epgId, img):
     genres = []
     list_item.setInfo("video", {"mediatype":"movie"})
     if "images" in data and len(data["images"]) > 0:
-       print("https://www.o2tv.cz/" + data["images"][0]["cover"])
        list_item.setArt({'poster': "https://www.o2tv.cz/" + data["images"][0]["cover"],'thumb': "https://www.o2tv.cz/" + data["images"][0]["cover"], 'icon': "https://www.o2tv.cz/" + data["images"][0]["cover"]})
     else:
        list_item.setArt({'thumb': img, 'icon': img})    
@@ -172,8 +176,44 @@ def get_epg_details(list_item, epgId, img):
     return list_item
 
 def login():
-  global access_token, subscription, isp, locality, offers, tariff, sdata
-  if "@" in addon.getSetting("username"):
-    access_token, subscription, isp, locality, offers, tariff, sdata = get_auth_token()
-  else:
-    access_token, subscription, isp, locality, offers, tariff, sdata = get_auth_password()   
+  global access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels
+  global header_unity
+  
+  filename = addon_userdata_dir + "session.txt"
+  try:
+    with open(filename, "r") as file:
+      for line in file:
+        item = line[:-1]
+        data = json.loads(item)
+  except IOError:
+    data = {}
+  if data and len(data) > 0 and "valid_to" in data and data["valid_to"] > int(time.time()):
+    access_token = data["access_token"]
+    subscription = data["subscription"]
+    isp = data["isp"]
+    locality = data["locality"]
+    offers = data["offers"]
+    tariff = data["tariff"]
+    sdata = data["sdata"]
+    encodedChannels = data["encodedChannels"]
+    header.update({"X-NanguTv-Access-Token" : str(access_token), "X-NanguTv-Device-Id" : addon.getSetting("deviceid")})
+    header_unity = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : str(access_token), "x-o2tv-device-id" : addon.getSetting("deviceid"), "x-o2tv-device-name" : addon.getSetting("devicename"), "x-o2tv-sdata" : str(sdata)}
+  else:  
+    if "@" in addon.getSetting("username"):
+      access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels = get_auth_token()
+    else:
+      access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels = get_auth_password() 
+    auth_data = json.dumps({ "access_token" : access_token, "subscription" : subscription, "isp" : isp, "locality" : locality, "offers" : offers, "tariff" : tariff, "sdata" : sdata, "encodedChannels" : encodedChannels, "valid_to" : int(time.time()) + 60*60*24})
+    try: 
+      with open(filename, "w") as file:
+        file.write('%s\n' % auth_data)
+    except IOError:
+      print("Chyba uložení session")
+
+def session_reset():     
+    filename = addon_userdata_dir + "session.txt"
+    if os.path.exists(filename):
+      os.remove(filename) 
+    login()
+    xbmcgui.Dialog().notification("Sledování O2TV","O2 session byla znovu načtená", xbmcgui.NOTIFICATION_INFO, 4000) 
+              

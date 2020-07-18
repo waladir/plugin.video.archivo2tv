@@ -72,8 +72,8 @@ def list_rec_days(channelKey, label):
         den_label = "Zítra"
         den = "Zítra"
       else:
-        den_label = utils.day_translation_short[day.strftime("%A")] + " " + day.strftime("%d.%m")
-        den = utils.day_translation[day.strftime("%A")].decode("utf-8") + " " + day.strftime("%d.%m.%Y")
+        den_label = utils.day_translation_short[day.strftime("%w")] + " " + day.strftime("%d.%m")
+        den = utils.day_translation[day.strftime("%w")].decode("utf-8") + " " + day.strftime("%d.%m.%Y")
       list_item = xbmcgui.ListItem(label=den)
       url = get_url(action='future_program', channelKey = channelKey, day = i, label = label + " / " + den_label)  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
@@ -102,7 +102,7 @@ def future_program(channelKey, day, label):
         end = datetime.fromtimestamp(programs["end"]/1000)
         epgId = programs["epgId"]
 
-        list_item = xbmcgui.ListItem(label= utils.day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
+        list_item = xbmcgui.ListItem(label= utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
 
         if addon.getSetting("details") == "true":  
           list_item = o2api.get_epg_details(list_item, str(epgId), "")
@@ -129,11 +129,9 @@ def list_recordings(label):
     list_item = xbmcgui.ListItem(label="Naplánované nahrávky")
     url = get_url(action='list_future_recordings', label = label + " / " + "Naplánované nahrávky")  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-
     data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/", data = None, header = o2api.header_unity)
     if "err" in data:
-      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením nahrávek, zkuste to znovu", xbmcgui.NOTIFICATION_ERROR, 6000)
-     
+      xbmcgui.Dialog().notification("Sledování O2TV","1Problém s načtením nahrávek, zkuste to znovu", xbmcgui.NOTIFICATION_ERROR, 6000)
     if "result" in data and len(data["result"]) > 0:
       for program in data["result"]:
         if program["state"] == "DONE":
@@ -150,7 +148,7 @@ def list_recordings(label):
             img = program["program"]["images"][0]["cover"]
           else:
             img = ""
-          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%A")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
+          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%w")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
 
       for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")
@@ -195,7 +193,7 @@ def list_future_recordings(label):
             img = program["program"]["images"][0]["cover"]
           else:
             img = ""
-          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%A")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
+          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%w")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
 
       for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")

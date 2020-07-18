@@ -71,7 +71,6 @@ def generate_epg():
     iptv_sc_epg.load_epg()  
     
 def iptv_sc_play(channelName, startdatetime, epg):
-    print("xxxxxx: " + channelName)
     epgId = -1
     channels_mapping = {}
     if addon.getSetting("remove_hd") == "true":
@@ -111,7 +110,7 @@ def iptv_sc_play(channelName, startdatetime, epg):
             endts = programs["end"]
             end = datetime.fromtimestamp(programs["end"]/1000)        
             epgId = programs["epgId"]
-            title = utils.day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"]
+            title = utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"]
       if int(epgId) > 0:
         if int(endts/1000) < int(time.mktime(datetime.now().timetuple())):
           play_video(type = "archiv_iptv", channelKey = channels_mapping[channelName], start = startts, end = endts, epgId = epgId, title = title)

@@ -6,7 +6,7 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-from urllib import quote
+from urllib import urlencode, quote
 from datetime import datetime 
 import time
 
@@ -14,12 +14,13 @@ from o2tv.o2api import call_o2_api
 from o2tv import o2api
 from o2tv.utils import get_url, get_color
 from o2tv import utils
+from o2tv.channels import load_channels 
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
-addon_userdata_dir = xbmc.translatePath( addon.getAddonInfo('profile') ) 
+addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
 
 
 def list_search(label):
@@ -55,23 +56,40 @@ def program_search(query, label):
       sys.exit()  
     
     if "groupedSearch" in data and "groups" in data["groupedSearch"] and len(data["groupedSearch"]["groups"]) > 0:
+      channels = []
+      channel_keys = []
+
+      for channel in load_channels():
+        channels.append(channel[0])
+      for offer in o2api.offers:
+        post = {"locality" : o2api.locality, "tariff" : o2api.tariff, "isp" : o2api.isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
+        channel_data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = o2api.header)                                                               
+        if "err" in channel_data:
+          xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+          sys.exit()  
+        if "channels" in channel_data and len(channel_data["channels"]) > 0:
+          for channel in channel_data["channels"]:
+            if channel_data["channels"][channel]["channelName"].encode("utf-8") in channels:
+              channel_keys.append(channel_data["channels"][channel]["channelKey"])
+
       for item in data["groupedSearch"]["groups"]:
         programs = item["programs"][0]
-        startts = programs["start"]
-        start = datetime.fromtimestamp(programs["start"]/1000)
-        endts = programs["end"]
-        end = datetime.fromtimestamp(programs["end"]/1000)
-        epgId = programs["epgId"]
-        
-        list_item = xbmcgui.ListItem(label = programs["name"] + " (" + programs["channelKey"] + " | " + utils.day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
-        if addon.getSetting("details") == "true":
-          list_item = o2api.get_epg_details(list_item, str(epgId), "")
-        else:
-          list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"]})
-        list_item.setProperty("IsPlayable", "true")
-        list_item.setContentLookup(False)          
-        url = get_url(action='play_archiv', channelKey = programs["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
-        xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+        if programs["channelKey"] in channel_keys:
+          startts = programs["start"]
+          start = datetime.fromtimestamp(programs["start"]/1000)
+          endts = programs["end"]
+          end = datetime.fromtimestamp(programs["end"]/1000)
+          epgId = programs["epgId"]
+          
+          list_item = xbmcgui.ListItem(label = programs["name"] + " (" + programs["channelKey"] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
+          if addon.getSetting("details") == "true":
+            list_item = o2api.get_epg_details(list_item, str(epgId), "")
+          else:
+            list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"]})
+          list_item.setProperty("IsPlayable", "true")
+          list_item.setContentLookup(False)          
+          url = get_url(action='play_archiv', channelKey = programs["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
+          xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
       xbmcplugin.endOfDirectory(_handle)
     else:
       xbmcgui.Dialog().notification("Sledování O2TV","Nic nenalezeno", xbmcgui.NOTIFICATION_INFO, 3000)

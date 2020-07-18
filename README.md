@@ -7,13 +7,19 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v1.7.2 (2020-07-19)<br>
+- přidané uložení O2 session s platností jeden den a automatickou aktualizací<br>
+- přidaná možnost manuálního vygenrování nové O2 session v nastavení<br>
+- ve vyhledávání se nově zobrazují ve výsledcích jen pořady z aktuálního seznamu kanálů<br>
+- přidané zobrazení pořadů z archivu podle kategorií<br><br>
+
 v1.7.1 (2020-07-10)<br>
 - přidaná možnost v nastavení vypnout spouštění pořadu přepnutím na kanál v EPG IPTV Simple Clienta (funguje pak přepínaní během přehrávání pořadu)<br>
-- oprava chyby, kdy v archivu chyběli pořady, které začínaly před půlnocí a končily až druhý den<br>
+- oprava chyby, kdy v archivu chyběly pořady, které začínaly před půlnocí a končily až druhý den<br>
 - doplněné ikony k položkám hlavního menu<br>
 - počet dní zobrazovaných pro archiv nebo pro nastavení nahrávek a maximální počty dní pro generování EPG byly rozšířené z původních 7 na 10 dnů<br>
 - optimalizovaná funkce na dotahování detailních informacím o pořadu a jejich rozšíření o rok a zemi vzniku, originální název, žánry a ID v IMDB<br>
-- rozšířené data v EPG o obsazení a řežiséry, zemi a rok vnizku, žánry a hodnocení<br>
+- rozšířené data v EPG o obsazení a režiséry, zemi a rok vzniku, žánry a hodnocení<br>
 - oprava chyby při mazání nahrávek<br>
 - doplnění odkazu na fórum do informací o doplňku<br><br>
 

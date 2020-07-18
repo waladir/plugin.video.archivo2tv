@@ -73,7 +73,7 @@ def play_video(type, channelKey, start, end, epgId, title):
       if type == "archiv" or type == "archiv_iptv":
         post = {"serviceType" : "TIMESHIFT_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type,  "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "fromTimestamp" : start, "toTimestamp" : str(int(end) + (int(addon.getSetting("offset"))*60*1000)), "id" : epgId, "encryptionType" : "NONE"}
       if type == "live" or type == "live_iptv" or type == "live_iptv_epg":
-         if addon.getSetting("stream_type") == "MPEG-DASH" and startts > 0 and addon.getSetting("startover") == "true":
+         if addon.getSetting("stream_type") == "MPEG-DASH"  and startts > 0 and addon.getSetting("startover") == "true":
            startts = int(startts) - 300000
            post = {"serviceType" : "STARTOVER_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "fromTimestamp" : startts, "encryptionType" : "NONE"}
          else:
@@ -116,11 +116,12 @@ def play_video(type, channelKey, start, end, epgId, title):
       list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
       list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
       list_item.setMimeType('application/dash+xml')
+
     if type == "archiv_iptv" or (type == "live_iptv" and addon.getSetting("stream_type") <> "HLS" and addon.getSetting("startover") == "true") or type == "live_iptv_epg":
       playlist=xbmc.PlayList(1)
       playlist.clear()
       xbmc.PlayList(1).add(url, list_item)
       xbmc.Player().play(playlist)
     else:
-      list_item.setContentLookup(False)       
+      list_item.setContentLookup(True)       
       xbmcplugin.setResolvedUrl(_handle, True, list_item)

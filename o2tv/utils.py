@@ -36,5 +36,5 @@ def get_color(settings_color):
     else:
       return ""
 
-day_translation = {"Monday" : "Pondělí", "Tuesday" : "Úterý", "Wednesday" : "Středa", "Thursday" : "Čtvrtek", "Friday" : "Pátek", "Saturday" : "Sobota", "Sunday" : "Neděle"}  
-day_translation_short = {"Monday" : "Po", "Tuesday" : "Út", "Wednesday" : "St", "Thursday" : "Čt", "Friday" : "Pá", "Saturday" : "So", "Sunday" : "Ne"}  
+day_translation = {"1" : "Pondělí", "2" : "Úterý", "3" : "Středa", "4" : "Čtvrtek", "5" : "Pátek", "6" : "Sobota", "0" : "Neděle"}  
+day_translation_short = {"1" : "Po", "2" : "Út", "3" : "St", "4" : "Čt", "5" : "Pá", "6" : "So", "0" : "Ne"}  

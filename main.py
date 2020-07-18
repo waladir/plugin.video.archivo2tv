@@ -7,6 +7,7 @@ import xbmcaddon
 import xbmc
 
 from urlparse import parse_qsl
+from urllib import quote
 
 from o2tv.o2api import login
 from o2tv import o2api
@@ -14,6 +15,7 @@ from o2tv.utils import check_settings, get_url
 
 from o2tv.live import list_live
 from o2tv.archive import list_archiv, list_arch_days, list_program
+from o2tv.categories import list_categories, list_subcategories, list_category, list_series
 from o2tv.recordings import list_planning_recordings, list_rec_days, future_program, list_recordings, list_future_recordings, delete_recording, add_recording
 from o2tv.stream import play_video
 from o2tv.search import list_search, program_search
@@ -37,6 +39,11 @@ def list_menu():
     list_item.setArt({ "thumb" : os.path.join(icons_dir , 'archive.png'), "icon" : os.path.join(icons_dir , 'archive.png') })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
+    list_item = xbmcgui.ListItem(label="Kategorie")
+    url = get_url(action='list_categories', label = "Kategorie")  
+    list_item.setArt({ "thumb" : os.path.join(icons_dir , 'categories.png'), "icon" : os.path.join(icons_dir , 'categories.png') })
+    xbmcplugin.addDirectoryItem(_handle, url, list_item, True)    
+
     list_item = xbmcgui.ListItem(label="Nahrávky")
     url = get_url(action='list_recordings', label = "Nahrávky")  
     list_item.setArt({ "thumb" : os.path.join(icons_dir , 'recordings.png'), "icon" : os.path.join(icons_dir , 'recordings.png') })
@@ -54,11 +61,12 @@ def list_menu():
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle)
 
-check_settings() 
-login()
-
 def router(paramstring):
     params = dict(parse_qsl(paramstring))
+
+    check_settings() 
+    login()
+  
     if params:
         if params["action"] == "list_live":
             list_live(params["page"], params["label"])
@@ -73,6 +81,15 @@ def router(paramstring):
             list_program(params["channelKey"], params["day_min"], params["label"])
         elif params['action'] == 'play_archiv':
             play_video(type = "archiv", channelKey = params["channelKey"], start = params["start"], end = params["end"], epgId = params["epgId"], title = None)
+
+        elif params["action"] == "list_categories":
+            list_categories(params["label"])
+        elif params["action"] == "list_subcategories":
+            list_subcategories(params["category"], params["label"])           
+        elif params["action"] == "list_category":
+            list_category(params["category"], params["dataSource"], params["filtr"], params["label"])
+        elif params["action"] == "list_series":
+            list_series(params["epgId"], params["season"], params["label"])            
 
         elif params['action'] == 'list_planning_recordings':
             list_planning_recordings(params["label"])
@@ -124,7 +141,8 @@ def router(paramstring):
             iptv_sc_play(params["channel"], params["startdatetime"], 1)
         elif params['action'] == 'iptv_sc_rec':
             iptv_sc_rec(params["channel"], params["startdatetime"])
-
+        elif params['action'] == 'reset_session':
+            o2api.session_reset()
         else:
             raise ValueError('Neznámý parametr: {0}!'.format(paramstring))
     else:

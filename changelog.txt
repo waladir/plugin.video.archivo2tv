@@ -1,10 +1,16 @@
+v1.7.2 (2020-07-19)
+- přidané uložení O2 session s platností jeden den a automatickou aktualizací
+- přidaná možnost manuálního vygenrování nové O2 session v nastavení
+- ve vyhledávání se nově zobrazují ve výsledcích jen pořady z aktuálního seznamu kanálů
+- přidané zobrazení pořadů z archivu podle kategorií
+
 v1.7.1 (2020-07-10)
 - přidaná možnost v nastavení vypnout spouštění pořadu přepnutím na kanál v EPG IPTV Simple Clienta (funguje pak přepínaní během přehrávání pořadu)
-- oprava chyby, kdy v archivu chyběli pořady, které začínaly před půlnocí a končily až druhý den
+- oprava chyby, kdy v archivu chyběly pořady, které začínaly před půlnocí a končily až druhý den
 - doplněné ikony k položkám hlavního menu
 - počet dní zobrazovaných pro archiv nebo pro nastavení nahrávek a maximální počty dní pro generování EPG byly rozšířené z původních 7 na 10 dnů
 - optimalizovaná funkce na dotahování detailních informacím o pořadu a jejich rozšíření o rok a zemi vzniku, originální název, žánry a ID v IMDB
-- rozšířené data v EPG o obsazení a řežiséry, zemi a rok vnizku, žánry a hodnocení
+- rozšířené data v EPG o obsazení a režiséry, zemi a rok vzniku, žánry a hodnocení
 - oprava chyby při mazání nahrávek
 - doplnění odkazu na fórum do informací o doplňku
 

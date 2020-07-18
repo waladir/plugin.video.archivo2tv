@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.7.1">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.7.2>
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -31,7 +31,7 @@ Poděkování:
 * manželce (aneb cherchez la femme) a Sorosovi za inspiraci
 * djlucasovi za nápad s EPG v IPTV Simple Clientovi a pomoc s realizací
 * všem kdo doplňek používají, pomáhají s odhalováním chyb a zásobují mě náměty
-Další informace a podporu najdete na fóru <a href="https://www.xbmc-kodi.cz/prispevek-zpetne-sledovani-o2tv-ott">www.xbmc-kodi.cz (vlákno Zpětné sledování O2TV (OTT))</a>
+Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-kodi.cz/prispevek-zpetne-sledovani-o2tv-ott)
    </description>
     <description lang="cs_CZ">
 Umožnuje sledování O2TV, včetně základní práce s nahrávkami a IPTV SC
@@ -44,13 +44,19 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.7.2 (2020-07-19)
+- přidané uložení O2 session s platností jeden den a automatickou aktualizací
+- přidaná možnost manuálního vygenrování nové O2 session v nastavení
+- ve vyhledávání se nově zobrazují ve výsledcích jen pořady z aktuálního seznamu kanálů
+- přidané zobrazení pořadů z archivu podle kategorií
+
 v1.7.1 (2020-07-10)
 - přidaná možnost v nastavení vypnout spouštění pořadu přepnutím na kanál v EPG IPTV Simple Clienta (funguje pak přepínaní během přehrávání pořadu)
-- oprava chyby, kdy v archivu chyběli pořady, které začínaly před půlnocí a končily až druhý den
+- oprava chyby, kdy v archivu chyběly pořady, které začínaly před půlnocí a končily až druhý den
 - doplněné ikony k položkám hlavního menu
 - počet dní zobrazovaných pro archiv nebo pro nastavení nahrávek a maximální počty dní pro generování EPG byly rozšířené z původních 7 na 10 dnů
 - optimalizovaná funkce na dotahování detailních informacím o pořadu a jejich rozšíření o rok a zemi vzniku, originální název, žánry a ID v IMDB
-- rozšířené data v EPG o obsazení a řežiséry, zemi a rok vnizku, žánry a hodnocení
+- rozšířené data v EPG o obsazení a režiséry, zemi a rok vzniku, žánry a hodnocení
 - oprava chyby při mazání nahrávek
 - doplnění odkazu na fórum do informací o doplňku
 

@@ -71,8 +71,8 @@ def list_arch_days(channelKey, label):
         den_label = "Včera"
         den = "Včera"
       else:
-        den_label = utils.day_translation_short[day.strftime("%A")] + " " + day.strftime("%d.%m")
-        den = utils.day_translation[day.strftime("%A")].decode("utf-8") + " " + day.strftime("%d.%m.%Y")
+        den_label = utils.day_translation_short[day.strftime("%w")] + " " + day.strftime("%d.%m")
+        den = utils.day_translation[day.strftime("%w")].decode("utf-8") + " " + day.strftime("%d.%m.%Y")
       list_item = xbmcgui.ListItem(label=den)
       url = get_url(action='list_program', channelKey = channelKey, day_min = i, label = label + " / " + den_label)  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
@@ -103,7 +103,7 @@ def list_program(channelKey, day_min, label):
         end = datetime.fromtimestamp(programs["end"]/1000)
         epgId = programs["epgId"]
 
-        list_item = xbmcgui.ListItem(label = utils.day_translation_short[start.strftime("%A")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
+        list_item = xbmcgui.ListItem(label = utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
         if addon.getSetting("details") == "true":  
           list_item = o2api.get_epg_details(list_item, str(epgId), "")
         else:
