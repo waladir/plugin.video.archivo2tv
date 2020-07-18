@@ -123,5 +123,5 @@ def play_video(type, channelKey, start, end, epgId, title):
       xbmc.PlayList(1).add(url, list_item)
       xbmc.Player().play(playlist)
     else:
-      list_item.setContentLookup(True)       
+      list_item.setContentLookup(False)       
       xbmcplugin.setResolvedUrl(_handle, True, list_item)
