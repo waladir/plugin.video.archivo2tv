@@ -92,30 +92,15 @@ def list_category(category, dataSource, filtr, label):
   for nongenre in filtr["notGenres"]:
     if len(nongenre) > 0:
       params = params + "&notGenres=" + quote_plus(nongenre.encode("utf8"))
-  print("https://www.o2tv.cz" + dataSource + "?containsAllGenres=" + str(filtr["containsAllGenres"]).lower() + "&contentType=" + category + params + "&encodedChannels=" + o2api.encodedChannels + "&sort=-o2rating&grouped=true&isFuture=false&limit=500&offset=0")
   data = call_o2_api(url = "https://www.o2tv.cz" + dataSource + "?containsAllGenres=" + str(filtr["containsAllGenres"]).lower() + "&contentType=" + category + params + "&encodedChannels=" + o2api.encodedChannels + "&sort=-o2rating&grouped=true&isFuture=false&limit=500&offset=0", data = None, header = o2api.header_unity)
   if "err" in data:
     xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
     sys.exit()        
   if "result" in data and len(data["result"]) > 0:
-    channels = []
-    channel_keys = []
-    channel_mapping = {}
-    for channel in load_channels():
-      channels.append(channel[0])
-    for offer in o2api.offers:
-      post = {"locality" : o2api.locality, "tariff" : o2api.tariff, "isp" : o2api.isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
-      channel_data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = o2api.header)                                                               
-      if "err" in channel_data:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
-      if "channels" in channel_data and len(channel_data["channels"]) > 0:
-        for channel in channel_data["channels"]:
-          if channel_data["channels"][channel]["channelName"].encode("utf-8") in channels:
-            channel_keys.append(channel_data["channels"][channel]["channelKey"])
-            channel_mapping.update({ channel_data["channels"][channel]["channelKey"] : channel_data["channels"][channel]["channelName"]})
+    channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable 
+
     for event in data["result"]:
-      if event["channelKey"] in channel_keys:
+      if event["channelKey"] in channels_key_mapping:
         startts = event["start"]
         start = datetime.fromtimestamp(event["start"]/1000)
         endts = event["end"]
@@ -127,9 +112,9 @@ def list_category(category, dataSource, filtr, label):
           event["name"] = event["seriesInfo"]["seriesName"]
           if "seasonNumber" in event["seriesInfo"]:
              event["name"] = event["name"] # + " ["+ str(event["seriesInfo"]["seasonNumber"]) + "]"
-          list_item = xbmcgui.ListItem(label = event["name"] + " (" + channel_mapping[event["channelKey"]] + ")")
+          list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + ")")
         else:
-          list_item = xbmcgui.ListItem(label = event["name"] + " (" + channel_mapping[event["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
+          list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
         cast = []
         directors = []
         genres = []
@@ -184,36 +169,19 @@ def list_series(epgId, season, label):
     params = params + "&seasonNumber=" + str(season)
 
   data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/episodes/?containsAllGenres=false&isFuture=false" + params, data = None, header = o2api.header_unity)
-  print(data)
   if "err" in data:
     xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
     sys.exit()        
   if "result" in data and len(data["result"]) > 0:
-    channels = []
-    channel_keys = []
-    channel_mapping = {}
-    for channel in load_channels():
-      channels.append(channel[0])
-    for offer in o2api.offers:
-      post = {"locality" : o2api.locality, "tariff" : o2api.tariff, "isp" : o2api.isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
-      channel_data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = o2api.header)                                                               
-      if "err" in channel_data:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
-      if "channels" in channel_data and len(channel_data["channels"]) > 0:
-        for channel in channel_data["channels"]:
-          if channel_data["channels"][channel]["channelName"].encode("utf-8") in channels:
-            channel_keys.append(channel_data["channels"][channel]["channelKey"])
-            channel_mapping.update({ channel_data["channels"][channel]["channelKey"] : channel_data["channels"][channel]["channelName"]})
-
+    channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
     for event in data["result"]:
-      if event["channelKey"] in channel_keys:
+      if event["channelKey"] in channels_key_mapping:
         startts = event["start"]
         start = datetime.fromtimestamp(event["start"]/1000)
         endts = event["end"]
         end = datetime.fromtimestamp(event["end"]/1000)
         epgId = event["epgId"]
-        list_item = xbmcgui.ListItem(label = event["name"] + " (" + channel_mapping[event["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
+        list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
         list_item.setInfo("video", {"mediatype":"movie"})
         list_item = o2api.get_epg_details(list_item, str(event["epgId"]), "")
         list_item.setProperty("IsPlayable", "true")

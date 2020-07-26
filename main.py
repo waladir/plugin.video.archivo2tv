@@ -19,7 +19,7 @@ from o2tv.categories import list_categories, list_subcategories, list_category, 
 from o2tv.recordings import list_planning_recordings, list_rec_days, future_program, list_recordings, list_future_recordings, delete_recording, add_recording
 from o2tv.stream import play_video
 from o2tv.search import list_search, program_search
-from o2tv.channels import list_channels_list, list_channels_edit, get_o2_channels_lists, load_o2_channel_list, reset_channel_list, edit_channel
+from o2tv.channels import list_channels_list, list_channels_edit, get_o2_channels_lists, load_o2_channel_list, reset_channel_list, edit_channel, delete_channel, list_channels_add, add_channel
 from o2tv.iptvsc import generate_playlist, generate_epg, iptv_sc_play, iptv_sc_rec
 
 _url = sys.argv[0]
@@ -126,7 +126,13 @@ def router(paramstring):
         elif params['action'] == 'list_channels_edit':
             list_channels_edit(params["label"])
         elif params['action'] == 'edit_channel':
-            edit_channel(params["channelName"])
+            edit_channel(params["channelName"], params["channelNum"])
+        elif params['action'] == 'delete_channel':
+            delete_channel(params["channelName"], params["channelNum"])
+        elif params['action'] == 'list_channels_add':
+            list_channels_add(params["label"])
+        elif params['action'] == 'add_channel':
+            add_channel(params["channelName"], params["channelNum"])
 
         elif params['action'] == 'generate_playlist':
             generate_playlist()

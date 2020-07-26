@@ -11,7 +11,7 @@ from urllib import urlencode
 import string, random 
 
 _url = sys.argv[0]
-_handle = int(sys.argv[1])
+#_handle = int(sys.argv[1])
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 
 def get_url(**kwargs):

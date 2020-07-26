@@ -24,39 +24,14 @@ addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 
 def list_archiv(label):
     xbmcplugin.setPluginCategory(_handle, label)
-    channels_ordered = load_channels()  
-    channels = {}
-    channel_data = {}
-    num = 0
 
-    for offer in o2api.offers:
-      post = {"locality" : o2api.locality, "tariff" : o2api.tariff, "isp" : o2api.isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
-      data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = o2api.header)                                                               
-      if "err" in data:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
+    channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable 
 
-      if "channels" in data and len(data["channels"]) > 0:
-        for channel in data["channels"]:
-          if data["channels"][channel]["channelType"] == "TV":
-            for channel_ordered in channels_ordered:
-              if(channel_ordered[0] == data["channels"][channel]["channelName"].encode("utf-8")):
-                num = channel_ordered[1]
-                channels.update({ num : {"channelName" : data["channels"][channel]["channelName"], "channelKey" : data["channels"][channel]["channelKey"]}})
-
-      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = o2api.header_unity)                                                               
-      if "err" in data:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
-      if "result" in data and len(data["result"]) > 0:
-        for channel in data["result"]:
-          channel_data.update({channel["channel"]["channelKey"].encode("utf-8") : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]}})
-
-    for num in sorted(channels.keys()):  
-      list_item = xbmcgui.ListItem(label=channels[num]["channelName"])
-      if addon.getSetting("details") == "true" and channels[num]["channelKey"].encode("utf-8") in channel_data:
-        list_item.setArt({'thumb':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"], 'icon':channel_data[channels[num]["channelKey"].encode("utf-8")]["logo"]})
-      url = get_url(action='list_arch_days', channelKey = channels[num]["channelKey"].encode("utf-8"), label = label + " / " + channels[num]["channelName"].encode("utf-8"))  
+    for num in sorted(channels_nums.keys()):  
+      list_item = xbmcgui.ListItem(label=channels_nums[num])
+      if addon.getSetting("details") == "true" and channels_data[channels_nums[num]] and len(channels_data[channels_nums[num]]["logo"]) > 0:
+        list_item.setArt({'thumb': channels_data[channels_nums[num]]["logo"], 'icon': channels_data[channels_nums[num]]["logo"]})
+      url = get_url(action='list_arch_days', channelKey = channels_data[channels_nums[num]]["channelKey"].encode("utf-8"), label = label + " / " + channels_nums[num].encode("utf-8"))  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle)
 

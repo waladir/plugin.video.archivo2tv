@@ -22,8 +22,8 @@ _handle = int(sys.argv[1])
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
 
-
 def list_search(label):
+  #  test_epg():
     xbmcplugin.setPluginCategory(_handle, label)
     list_item = xbmcgui.ListItem(label="Nové hledání")
     url = get_url(action='program_search', query = "-----", label = label + " / " + "Nové hledání")  
@@ -56,25 +56,11 @@ def program_search(query, label):
       sys.exit()  
     
     if "groupedSearch" in data and "groups" in data["groupedSearch"] and len(data["groupedSearch"]["groups"]) > 0:
-      channels = []
-      channel_keys = []
-
-      for channel in load_channels():
-        channels.append(channel[0])
-      for offer in o2api.offers:
-        post = {"locality" : o2api.locality, "tariff" : o2api.tariff, "isp" : o2api.isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
-        channel_data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = o2api.header)                                                               
-        if "err" in channel_data:
-          xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
-          sys.exit()  
-        if "channels" in channel_data and len(channel_data["channels"]) > 0:
-          for channel in channel_data["channels"]:
-            if channel_data["channels"][channel]["channelName"].encode("utf-8") in channels:
-              channel_keys.append(channel_data["channels"][channel]["channelKey"])
+      channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable 
 
       for item in data["groupedSearch"]["groups"]:
         programs = item["programs"][0]
-        if programs["channelKey"] in channel_keys:
+        if programs["channelKey"] in channels_key_mapping:
           startts = programs["start"]
           start = datetime.fromtimestamp(programs["start"]/1000)
           endts = programs["end"]
@@ -127,3 +113,7 @@ def load_search_history():
     except IOError:
       history = []
     return history
+
+def test_epg():
+  from  o2tv.epg import load_epg_all
+  load_epg_all()

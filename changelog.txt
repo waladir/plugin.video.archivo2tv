@@ -1,4 +1,14 @@
-v1.7.2 (2020-07-18)
+v1.8.0 (2020-07-26)
+- předělaná práce s kanály, lokální ukládání dat o kanálech, aktualizace jednou za 24 hodin
+- možnost v ruční editaci přidat (položka menu) nebo odstranit (kontextové menu) kanál
+- přidáno varování s možností změny nastavení pokud při ruční editaci nebo načtení seznamu z O2 je zapnuté autmatické přidávání kanálu
+- přepsání generování EPG pro IPTV Simple Clienta
+- přidání lokální databáze EPG, s automatickou aktualizací dat
+- načítání detailů u pořadech z EPG DB 
+- možnost vypnutí použití EPG DB v nastavení (defaultně zapnuto)
+- přidána možnost použít v playlistu pro IPTV Simple Clienta čísla kanálů z doplňku
+
+v1.7.2 (2020-07-19)
 - přidané uložení O2 session s platností jeden den a automatickou aktualizací
 - přidaná možnost manuálního vygenrování nové O2 session v nastavení
 - ve vyhledávání se nově zobrazují ve výsledcích jen pořady z aktuálního seznamu kanálů
