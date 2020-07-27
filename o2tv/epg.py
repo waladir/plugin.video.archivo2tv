@@ -145,11 +145,10 @@ def load_epg_ts(channelKeys, from_ts, to_ts):
           events_data.update({event["epgId"] : {"startTime" : int(event["start"]/1000), "endTime" : int(event["end"]/1000), "channel" : channel["channel"]["name"], "title" : event["name"]}})
     cnt = 0
     open_db()
-    for epgId in sorted(events_data.keys()):
+    for epgId in events_data.keys():
       row = None
-      for row in db.execute('SELECT epgId, startTime, endTime, channel, title FROM epg WHERE epgId = ?', [epgId]):
-        if row[1] != events_data[epgId]["startTime"] or row[2] != events_data[epgId]["endTime"] or row[3] != events_data[epgId]["channel"] or row[4] != events_data[epgId]["title"]:
-          db.execute('UPDATE epg SET startTime = ?, endTime = ?, channel = ?, title = ? WHERE epgId = ?', [events_data[epgId]["startTime"], events_data[epgId]["endTime"], events_data[epgId]["channel"], events_data[epgId]["title"], epgId])      
+      for row in db.execute('SELECT * FROM epg WHERE epgId = ?', [epgId]):
+        event = row
       if not row:
         cnt = cnt + 1
         db.execute('INSERT INTO epg VALUES(?, ?, ?, ?, ?)', (epgId, events_data[epgId]["startTime"], events_data[epgId]["endTime"], events_data[epgId]["channel"], events_data[epgId]["title"]))      
@@ -261,6 +260,7 @@ def get_epg_details(epgId):
 
 def get_listitem_epg_details(list_item, epgId, img):
     event = get_epg_details(epgId)
+    print(event)
     cast = []
     directors = []
     genres = []

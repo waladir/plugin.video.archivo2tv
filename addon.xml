@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.8.0">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.8.1">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -44,7 +44,7 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
-v1.8.0 (2020-07-26)
+v1.8.1 (2020-07-27)
 - předělaná práce s kanály, lokální ukládání dat o kanálech, aktualizace jednou za 24 hodin
 - možnost v ruční editaci přidat (položka menu) nebo odstranit (kontextové menu) kanál
 - přidáno varování s možností změny nastavení pokud při ruční editaci nebo načtení seznamu z O2 je zapnuté autmatické přidávání kanálu

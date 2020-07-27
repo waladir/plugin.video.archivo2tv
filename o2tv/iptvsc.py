@@ -235,7 +235,11 @@ def generate_playlist():
           logo = channels_data[channels_nums[num]]["logo"]
         else:
           logo = ""  
-        line = "#EXTINF:-1 tvh-epg=\"0\" tvg-logo=\"" + logo + "\"," + channels_nums[num]
+        if addon.getSetting("add_channel_numbers") == "true":
+          line = "#EXTINF:-1 tvg-chno=\"" + str(num) + "\" tvh-epg=\"0\" tvg-logo=\"" + logo + "\"," + channels_nums[num]
+        else:
+          line = "#EXTINF:-1 tvh-epg=\"0\" tvg-logo=\"" + logo + "\"," + channels_nums[num]
+
         file.write('%s\n' % line)
         line = "plugin://plugin.video.archivo2tv/?action=get_stream_url&channelKey=" + channels_data[channels_nums[num]]["channelKey"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
         file.write('%s\n' % line)
@@ -263,9 +267,8 @@ def iptv_sc_play(channelName, startdatetime, epg):
         sys.exit()  
     else:
       channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable       
-      channelKey = channels_data[channelName.decode("utf-8")]["channelKey"].encode("utf-8")
-      param =  "channelKey=" + quote(channelKey)
-      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?" + param + "&from=" + str(from_ts*1000) + "&forceLimit=true&limit=500", data = None, header = o2api.header_unity)
+
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?channelKey=" + quote(channels_data[channelName]["channelKey"]) + "&from=" + str(from_ts*1000) + "&forceLimit=true&limit=500", data = None, header = o2api.header_unity)
       if "err" in data:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit() 
@@ -280,29 +283,27 @@ def iptv_sc_play(channelName, startdatetime, epg):
             title = utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"]
       if int(epgId) > 0:
         if int(endts/1000) < int(time.mktime(datetime.now().timetuple())):
-          play_video(type = "archiv_iptv", channelKey = channelKey, start = startts, end = endts, epgId = epgId, title = title)
+          play_video(type = "archiv_iptv", channelKey = channels_data[channelName]["channelKey"], start = startts, end = endts, epgId = epgId, title = title)
         else:
           if epg == 1:
-            play_video(type = "live_iptv_epg", channelKey = channelKey, start = None, end = None, epgId = None, title = None)
+            play_video(type = "live_iptv_epg", channelKey = channels_data[channelName]["channelKey"], start = None, end = None, epgId = None, title = None)
           else:
-            play_video(type = "live_iptv", channelKey = channelKey, start = None, end = None, epgId = None, title = None)
+            play_video(type = "live_iptv", channelKey = channels_data[channelName]["channelKey"], start = None, end = None, epgId = None, title = None)
       else:
         if len(startdatetime) == 0:
-          play_video(type = "live_iptv", channelKey = channelKey, start = None, end = None, epgId = None, title = None)
+          play_video(type = "live_iptv", channelKey = channels_data[channelName]["channelKey"], start = None, end = None, epgId = None, title = None)
         else:
           xbmcgui.Dialog().notification("Sledování O2TV","Pořad u O2 nenalezen! Používáte EPG z doplňku Sledování O2TV?", xbmcgui.NOTIFICATION_ERROR, 10000)
         sys.exit()  
 
 def iptv_sc_rec(channelName, startdatetime):
-    channelName = channelName.decode("utf-8")
     epgId = -1
 
     from_ts = int(time.mktime(time.strptime(startdatetime, "%d.%m.%Y %H:%M")))
     channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable 
-    channelKey = channels_data[channelName]["channelKey"].encode("utf-8")
-    param =  "channelKey=" + quote(channelKey)
 
-    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?" + param + "&from=" + str(from_ts*1000) + "&forceLimit=true&limit=500", data = None, header = o2api.header_unity)
+
+    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?channelKey=" + quote(channels_data[channelName]["channelKey"]) + "&from=" + str(from_ts*1000) + "&forceLimit=true&limit=500", data = None, header = o2api.header_unity)
     if "err" in data:
       xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit() 

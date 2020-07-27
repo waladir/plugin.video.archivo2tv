@@ -31,7 +31,7 @@ def list_search(label):
     history = load_search_history()
     for item in history:
       list_item = xbmcgui.ListItem(label=item)
-      url = get_url(action='program_search', query = item, label = label + " / " + item.encode("utf-8"))  
+      url = get_url(action='program_search', query = item, label = label + " / " + item)  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 

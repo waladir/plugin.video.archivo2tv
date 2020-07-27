@@ -37,7 +37,7 @@ def list_archiv(label):
 
 def list_arch_days(channelKey, label):
     xbmcplugin.setPluginCategory(_handle, label)
-    for i in range (10):
+    for i in range (7):
       day = date.today() - timedelta(days = i)
       if i == 0:
         den_label = "Dnes"
