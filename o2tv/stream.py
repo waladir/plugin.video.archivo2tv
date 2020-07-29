@@ -71,7 +71,9 @@ def play_video(type, channelKey, start, end, epgId, title):
         sys.exit()  
     else:
       if type == "archiv" or type == "archiv_iptv":
-        post = {"serviceType" : "TIMESHIFT_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type,  "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "fromTimestamp" : start, "toTimestamp" : str(int(end) + (int(addon.getSetting("offset"))*60*1000)), "id" : epgId, "encryptionType" : "NONE"}
+        start = int(start) * 1000
+        end = int(end) * 1000
+        post = {"serviceType" : "TIMESHIFT_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type,  "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "fromTimestamp" : str(start), "toTimestamp" : str(end + (int(addon.getSetting("offset"))*60*1000)), "id" : epgId, "encryptionType" : "NONE"}
       if type == "live" or type == "live_iptv" or type == "live_iptv_epg":
          if addon.getSetting("stream_type") == "MPEG-DASH"  and startts > 0 and addon.getSetting("startover") == "true":
            startts = int(startts) - 300000
@@ -82,6 +84,7 @@ def play_video(type, channelKey, start, end, epgId, title):
         post = {"serviceType" : "NPVR", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "contentId" : epgId, "encryptionType" : "NONE"}
       if addon.getSetting("stream_type") <> "MPEG-DASH" and (addon.getSetting("only_sd") == "true" or resolution == 1):
         post.update({"resolution" : "SD"})
+      print(post)
       data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = o2api.header)
       if "err" in data:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)

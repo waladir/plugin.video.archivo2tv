@@ -7,6 +7,16 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v1.8.2 (2020-07-29)<br>
+- oprava přehrávání Fishing and Hunting v IPTV Simple Clientovi<br>
+- vypnutí kešovaní nabídek v archivu<br>
+- v archivu se zobrazují všechny pořady, které lze přehrát<br>
+- doplnění alternativního popisu a posteru, pokud nejsou dostupné standardní<br>
+- přechod na interní EPG u nahrávek a u načítání seznamů u archivu a živého vysílání<br>
+- opravena chyba, kdy při povoleném přidávání nových kanálů docházelo k přidání všech kanálů. Dojde i k opravení dat.<br>
+- ošetření kanálů, které jsou v seznamu kanálů, ale chybí k nim detailní informace<br>
+- omezení počtu dnů při generování EPG pro IPTV Simple Clienta na 8 dnů zpátky<br><br>
+
 v1.8.1 (2020-07-27)<br>
 - předělaná práce s kanály, lokální ukládání dat o kanálech, aktualizace jednou za 24 hodin<br>
 - možnost v ruční editaci přidat (položka menu) nebo odstranit (kontextové menu) kanál<br>

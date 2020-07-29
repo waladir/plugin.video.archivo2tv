@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.8.1">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.8.2">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -44,6 +44,16 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.8.2 (2020-07-29)
+- oprava přehrávání Fishing and Hunting v IPTV Simple Clientovi
+- vypnutí kešovaní nabídek v archivu
+- v archivu se zobrazují všechny pořady, které lze přehrát
+- doplnění alternativního popisu a posteru, pokud nejsou dostupné standardní
+- přechod na interní EPG u nahrávek a u načítání seznamů u archivu a živého vysílání
+- opravena chyba, kdy při povoleném přidávání nových kanálů docházelo k přidání všech kanálů. Dojde i k opravení dat.
+- ošetření kanálů, které jsou v seznamu kanálů, ale chybí k nim detailní informace 
+- omezení počtu dnů při generování EPG pro IPTV Simple Clienta na 8 dnů zpátky
+
 v1.8.1 (2020-07-27)
 - předělaná práce s kanály, lokální ukládání dat o kanálech, aktualizace jednou za 24 hodin
 - možnost v ruční editaci přidat (položka menu) nebo odstranit (kontextové menu) kanál

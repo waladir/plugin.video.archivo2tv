@@ -18,7 +18,7 @@ from o2tv.channels import load_channels
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
-current_version = 5
+current_version = 6
 
 
 def open_db():
@@ -53,6 +53,12 @@ def migrate_db(version):
       db.execute('ALTER TABLE epg ADD COLUMN title INTEGER')
       db.execute('UPDATE version SET version = ?', str(version))
       db.commit()       
+    if version == 5:
+      version = 6
+      db.execute('DELETE FROM epg_details WHERE description=\'\' AND cover=\'\'')
+      db.execute('UPDATE version SET version = ?', str(version))
+      db.commit()       
+
     return version
 
 def load_epg_details():
@@ -87,8 +93,12 @@ def load_epg_details():
             genres = []
             if "images" in event and len(event["images"]) > 0:
               cover = event["images"][0]["cover"]
+            elif "picture" in event and len(event["picture"]) > 0:
+              cover = event["picture"]
             if "longDescription" in event and len(event["longDescription"]) > 0:
               description = event["longDescription"]
+            elif "shortDescription" in event and len(event["shortDescription"]) > 0:
+              description = event["shortDescription"]
             if "ratings" in event and len(event["ratings"]) > 0:
               for rating, rating_value in event["ratings"].items():
                 ratings.update({ rating : int(rating_value)/10})
@@ -213,10 +223,6 @@ def get_epg_details(epgId):
       genres = json.loads(row[9])
       imdb = row[10]
     if not row:
-      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = o2api.header_unity)
-      if "err" in data:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
       cover = ""
       description = ""
       ratings = {}
@@ -227,40 +233,46 @@ def get_epg_details(epgId):
       original = ""
       imdb = ""
       genres = []
-      if "images" in data and len(data["images"]) > 0:
-        cover = data["images"][0]["cover"]
-      if "longDescription" in data and len(data["longDescription"]) > 0:
-        description = data["longDescription"]
-      if "ratings" in data and len(data["ratings"]) > 0:
-        for rating, rating_value in data["ratings"].items():
-          ratings.update({ rating : int(rating_value/10)})
-      if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "cast" in data["castAndCrew"] and len(data["castAndCrew"]["cast"]) > 0:
-        for person in data["castAndCrew"]["cast"]:      
-          cast.append(person["name"])
-      if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "directors" in data["castAndCrew"] and len(data["castAndCrew"]["directors"]) > 0:
-        for person in data["castAndCrew"]["directors"]:      
-          directors.append(person["name"])
-      if "origin" in data and len(data["origin"]) > 0:
-        if "year" in data["origin"] and len(str(data["origin"]["year"])) > 0:
-          year = data["origin"]["year"]
-        if "country" in data["origin"] and len(data["origin"]["country"]) > 0:
-          country = data["origin"]["country"]["name"]
-      if "origName" in data and len(data["origName"]) > 0:
-        original = data["origName"]
-      if "ext" in data and len(data["ext"]) > 0 and "imdbId" in data["ext"] and len(data["ext"]["imdbId"]) > 0:
-        imdb = data["ext"]["imdbId"]
-      if "genreInfo" in data and len(data["genreInfo"]) > 0 and "genres" in data["genreInfo"] and len(data["genreInfo"]["genres"]) > 0:
-        for genre in data["genreInfo"]["genres"]:      
-          genres.append(genre["name"])
-      db.execute('INSERT INTO epg_details VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (epgId, cover, description, json.dumps(ratings), json.dumps(cast), json.dumps(directors), year, country, original, json.dumps(genres), imdb))      
-      db.commit()
+
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = o2api.header_unity)
+      if not "err" in data:
+        if "images" in data and len(data["images"]) > 0:
+          cover = data["images"][0]["cover"]
+        elif "picture" in data and len(data["picture"]) > 0:
+          cover = data["picture"]
+        if "longDescription" in data and len(data["longDescription"]) > 0:
+          description = data["longDescription"]
+        elif "shortDescription" in data and len(data["shortDescription"]) > 0:
+          description = data["shortDescription"]
+        if "ratings" in data and len(data["ratings"]) > 0:
+          for rating, rating_value in data["ratings"].items():
+            ratings.update({ rating : int(rating_value/10)})
+        if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "cast" in data["castAndCrew"] and len(data["castAndCrew"]["cast"]) > 0:
+          for person in data["castAndCrew"]["cast"]:      
+            cast.append(person["name"])
+        if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "directors" in data["castAndCrew"] and len(data["castAndCrew"]["directors"]) > 0:
+          for person in data["castAndCrew"]["directors"]:      
+            directors.append(person["name"])
+        if "origin" in data and len(data["origin"]) > 0:
+          if "year" in data["origin"] and len(str(data["origin"]["year"])) > 0:
+            year = data["origin"]["year"]
+          if "country" in data["origin"] and len(data["origin"]["country"]) > 0:
+            country = data["origin"]["country"]["name"]
+        if "origName" in data and len(data["origName"]) > 0:
+          original = data["origName"]
+        if "ext" in data and len(data["ext"]) > 0 and "imdbId" in data["ext"] and len(data["ext"]["imdbId"]) > 0:
+          imdb = data["ext"]["imdbId"]
+        if "genreInfo" in data and len(data["genreInfo"]) > 0 and "genres" in data["genreInfo"] and len(data["genreInfo"]["genres"]) > 0:
+          for genre in data["genreInfo"]["genres"]:      
+            genres.append(genre["name"])
+        db.execute('INSERT INTO epg_details VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (epgId, cover, description, json.dumps(ratings), json.dumps(cast), json.dumps(directors), year, country, original, json.dumps(genres), imdb))      
+        db.commit()
     close_db()
     event = { "epgId" : epgId, "cover" : cover, "description" : description, "ratings" : ratings, "cast" : cast, "directors" : directors, "year" : year, "country" : country, "original" : original, "genres" : genres, "imdb" : imdb }
     return event
 
 def get_listitem_epg_details(list_item, epgId, img):
     event = get_epg_details(epgId)
-    print(event)
     cast = []
     directors = []
     genres = []
@@ -299,10 +311,13 @@ def get_listitem_epg_details(list_item, epgId, img):
 def get_epg_all():
     events_data = {}
     events_detailed_data = {}
+    
+    limit = 8
+    limit_ts = int(time.mktime(datetime.now().timetuple())) - 60*60*24*limit
 
     open_db()
     row = None
-    for row in db.execute('SELECT * FROM epg'):
+    for row in db.execute('SELECT * FROM epg WHERE startTime >= ?',[str(limit_ts)]):
       epgId = int(row[0])
       startTime = int(row[1])
       endTime = int(row[2])    
@@ -330,3 +345,53 @@ def get_epg_all():
 
     close_db()
     return events_data, events_detailed_data
+
+def get_epg_ts(channelKey, from_ts, to_ts, min_limit):
+    events_data = {}
+    channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable    
+    channelName = channels_key_mapping[channelKey]    
+
+    open_db()
+    row = None
+    cnt = 0
+    for row in db.execute('SELECT count(1) FROM epg WHERE startTime >= ? AND startTime <=? AND channel = ?', [from_ts, to_ts, channelName]):
+      cnt = row[0]
+    if cnt < min_limit:
+      channelKeys = [channelKey]
+      load_epg_ts(channelKeys, from_ts, to_ts)  
+      open_db()
+    for row in db.execute('SELECT epgId, startTime, endTime, title FROM epg WHERE startTime >= ? AND startTime <=? AND channel = ?', [from_ts, to_ts, channelName]):
+      epgId = int(row[0])
+      startTime = int(row[1])
+      endTime = int(row[2])    
+      title = row[3]
+      start = datetime.fromtimestamp(startTime)
+      end = datetime.fromtimestamp(endTime)
+      events_data.update({ startTime : { "epgId" : epgId, "startts" : startTime, "endts" : endTime, "start" : start , "end" : end, "title" : title}})
+    close_db()
+    return events_data
+
+def get_epg_live(min_limit):
+    events_data = {}
+    current_ts = int(time.mktime(datetime.now().timetuple()))
+    open_db()
+    row = None    
+    cnt = 0    
+    for row in db.execute('SELECT count(1) FROM epg WHERE startTime <= ? AND endTime >=?', [current_ts, current_ts]):
+      cnt = row[0]
+    if cnt+3 < min_limit:
+      channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
+      load_epg_ts(channels_key_mapping.keys(), current_ts-60*60*3, current_ts+60*60*3)  
+      open_db()
+    for row in db.execute('SELECT channel, epgId, startTime, endTime, title FROM epg WHERE startTime <= ? AND endTime >=?', [current_ts, current_ts]):
+      channel = row[0]
+      epgId = int(row[1])
+      startTime = int(row[2])
+      endTime = int(row[3])    
+      title = row[4]
+      start = datetime.fromtimestamp(startTime)
+      end = datetime.fromtimestamp(endTime)
+      events_data.update({ channel : { "epgId" : epgId, "start" : start, "end" : end, "title" : title }})
+    close_db()
+    return events_data
+

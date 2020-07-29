@@ -11,7 +11,7 @@ from datetime import date, datetime, timedelta
 import time
 import random
 
-from o2tv.o2api import call_o2_api
+from o2tv.o2api import call_o2_api, get_epg_details
 from o2tv import o2api
 
 from o2tv.channels import load_channels 
@@ -110,31 +110,12 @@ def list_recordings(label):
     if "result" in data and len(data["result"]) > 0:
       for program in data["result"]:
         if program["state"] == "DONE":
-          pvrProgramId = program["pvrProgramId"]
-          if "ratings" in program["program"] and len(program["program"]["ratings"]) > 0:
-            ratings = program["program"]["ratings"]
-          else:
-            ratings = {}
-          if "longDescription" in program["program"] and len(program["program"]["longDescription"]) > 0:
-            plot = program["program"]["longDescription"]
-          else:
-            plot = ""
-          if "images" in program["program"] and len(program["program"]["images"]) > 0 and "cover" in program["program"]["images"][0]:
-            img = program["program"]["images"][0]["cover"]
-          else:
-            img = ""
-          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%w")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
+          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : program["pvrProgramId"], "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%w")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "epgId" : program["program"]["epgId"]}}) 
 
       for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")
         list_item.setProperty("IsPlayable", "true")
-        if addon.getSetting("details") == "true":  
-          list_item.setArt({'thumb': "https://www.o2tv.cz/" + recordings[recording]["img"], 'icon': "https://www.o2tv.cz/" + recordings[recording]["img"]})
-          list_item.setInfo("video", {"mediatype":"movie", "title":recordings[recording]["name"], "plot":recordings[recording]["plot"]})
-          for rating, rating_value in recordings[recording]["ratings"].items():
-            list_item.setRating(rating, rating_value/10)
-        else:
-          list_item.setInfo("video", {"mediatype":"movie", "title":recordings[recording]["name"]})
+        list_item = get_epg_details(list_item, recordings[recording]["epgId"], "")
         list_item.setContentLookup(False)   
         list_item.addContextMenuItems([("Smazat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_recording&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")",)])       
         url = get_url(action='play_recording', pvrProgramId = recordings[recording]["pvrProgramId"], title = recordings[recording]["name"].encode("utf-8"))
@@ -155,31 +136,12 @@ def list_future_recordings(label):
     if "result" in data and len(data["result"]) > 0:
       for program in data["result"]:
         if program["state"] != "DONE":
-          pvrProgramId = program["pvrProgramId"]
-          if "ratings" in program["program"] and len(program["program"]["ratings"]) > 0:
-            ratings = program["program"]["ratings"]
-          else:
-            ratings = {}
-          if "longDescription" in program["program"] and len(program["program"]["longDescription"]) > 0:
-            plot = program["program"]["longDescription"]
-          else:
-            plot = ""
-          if "images" in program["program"] and len(program["program"]["images"]) > 0 and "cover" in program["program"]["images"][0]:
-            img = program["program"]["images"][0]["cover"]
-          else:
-            img = ""
-          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : pvrProgramId, "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%w")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "plot" : plot, "img" : img, "ratings" : ratings}}) 
+          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : program["pvrProgramId"], "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%w")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "epgId" : program["program"]["epgId"]}}) 
 
       for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")
         list_item.setProperty("IsPlayable", "true")
-        if addon.getSetting("details") == "true":  
-          list_item.setArt({'thumb': "https://www.o2tv.cz/" + recordings[recording]["img"], 'icon': "https://www.o2tv.cz/" + recordings[recording]["img"]})
-          list_item.setInfo("video", {"mediatype":"movie", "title":recordings[recording]["name"], "plot":recordings[recording]["plot"]})
-          for rating, rating_value in recordings[recording]["ratings"].items():
-            list_item.setRating(rating, rating_value/10)
-        else:
-          list_item.setInfo("video", {"mediatype":"movie", "title":recordings[recording]["name"]})
+        list_item = get_epg_details(list_item, recordings[recording]["epgId"], "")
         list_item.addContextMenuItems([("Smazat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_recording&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")",)])       
         url = get_url(action='list_future_recordings')  
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)

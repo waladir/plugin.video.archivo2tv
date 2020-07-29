@@ -12,7 +12,7 @@ from datetime import datetime
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
 from o2tv.utils import get_url, get_color
-
+from o2tv.epg import get_epg_live
 from o2tv.channels import load_channels 
 
 _url = sys.argv[0]
@@ -27,45 +27,51 @@ def list_live(page, label):
     channels_details = {} 
     num = 0
     pagesize = int(addon.getSetting("live_pagesize"))
-    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = o2api.header_unity)                                                               
-    if "err" in data:
-      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
-      sys.exit()  
-    if "result" in data and len(data["result"]) > 0:
-      for channel in data["result"]:
-        if addon.getSetting("details") == "true" and "live" in channel:
-          channels_details.update({channel["channel"]["name"] : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"], "live" : { "epgId" : channel["live"]["epgId"], "name" : channel["live"]["name"], "start" : channel["live"]["start"], "end" : channel["live"]["end"] }}})
-        else:
-          channels_details.update({channel["channel"]["name"] : { "logo" : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]}})
+
+    if addon.getSetting("use_epg_db") == "true":
+      channels_details = get_epg_live(len(channels_nums.keys()))
+    else:
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = o2api.header_unity)                                                               
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      if "result" in data and len(data["result"]) > 0:
+        for channel in data["result"]:
+          if addon.getSetting("details") == "true" and "live" in channel:
+            start = datetime.fromtimestamp(int(channel["live"]["start"]/1000))
+            end = datetime.fromtimestamp(int(channel["live"]["end"]/1000))
+            channels_details.update({channel["channel"]["name"] : { "epgId" : channel["live"]["epgId"], "title" : channel["live"]["name"], "start" : start, "end" : end }})
 
     color = get_color(addon.getSetting("label_color_live"))   
     startitem = (int(page)-1) * pagesize
     i = 0
     for num in sorted(channels_nums.keys()):  
       if i >= startitem and i < startitem + pagesize: 
-        if channels_nums[num] in channels_details and "live" in channels_details[channels_nums[num]]:
-          start = datetime.fromtimestamp(int(channels_details[channels_nums[num]]["live"]["start"])/1000)
-          end = datetime.fromtimestamp(int(channels_details[channels_nums[num]]["live"]["end"])/1000)
-          live = "[COLOR " + str(color) + "] | " + channels_details[channels_nums[num]]["live"]["name"].encode("utf-8") + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + "[/COLOR]"
-          live_noncolor = " | " + channels_details[channels_nums[num]]["live"]["name"].encode("utf-8") + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M")
-          
-          list_item = xbmcgui.ListItem(label=channels_nums[num].encode("utf-8") + live)
-          if addon.getSetting("details_live") == "true": 
-            list_item.setInfo("video", {"mediatype":"movie", "title": channels_nums[num].encode("utf-8") + live_noncolor}) 
-            list_item = o2api.get_epg_details(list_item, str(channels_details[channels_nums[num]]["live"]["epgId"]), channels_details[channels_nums[num]]["logo"])
+        channelName = channels_nums[num]
+        if channels_nums[num] in channels_details:
 
+          title = channels_details[channels_nums[num]]["title"]
+          start = channels_details[channels_nums[num]]["start"]
+          end = channels_details[channels_nums[num]]["end"]
+          live = "[COLOR " + str(color) + "] | " + title.encode("utf-8") + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M") + "[/COLOR]"
+          live_noncolor = " | " + title.encode("utf-8") + " | " + start.strftime("%H:%M") + " - " + end.strftime("%H:%M")
+          
+          list_item = xbmcgui.ListItem(label=channelName.encode("utf-8") + live)
+          if addon.getSetting("details_live") == "true": 
+            list_item.setInfo("video", {"mediatype":"movie", "title": channelName.encode("utf-8") + live_noncolor}) 
+            list_item = o2api.get_epg_details(list_item, str(channels_details[channels_nums[num]]["epgId"]), channels_data[channels_nums[num]]["logo"])
           else:
             list_item.setInfo("video", {"mediatype":"movie", "title": channels_nums[num].encode("utf-8") + live_noncolor})
             if channels_nums[num] in channels_details: 
-              list_item.setArt({'thumb': channels_details[channels_nums[num]]["logo"], 'icon': channels_details[channels_nums[num]]["logo"]})
+              list_item.setArt({'thumb': channels_data[channels_nums[num]]["logo"], 'icon': channels_data[channels_nums[num]]["logo"]})
         else: 
           live = ""
           live_noncolor = ""
-          list_item = xbmcgui.ListItem(label=channels_nums[num].encode("utf-8") + live)
+          list_item = xbmcgui.ListItem(label=channelName.encode("utf-8") + live)
           
         list_item.setContentLookup(False)          
         list_item.setProperty("IsPlayable", "true")      
-        url = get_url(action='play_live', channelKey = channels_data[channels_nums[num]]["channelKey"].encode("utf-8"), title = channels_nums[num].encode("utf-8") + live_noncolor)
+        url = get_url(action='play_live', channelKey = channels_data[channels_nums[num]]["channelKey"].encode("utf-8"), title = channelName.encode("utf-8") + live_noncolor)
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
       i = i + 1
 

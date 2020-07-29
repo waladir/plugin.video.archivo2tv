@@ -240,7 +240,7 @@ def generate_playlist():
         else:
           line = "#EXTINF:-1 tvh-epg=\"0\" tvg-logo=\"" + logo + "\"," + channels_nums[num]
         file.write('%s\n' % line)
-        line = "plugin://plugin.video.archivo2tv/?action=get_stream_url&channelKey=" + channels_data[channels_nums[num]]["channelKey"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+        line = "plugin://plugin.video.archivo2tv/?action=get_stream_url&channelKey=" + quote(channels_data[channels_nums[num]]["channelKey"].encode("utf-8"))
         file.write('%s\n' % line)
           
     xbmcgui.Dialog().notification("Sledování O2TV","Playlist byl uložený", xbmcgui.NOTIFICATION_INFO, 4000)    
@@ -275,9 +275,9 @@ def iptv_sc_play(channelName, startdatetime, epg):
       if "epg" in data and len(data["epg"]) > 0 and len(data["epg"]["items"]) > 0 and len(data["epg"]["items"][0]["programs"]) > 0:
         for programs in data["epg"]["items"][0]["programs"]:
           if str(programs["start"]) == str(from_ts*1000):
-            startts = programs["start"]
+            startts = programs["start"]/1000
             start = datetime.fromtimestamp(programs["start"]/1000)
-            endts = programs["end"]
+            endts = programs["end"]/1000
             end = datetime.fromtimestamp(programs["end"]/1000)        
             epgId = programs["epgId"]
             title = utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"]

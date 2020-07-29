@@ -180,14 +180,13 @@ def load_channels():
           channels_key_mapping = data["channels_key_mapping"]
     except IOError:
       not_found_2 = 1
-
     if not_found_1 == 1 or not_found_2 == 1 or (data and len(data) > 0 and "valid_to" in data and data["valid_to"] < int(time.time()) and addon.getSetting("disable_channels_adding") != "true"):
       channels_nums_o2, channels_data_o2, channels_key_mapping_o2 = get_channels_data() # pylint: disable=unused-variable
       if len(channels_nums_o2) > 0:
         for num_o2 in sorted(channels_nums_o2.keys()):
           if not_found_1 == 0:
+             fnd = 0
              for num in sorted(channels_nums.keys()):
-               fnd = 0
                if channels_nums[num] == channels_nums_o2[num_o2]:
                  fnd = 1
                  if not_found_1 == 0 and not_found_2 == 1:
@@ -203,10 +202,13 @@ def load_channels():
             channels_data.update({channels_nums_o2[num_o2] : channels_data_o2[channels_nums_o2[num_o2]]})             
             channels_key_mapping.update({channels_data_o2[channels_nums_o2[num_o2]]["channelKey"] : channels_nums_o2[num_o2]})
         try:
+          channels_written = []
           with codecs.open(filename, "w", encoding="utf-8") as file:
             for num in sorted(channels_nums.keys()):
-              line = channels_nums[num] + ";" + str(num)
-              file.write('%s\n' % line)
+              if not channels_nums[num] in channels_written:
+                channels_written.append(channels_nums[num])
+                line = channels_nums[num] + ";" + str(num)
+                file.write('%s\n' % line)
         except IOError:
           print("Chyba uložení kanálů")   
         try:
@@ -215,11 +217,17 @@ def load_channels():
             file.write('%s\n' % data)
         except IOError:
           print("Chyba uložení kanálů")  
+        for num in sorted(channels_nums.keys()):
+          if not channels_nums[num] in channels_data:
+            del channels_nums[num] 
         return channels_nums, channels_data, channels_key_mapping      
       else:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
     else:
+      for num in sorted(channels_nums.keys()):
+        if not channels_nums[num] in channels_data:
+          del channels_nums[num]       
       return channels_nums, channels_data, channels_key_mapping      
 
 def edit_channel(channelName, channelNum):
