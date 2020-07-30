@@ -282,7 +282,7 @@ def iptv_sc_play(channelName, startdatetime, epg):
             epgId = programs["epgId"]
             title = utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"]
       if int(epgId) > 0:
-        if int(endts/1000) < int(time.mktime(datetime.now().timetuple())):
+        if int(endts) < int(time.mktime(datetime.now().timetuple())):
           play_video(type = "archiv_iptv", channelKey = channelKey, start = startts, end = endts, epgId = epgId, title = title)
         else:
           if epg == 1:
