@@ -101,9 +101,9 @@ def list_category(category, dataSource, filtr, label):
 
     for event in data["result"]:
       if event["channelKey"] in channels_key_mapping:
-        startts = event["start"]
+        startts = event["start"]/1000
         start = datetime.fromtimestamp(event["start"]/1000)
-        endts = event["end"]
+        endts = event["end"]/1000
         end = datetime.fromtimestamp(event["end"]/1000)
         epgId = event["epgId"]
         isSeries = 0
@@ -176,9 +176,9 @@ def list_series(epgId, season, label):
     channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
     for event in data["result"]:
       if event["channelKey"] in channels_key_mapping:
-        startts = event["start"]
+        startts = event["start"]/1000
         start = datetime.fromtimestamp(event["start"]/1000)
-        endts = event["end"]
+        endts = event["end"]/1000
         end = datetime.fromtimestamp(event["end"]/1000)
         epgId = event["epgId"]
         list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")

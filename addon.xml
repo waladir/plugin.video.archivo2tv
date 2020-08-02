@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.8.3">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.8.4">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -44,6 +44,9 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.8.4 (2020-08-02)
+- oprava chyby při přehrávání v kategoriích
+
 v1.8.3 (2020-07-30)
 - oprava chyby při přehrávání živého vysílání v IPTV Simple Clientovi
 

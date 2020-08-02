@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v1.8.4 (2020-08-02)<br>
+- oprava chyby při přehrávání v kategoriích<br><br>
+
 v1.8.3 (2020-07-30)<br>
 - oprava chyby při přehrávání živého vysílání v IPTV Simple Clientovi<br><br>
 
