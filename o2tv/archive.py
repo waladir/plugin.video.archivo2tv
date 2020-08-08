@@ -25,11 +25,11 @@ addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 def list_archiv(label):
     xbmcplugin.setPluginCategory(_handle, label)
 
-    channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable 
+    channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter=1) # pylint: disable=unused-variable 
 
     for num in sorted(channels_nums.keys()):  
       list_item = xbmcgui.ListItem(label=channels_nums[num])
-      if addon.getSetting("details") == "true" and channels_data[channels_nums[num]] and len(channels_data[channels_nums[num]]["logo"]) > 0:
+      if channels_data[channels_nums[num]] and len(channels_data[channels_nums[num]]["logo"]) > 0:
         list_item.setArt({'thumb': channels_data[channels_nums[num]]["logo"], 'icon': channels_data[channels_nums[num]]["logo"]})
       url = get_url(action='list_arch_days', channelKey = channels_data[channels_nums[num]]["channelKey"].encode("utf-8"), label = label + " / " + channels_nums[num].encode("utf-8"))  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
@@ -90,11 +90,7 @@ def list_program(channelKey, day_min, label):
     for key in sorted(events.keys()):
       if int(events[key]["endts"]) > int(time.mktime(datetime.now().timetuple()))-60*60*24*7:
         list_item = xbmcgui.ListItem(label = utils.day_translation_short[events[key]["start"].strftime("%w")].decode("utf-8") + " " + events[key]["start"].strftime("%d.%m %H:%M") + " - " + events[key]["end"].strftime("%H:%M") + " | " + events[key]["title"])
-        if addon.getSetting("details") == "true":  
-          list_item = o2api.get_epg_details(list_item, str(events[key]["epgId"]), "")
-        else:
-          list_item.setInfo("video", {"mediatype":"movie", "title":events[key]["title"]})
-
+        list_item = o2api.get_epg_details(list_item, str(events[key]["epgId"]), "")
         list_item.setProperty("IsPlayable", "true")
         list_item.setContentLookup(False)          
         list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(events[key]["epgId"]) + ")",)])       

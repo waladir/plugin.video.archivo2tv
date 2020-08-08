@@ -7,6 +7,12 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v1.8.5 (2020-08-08)<br>
+- z nastavení jsou odstraněné volby pro zobrazení detailů a posteru k pořadům, budou se zobrazovat vždy a pořetnů pro generování EPG, které bude vždy 8/8<br>
+- interní rozšíření škály ratingu z 0-10 na 0-100, v EPG pak rozšíření na jedno desetinné číslo.<br>
+- do EPG DB přidané informace o seriálech (sezóna, episoda), doplněné i do generování EPG pro IPTV Simple Clienta<br>
+- upravená údržba EPG DB - mažou se data u pořadů, které nejsou k dispozici, tj. starší než 7 dnů, mimo dat k nahrávkám<br><br>
+
 v1.8.4 (2020-08-02)<br>
 - oprava chyby při přehrávání v kategoriích<br><br>
 

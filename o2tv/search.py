@@ -56,7 +56,7 @@ def program_search(query, label):
       sys.exit()  
     
     if "groupedSearch" in data and "groups" in data["groupedSearch"] and len(data["groupedSearch"]["groups"]) > 0:
-      channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable 
+      channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter=1) # pylint: disable=unused-variable 
 
       for item in data["groupedSearch"]["groups"]:
         programs = item["programs"][0]
@@ -66,12 +66,8 @@ def program_search(query, label):
           endts = programs["end"]
           end = datetime.fromtimestamp(programs["end"]/1000)
           epgId = programs["epgId"]
-          
           list_item = xbmcgui.ListItem(label = programs["name"] + " (" + programs["channelKey"] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
-          if addon.getSetting("details") == "true":
-            list_item = o2api.get_epg_details(list_item, str(epgId), "")
-          else:
-            list_item.setInfo("video", {"mediatype":"movie", "title":programs["name"]})
+          list_item = o2api.get_epg_details(list_item, str(epgId), "")
           list_item.setProperty("IsPlayable", "true")
           list_item.setContentLookup(False)          
           url = get_url(action='play_archiv', channelKey = programs["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)

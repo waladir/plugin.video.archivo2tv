@@ -61,6 +61,13 @@ def load_epg_db():
                 file.write('       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</title>\n')
                 if events_data[channel][event]["epgId"] in events_detailed_data:
                   file.write('       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</desc>\n')
+                  if events_detailed_data[events_data[channel][event]["epgId"]]["episodeName"] != None and len(events_detailed_data[events_data[channel][event]["epgId"]]["episodeName"]) > 0:
+                    file.write('       <sub-title lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["episodeName"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</sub-title>\n')
+                  if events_detailed_data[events_data[channel][event]["epgId"]]["episodeNumber"] != None and events_detailed_data[events_data[channel][event]["epgId"]]["seasonNumber"] != None and events_detailed_data[events_data[channel][event]["epgId"]]["episodeNumber"] > 0 and events_detailed_data[events_data[channel][event]["epgId"]]["seasonNumber"] > 0:
+                    if events_detailed_data[events_data[channel][event]["epgId"]]["episodesInSeason"] != None and events_detailed_data[events_data[channel][event]["epgId"]]["episodesInSeason"] > 0:
+                      file.write('       <episode-num system="xmltv_ns">' + str(events_detailed_data[events_data[channel][event]["epgId"]]["seasonNumber"]-1) + "." + str(events_detailed_data[events_data[channel][event]["epgId"]]["episodeNumber"]-1) + "/" + str(events_detailed_data[events_data[channel][event]["epgId"]]["episodesInSeason"]) + '.0/0"</episode-num>\n')
+                    else:
+                      file.write('       <episode-num system="xmltv_ns">' + str(events_detailed_data[events_data[channel][event]["epgId"]]["seasonNumber"]-1) + "." + str(events_detailed_data[events_data[channel][event]["epgId"]]["episodeNumber"]-1) + '.0/0"</episode-num>\n')
                   file.write('       <icon src="' + events_detailed_data[events_data[channel][event]["epgId"]]["icon"] + '"/>\n')
                   file.write('       <credits>\n')
                   for cast in events_detailed_data[events_data[channel][event]["epgId"]]["cast"]: 
@@ -92,13 +99,7 @@ def load_epg_db():
 def load_epg():
     check_settings() 
     login()
-    channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
-    if int(addon.getSetting("epg_min")) < 1 or int(addon.getSetting("epg_min")) > 10:
-      xbmcgui.Dialog().notification("Sledování O2TV","Počet dnů pro EPG musí být v intervalu 1 až 10!", xbmcgui.NOTIFICATION_ERROR, 4000)
-      sys.exit()
-    if int(addon.getSetting("epg_fut")) < 1 or int(addon.getSetting("epg_fut")) > 10:
-      xbmcgui.Dialog().notification("Sledování O2TV","Počet dnů pro EPG musí být v intervalu 1 až 10!", xbmcgui.NOTIFICATION_ERROR, 4000)
-      sys.exit()
+    channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter=1) # pylint: disable=unused-variable
 
     events_data = {}
     events_detailed_data = {}
@@ -107,7 +108,7 @@ def load_epg():
     for num in sorted(channels_nums.keys()):
       params = params + ("&channelKey=" + quote(channels_data[channels_nums[num]]["channelKey"].encode("utf-8")))
 
-    for day in range(int(addon.getSetting("epg_min"))*-1,int(addon.getSetting("epg_fut")),1):
+    for day in range(-8,8,1):
       from_datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days = -1*int(day))
       from_ts = int(time.mktime(from_datetime.timetuple()))
       to_ts = from_ts+(24*60*60)-1

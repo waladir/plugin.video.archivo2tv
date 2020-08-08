@@ -26,11 +26,11 @@ addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 def list_planning_recordings(label):
     xbmcplugin.setPluginCategory(_handle, label)
 
-    channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable 
+    channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter=1) # pylint: disable=unused-variable 
     
     for num in sorted(channels_nums.keys()):  
       list_item = xbmcgui.ListItem(label=channels_nums[num])
-      if addon.getSetting("details") == "true" and channels_data[channels_nums[num]] and len(channels_data[channels_nums[num]]["logo"]) > 0:
+      if channels_data[channels_nums[num]] and len(channels_data[channels_nums[num]]["logo"]) > 0:
         list_item.setArt({'thumb': channels_data[channels_nums[num]]["logo"], 'icon': channels_data[channels_nums[num]]["logo"]})
       url = get_url(action='list_rec_days', channelKey = channels_data[channels_nums[num]]["channelKey"].encode("utf-8"), label = label + " / " + channels_nums[num].encode("utf-8"))  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
@@ -76,13 +76,8 @@ def future_program(channelKey, day, label):
         start = datetime.fromtimestamp(programs["start"]/1000)
         end = datetime.fromtimestamp(programs["end"]/1000)
         epgId = programs["epgId"]
-
         list_item = xbmcgui.ListItem(label= utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + programs["name"])
-
-        if addon.getSetting("details") == "true":  
-          list_item = o2api.get_epg_details(list_item, str(epgId), "")
-        else:
-          list_item.setInfo("video", {"mediatype":"video", "title":programs["name"]})
+        list_item = o2api.get_epg_details(list_item, str(epgId), "")
         list_item.setProperty("IsPlayable", "false")
         list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
         url = get_url(action='add_recording', channelKey = channelKey, epgId = epgId)
@@ -106,7 +101,7 @@ def list_recordings(label):
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/", data = None, header = o2api.header_unity)
     if "err" in data:
-      xbmcgui.Dialog().notification("Sledování O2TV","1Problém s načtením nahrávek, zkuste to znovu", xbmcgui.NOTIFICATION_ERROR, 6000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením nahrávek, zkuste to znovu", xbmcgui.NOTIFICATION_ERROR, 6000)
     if "result" in data and len(data["result"]) > 0:
       for program in data["result"]:
         if program["state"] == "DONE":
@@ -115,7 +110,7 @@ def list_recordings(label):
       for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")
         list_item.setProperty("IsPlayable", "true")
-        list_item = get_epg_details(list_item, recordings[recording]["epgId"], "")
+        list_item = o2api.get_epg_details(list_item, recordings[recording]["epgId"], "")
         list_item.setContentLookup(False)   
         list_item.addContextMenuItems([("Smazat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_recording&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")",)])       
         url = get_url(action='play_recording', pvrProgramId = recordings[recording]["pvrProgramId"], title = recordings[recording]["name"].encode("utf-8"))
@@ -141,7 +136,7 @@ def list_future_recordings(label):
       for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")
         list_item.setProperty("IsPlayable", "true")
-        list_item = get_epg_details(list_item, recordings[recording]["epgId"], "")
+        list_item = o2api.get_epg_details(list_item, recordings[recording]["epgId"], "")
         list_item.addContextMenuItems([("Smazat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_recording&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")",)])       
         url = get_url(action='list_future_recordings')  
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)

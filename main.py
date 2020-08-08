@@ -20,6 +20,7 @@ from o2tv.recordings import list_planning_recordings, list_rec_days, future_prog
 from o2tv.stream import play_video
 from o2tv.search import list_search, program_search
 from o2tv.channels import list_channels_list, list_channels_edit, get_o2_channels_lists, load_o2_channel_list, reset_channel_list, edit_channel, delete_channel, list_channels_add, add_channel
+from o2tv.channels import list_channels_groups, add_channel_group, delete_channel_group, select_channel_group, edit_channel_group, edit_channel_group_list_channels, edit_channel_group_add_channel, edit_channel_group_delete_channel
 from o2tv.iptvsc import generate_playlist, generate_epg, iptv_sc_play, iptv_sc_rec
 
 _url = sys.argv[0]
@@ -134,6 +135,24 @@ def router(paramstring):
         elif params['action'] == 'add_channel':
             add_channel(params["channelName"], params["channelNum"])
 
+        elif params['action'] == 'list_channels_groups':
+            list_channels_groups(params["label"])
+        elif params['action'] == 'add_channel_group':
+            add_channel_group(params["label"])
+        elif params['action'] == 'delete_channel_group':
+            delete_channel_group(params["group"])
+        elif params['action'] == 'select_channel_group':
+            select_channel_group(params["group"])
+
+        elif params['action'] == 'edit_channel_group':
+            edit_channel_group(params["group"], params["label"])
+        elif params['action'] == 'edit_channel_group_list_channels':
+            edit_channel_group_list_channels(params["group"], params["label"])
+        elif params['action'] == 'edit_channel_group_add_channel':
+            edit_channel_group_add_channel(params["group"], params["channel"])
+        elif params['action'] == 'edit_channel_group_delete_channel':
+            edit_channel_group_delete_channel(params["group"], params["channel"])
+            
         elif params['action'] == 'generate_playlist':
             generate_playlist()
         elif params['action'] == 'generate_epg':

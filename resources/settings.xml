@@ -10,8 +10,6 @@
         <setting label="Nová O2 session" type="action" action="RunPlugin(plugin://plugin.video.archivo2tv?action=reset_session)"/>
 	</category>
 	<category label="Nastavení">
-        <setting label="Načítat detaily pořadů a postery (pomalejší)" type="bool" id="details" default="true"/>
-        <setting label="Zobrazovat detaily u živého vysílání (pomalé)" type="bool" id="details_live" default="false"/>
         <setting label="Počet kanálů živého vysílání na stránku" type="slider" id="live_pagesize" range="10,5,400" default="20" option="int"/>
         <setting label="Přehrávat i po konci pořadu (minut)" type="slider" id="offset" range="0,5,120" option="int"/>
         <setting label="Historie vyhledávání" type="number" id="search_history" default="10"/>
@@ -30,8 +28,6 @@
         <setting label="Adresář pro playlist/epg" type="folder" id="output_dir" default=""/>
         <setting label="Odstraňovat HD ze jmen kanálů" type="bool" id="remove_hd" default="false"/>
         <setting label="Spouštění archivu přepnutím na kanál" type="bool" id="switch_channel_archiv" default="true"/>
-        <setting label="Počet dnů pro generování EPG - zpětně" type="slider" id="epg_min" range="1,1,10" default="1" option="int"/>
-        <setting label="Počet dnů pro generování EPG - dopředu" type="slider" id="epg_fut" range="1,1,10" default="3" option="int"/>
         <setting label="Automaticky generovat EPG" type="bool" id="autogen" default="false"/>
         <setting label="Interval pro generování EPG (hod.)" type="slider" id="epg_interval" range="1,1,24" default="12" option="int"/>
         <setting label="Přidávat čísla kanálů do playlistu" type="bool" id="add_channel_numbers" default="false"/>        
