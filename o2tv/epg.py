@@ -185,7 +185,7 @@ def load_epg_details():
                 episodesInSeason = int(event["seriesInfo"]["episodesInSeason"])
               if "seasonName" in event["seriesInfo"] and len(event["seriesInfo"]["seasonName"]) > 0:
                 seasonName = event["seriesInfo"]["seasonName"]
-              if "episodeName" in event["seriesInfo"] and len(event["seriesInfo"]["episodeName"]) > 0:
+              if "seriesName" in event["seriesInfo"] and len(event["seriesInfo"]["seriesName"]) > 0:
                 seriesName = event["seriesInfo"]["seriesName"]    
             if "contentType" in event and len(event["contentType"]) > 0:
               contentType = event["contentType"]                           

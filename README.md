@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v1.8.6 (2020-08-09)<br>
+- oprava plnění DB<br><br>
+
 v1.8.5 (2020-08-08)<br>
 - z nastavení jsou odstraněné volby pro zobrazení detailů a posteru k pořadům, budou se zobrazovat vždy a pořetnů pro generování EPG, které bude vždy 8/8<br>
 - interní rozšíření škály ratingu z 0-10 na 0-100, v EPG pak rozšíření na jedno desetinné číslo.<br>
