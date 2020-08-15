@@ -208,7 +208,7 @@ def load_epg_details():
     print("INSERTED epg_details: " + str(cnt))
 
 def load_epg_details_inc():
-    limit = 3000
+    limit = 250
     limit_ts = int(time.mktime(datetime.now().timetuple()))
     print("start incremental loading epg details")
     open_db()
@@ -216,7 +216,9 @@ def load_epg_details_inc():
     for row in db.execute('SELECT epgId FROM epg WHERE startTime < ? AND epgId not in (SELECT epgId FROM epg_details) LIMIT ' + str(limit),[str(limit_ts),]):    
       epgIds.append(row[0])
     close_db()
-    get_epg_details(epgIds)
+    if len(epgIds) > 0:
+      get_epg_details(epgIds)
+    print("total epgIds: " + str(len(epgIds)))
     print("end incremental loading epg details")
 
 def load_epg_ts(channelKeys, from_ts, to_ts):
@@ -379,7 +381,7 @@ def get_epg_details(epgIds):
               seriesName = data["seriesInfo"]["seriesName"]
           if "contentType" in data and len(data["contentType"]) > 0:
             contentType = data["contentType"]
-          db.execute('INSERT INTO epg_details VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (epgId, cover, description, json.dumps(ratings), json.dumps(cast), json.dumps(directors), year, country, original, json.dumps(genres), imdb, episodeNumber, episodeName, seasonNumber, episodesInSeason, seasonName, seriesName, contentType))      
+        db.execute('INSERT INTO epg_details VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (epgId, cover, description, json.dumps(ratings), json.dumps(cast), json.dumps(directors), year, country, original, json.dumps(genres), imdb, episodeNumber, episodeName, seasonNumber, episodesInSeason, seasonName, seriesName, contentType))      
     db.commit()
     close_db()
     event = { "epgId" : epgId, "cover" : cover, "description" : description, "ratings" : ratings, "cast" : cast, "directors" : directors, "year" : year, "country" : country, "original" : original, "genres" : genres, "imdb" : imdb, "episodeNumber" : episodeNumber, "episodeName" : episodeName, "seasonNumber" : seasonNumber, "episodesInSeason" : episodesInSeason, "seasonName" : seasonName, "seriesName" : seriesName }
@@ -441,7 +443,7 @@ def get_epg_all():
 
     open_db()
     row = None
-    for row in db.execute('SELECT * FROM epg WHERE startTime >= ?',[str(limit_ts)]):
+    for row in db.execute('SELECT * FROM epg WHERE startTime >= ? AND availableTo >= ?',[str(limit_ts), int(time.mktime(datetime.now().timetuple()))]):
       epgId = int(row[0])
       startTime = int(row[1])
       endTime = int(row[2])    
@@ -484,13 +486,13 @@ def get_epg_ts(channelKey, from_ts, to_ts, min_limit):
     open_db()
     row = None
     cnt = 0
-    for row in db.execute('SELECT count(1) FROM epg WHERE startTime >= ? AND startTime <=? AND channel = ?', [from_ts, to_ts, channelName]):
+    for row in db.execute('SELECT count(1) FROM epg WHERE startTime >= ? AND startTime <=? AND channel = ? AND availableTo > ?', [from_ts, to_ts, channelName, int(time.mktime(datetime.now().timetuple()))]):
       cnt = row[0]
     if cnt < min_limit:
       channelKeys = [channelKey]
       load_epg_ts(channelKeys, from_ts, to_ts)  
       open_db()
-    for row in db.execute('SELECT epgId, startTime, endTime, title FROM epg WHERE startTime >= ? AND startTime <=? AND channel = ?', [from_ts, to_ts, channelName]):
+    for row in db.execute('SELECT epgId, startTime, endTime, title FROM epg WHERE startTime >= ? AND startTime <=? AND channel = ?  AND availableTo > ?', [from_ts, to_ts, channelName, int(time.mktime(datetime.now().timetuple()))]):
       epgId = int(row[0])
       startTime = int(row[1])
       endTime = int(row[2])    
@@ -525,6 +527,19 @@ def get_epg_live(min_limit):
     close_db()
     return events_data
 
+def get_epgId_iptvsc(channel, starttime):
+    open_db()
+    result = { "epgId" : -1}    
+    for row in db.execute('SELECT epgId, title, startTime, endTime FROM epg WHERE channel = ? AND startTime = ?', [channel, starttime]):
+      epgId = int(row[0])
+      title = row[1]
+      startts = int(row[2])
+      endts = int(row[3])
+      result = { "epgId" : epgId, "title" : title, "start" : startts, "end" : endts}
+    close_db()
+    return result  
+
+
 def get_recordings_epgIds():
     epgIds = []
     o2api.login()
@@ -536,40 +551,3 @@ def get_recordings_epgIds():
         epgIds.append(str(program["program"]["epgId"]))
     return epgIds
 
-def get_category(filter_genres,filter_nongenres, series):
-    load_epg_details_inc()
-    limit_ts = int(time.mktime(datetime.now().timetuple()))
-    events = {}
-    events_ratings = {}
-    result = []
-    titles = []
-    open_db()
-    if series:
-      series_filter = "(episodeNumber > 0 OR seasonNumber > 0)"
-    else:
-      series_filter = "episodeNumber = -1 AND seasonNumber = -1"            
-    for row in db.execute("SELECT a.epgId, a.title, a.channel, a.startTime, a.endTime, b.ratings, b.genres FROM epg a, epg_details b WHERE a.epgId = b.epgId AND b.contentType = 'film' AND " + series_filter + " AND startTime <= ?", [limit_ts]):
-      epgId = int(row[0])
-      title = row[1]
-      channel = row[2]
-      startts = int(row[3])
-      endts = int(row[4])
-      ratings = json.loads(row[5])
-      genres = json.loads(row[6])
-      fnd = 0
-      if title not in titles:
-        titles.append(title)
-        for genre in genres:
-          if genre in filter_genres and genre not in filter_nongenres:
-            fnd = fnd + 1
-        if fnd == len(filter_genres):
-          if "o2rating" in ratings:
-            rating = ratings["o2rating"]
-          else:
-            rating = 0
-          events_ratings.update({epgId : rating})
-          events.update({ epgId : {"title" : title, "channel" : channel, "startts" : startts, "endts" : endts }})
-    close_db()
-    for key, value in sorted(events_ratings.iteritems(), key=lambda (k,v): (v,k), reverse=True): # pylint: disable=unused-variable
-      result.append({key : events[key]})
-    return result

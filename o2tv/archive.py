@@ -10,11 +10,9 @@ from urllib import urlencode, quote
 from datetime import date, datetime, timedelta 
 import time
 
-from o2tv.o2api import call_o2_api
-from o2tv import o2api
 from o2tv.utils import get_url, get_color
 from o2tv import utils
-from o2tv.epg import get_epg_ts
+from o2tv.epg import get_epg_ts, get_listitem_epg_details
 from o2tv.channels import load_channels 
 
 _url = sys.argv[0]
@@ -67,33 +65,15 @@ def list_program(channelKey, day_min, label):
     to_ts = int(time.mktime(to_datetime.timetuple()))
 
     events = {}
-    if addon.getSetting("use_epg_db") == "true":
-      events = get_epg_ts(channelKey.decode("utf-8"), from_ts, to_ts, 5)
-    else:
-      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?channelKey=" + quote(channelKey) + "&from=" + str(from_ts*1000) + "&to=" + str(to_ts*1000) + "&forceLimit=true&limit=500", data = None, header = o2api.header_unity)
-      if "err" in data:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
-
-      if "epg" in data and len(data["epg"]) > 0 and len(data["epg"]["items"]) > 0 and len(data["epg"]["items"][0]["programs"]) > 0:
-        for programs in data["epg"]["items"][0]["programs"]:
-          startts = programs["start"]/1000
-          start = datetime.fromtimestamp(programs["start"]/1000)
-          endts = programs["end"]/1000
-          end = datetime.fromtimestamp(programs["end"]/1000)
-          epgId = programs["epgId"]
-          events.update({ startts : { "epgId" : epgId, "startts" : startts, "endts" : endts, "start" : start , "end" : end, "title" : programs["name"]}})
-      else:
-          xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením programu", xbmcgui.NOTIFICATION_ERROR, 4000)
-          sys.exit()            
+    events = get_epg_ts(channelKey.decode("utf-8"), from_ts, to_ts, 5)
      
     for key in sorted(events.keys()):
       if int(events[key]["endts"]) > int(time.mktime(datetime.now().timetuple()))-60*60*24*7:
         list_item = xbmcgui.ListItem(label = utils.day_translation_short[events[key]["start"].strftime("%w")].decode("utf-8") + " " + events[key]["start"].strftime("%d.%m %H:%M") + " - " + events[key]["end"].strftime("%H:%M") + " | " + events[key]["title"])
-        list_item = o2api.get_epg_details(list_item, str(events[key]["epgId"]), "")
+        list_item = get_listitem_epg_details(list_item, str(events[key]["epgId"]), "")
         list_item.setProperty("IsPlayable", "true")
         list_item.setContentLookup(False)          
-        list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(events[key]["epgId"]) + ")",)])       
+        list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(events[key]["epgId"]) + ")") , ("Související pořady", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(events[key]["epgId"]) + "&label=Související / " + events[key]["title"].encode("utf-8") + ")"), ("Vysílání pořadu", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(events[key]["epgId"]) + "&label=" + events[key]["title"].encode("utf-8") + ")")])       
         url = get_url(action='play_archiv', channelKey = channelKey, start = events[key]["startts"], end = events[key]["endts"], epgId = events[key]["epgId"])
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)

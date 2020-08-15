@@ -15,7 +15,7 @@ from o2tv.utils import check_settings, get_url
 
 from o2tv.live import list_live
 from o2tv.archive import list_archiv, list_arch_days, list_program
-from o2tv.categories import list_categories, list_subcategories, list_category, list_series
+from o2tv.categories import list_categories, list_subcategories, list_category, list_series, list_related, list_same
 from o2tv.recordings import list_planning_recordings, list_rec_days, future_program, list_recordings, list_future_recordings, delete_recording, add_recording
 from o2tv.stream import play_video
 from o2tv.search import list_search, program_search
@@ -88,9 +88,16 @@ def router(paramstring):
         elif params["action"] == "list_subcategories":
             list_subcategories(params["category"], params["label"])           
         elif params["action"] == "list_category":
-            list_category(params["category"], params["dataSource"], params["filtr"], params["label"])
+            if "page" not in params:
+              params["page"] = None  
+            list_category(params["category"], params["dataSource"], params["filtr"], params["page"], params["label"])
         elif params["action"] == "list_series":
             list_series(params["epgId"], params["season"], params["label"])            
+        elif params["action"] == "list_related":
+            list_related(params["epgId"], params["label"])            
+        elif params["action"] == "list_same":
+            list_same(params["epgId"], params["label"])            
+
 
         elif params['action'] == 'list_planning_recordings':
             list_planning_recordings(params["label"])

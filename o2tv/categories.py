@@ -10,81 +10,109 @@ import json
 from urllib import urlencode, quote_plus
 from datetime import datetime 
 import time
+import codecs
 
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
-from o2tv.utils import get_url
+from o2tv.utils import get_url, remove_diacritics
 from o2tv import utils
 from o2tv.channels import load_channels 
-from o2tv.epg import get_category
+from o2tv.epg import get_listitem_epg_details
+
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
 
-def list_categories(label):
-  xbmcplugin.setPluginCategory(_handle, label)
+def load_categories():
+    filename = addon_userdata_dir + "categories.txt"
+    not_found = 0
+    try:
+      with codecs.open(filename, "r", encoding="utf-8") as file:
+        for line in file:
+          data = json.loads(line[:-1])
+    except IOError:
+      not_found = 1          
 
-  data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/?name=catalogue", data = None, header = o2api.header_unity)
-  if "err" in data:
-    xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorií", xbmcgui.NOTIFICATION_ERROR, 4000)
-    sys.exit()  
-  if "result" in data and len(data["result"]) > 0:
-    for category in data["result"]:
-      if "name" in category and len(category["name"]) > 0 and "slug" in category and len(category["slug"]) > 0:
-        slug = category["slug"]
+    if not_found == 1 or (data and "valid_to" in data and data["valid_to"] < int(time.time())):
+      slugs = []
+      categories = {}
+      subcategories = {}
+      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/?name=catalogue", data = None, header = o2api.header_unity)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorií", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()  
+      if "result" in data and len(data["result"]) > 0:
+        for category in data["result"]:
+          if "slug" in category and len(category["slug"]) > 0:
+            slugs.append(category["slug"])
+      for slug in slugs:
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/slug/?slug=" + slug, data = None, header = o2api.header_unity)
         if "err" in data:
           xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorií", xbmcgui.NOTIFICATION_ERROR, 4000)
           sys.exit()  
         if "name" in data and len(data["name"]) > 0:
-          if data["type"] == "programs" and "filter" in category and "contentType" in data["filter"] and len(data["filter"]["contentType"]) > 0:
-            contentType = data["filter"]["contentType"]
-            filtr = json.dumps({"genres" : data["filter"]["genres"], "notGenres" : data["filter"]["notGenres"], "containsAllGenres" : data["filter"]["containsAllGenres"]}).encode("utf-8")
-            list_item = xbmcgui.ListItem(label=data["name"].encode("utf-8"))
-            url = get_url(action='list_category', category = contentType.encode("utf-8"), dataSource = data["dataSource"], filtr = filtr, label = label + " / " + data["name"].encode("utf-8"))  
-            if "images" in category and data["images"] != None and "iconPng" in data["images"] and "url" in data["images"]["iconPng"] and len(data["images"]["iconPng"]["url"]) > 0:
-              list_item.setArt({'thumb':"https://www.o2tv.cz" + data["images"]["iconPng"]["url"], 'icon':"https://www.o2tv.cz" + data["images"]["iconPng"]["url"]})
-            print(filtr)
-            xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-          
-          if data["type"] == "list" and "filter" in category and "name" in data["filter"] and len(data["filter"]["name"]) > 0:
-            list_item = xbmcgui.ListItem(label=data["name"].encode("utf-8"))
-            url = get_url(action='list_subcategories', category = data["filter"]["name"].encode("utf-8"), dataSource = data["dataSource"], label = label + " / " + data["name"].encode("utf-8"))  
-            if "images" in category and data["images"] != None and "iconPng" in data["images"] and "url" in data["images"]["iconPng"] and len(data["images"]["iconPng"]["url"]) > 0:
-              list_item.setArt({'thumb':"https://www.o2tv.cz" + data["images"]["iconPng"]["url"], 'icon':"https://www.o2tv.cz" + data["images"]["iconPng"]["url"]})
-            xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-    xbmcplugin.endOfDirectory(_handle)              
-  else:
-    xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorií", xbmcgui.NOTIFICATION_ERROR, 4000)
-    sys.exit()  
+          categories.update({ slug : { "name" : data["name"], "type" : data["type"], "filter" : data["filter"], "dataSource" : data["dataSource"] }})
+      
+      for slug in slugs:
+        if categories[slug]["type"] == "list":
+          data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/?name=" + categories[slug]["filter"]["name"].encode("utf-8"), data = None, header = o2api.header_unity)  
+          if "err" in data:
+            xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorií", xbmcgui.NOTIFICATION_ERROR, 4000)
+            sys.exit()  
+          if "result" in data and len(data["result"]) > 0:
+            cnt = 0
+            subcategory = {}
+            for category in data["result"]:
+              subcategory.update({ cnt : {  "name" : category["name"], "type" : category["type"], "filter" : category["filter"], "dataSource" : category["dataSource"] }})  
+              cnt = cnt + 1    
+          subcategories.update({ categories[slug]["filter"]["name"] : subcategory })    
+      try:
+        with codecs.open(filename, "w", encoding="utf-8") as file:
+          data = json.dumps({"categories" : categories, "subcategories" : subcategories, "slugs" : slugs, "valid_to" : int(time.time()) + 60*60*24})
+          file.write('%s\n' % data)
+      except IOError:
+        print("Chyba uložení kategorií") 
+    else:
+      categories = data["categories"]  
+      subcategories = data["subcategories"]  
+      slugs = data["slugs"]
+    return categories, subcategories, slugs
+
+def list_categories(label):
+  xbmcplugin.setPluginCategory(_handle, label)
+  categories, subcategories, slugs = load_categories() # pylint: disable=unused-variable 
+  for slug in slugs:
+    if categories[slug]["type"] == "programs" and "filter" in categories[slug]:
+      filtr = json.dumps({"genres" : categories[slug]["filter"]["genres"], "notGenres" : categories[slug]["filter"]["notGenres"], "containsAllGenres" : categories[slug]["filter"]["containsAllGenres"], "contentType" : categories[slug]["filter"]["contentType"]}).encode("utf-8")
+      list_item = xbmcgui.ListItem(label=categories[slug]["name"].encode("utf-8"))
+      url = get_url(action='list_category', category = categories[slug]["filter"]["contentType"].encode("utf-8"), dataSource = categories[slug]["dataSource"], filtr = filtr, label = label + " / " + categories[slug]["name"].encode("utf-8"))  
+      xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+    if categories[slug]["type"] == "list" and "filter" in categories[slug]:
+      list_item = xbmcgui.ListItem(label=categories[slug]["name"].encode("utf-8"))
+      url = get_url(action='list_subcategories', category = categories[slug]["filter"]["name"].encode("utf-8"), dataSource = categories[slug]["dataSource"], label = label + " / " + categories[slug]["name"].encode("utf-8"))  
+      xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+  xbmcplugin.endOfDirectory(_handle)              
 
 def list_subcategories(category, label):
   xbmcplugin.setPluginCategory(_handle, label)
-  data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/?name=" + category, data = None, header = o2api.header_unity)  
-  if "err" in data:
-    xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorií", xbmcgui.NOTIFICATION_ERROR, 4000)
-    sys.exit()  
-  if "result" in data and len(data["result"]) > 0:
-    for category in data["result"]:
-      contentType = ""
-      filtr = ""
-      if category["type"] == "programs" and "filter" in category and "contentType" in category["filter"] and len(category["filter"]["contentType"]) > 0 and category["filter"]["contentType"].encode("utf-8") != "živý přenos":
-        contentType = category["filter"]["contentType"]
-        filtr = json.dumps({"genres" : category["filter"]["genres"], "notGenres" : category["filter"]["notGenres"], "containsAllGenres" : category["filter"]["containsAllGenres"]}).encode("utf-8")
-        list_item = xbmcgui.ListItem(label=category["name"].encode("utf-8"))
-        url = get_url(action='list_category', category = contentType.encode("utf-8"), dataSource = category["dataSource"], filtr = filtr, label = label + " / " + category["name"].encode("utf-8"))  
-        if "images" in category and category["images"] != None and "iconPng" in category["images"] and "url" in category["images"]["iconPng"] and len(category["images"]["iconPng"]["url"]) > 0:
-          list_item.setArt({'thumb':"https://www.o2tv.cz" + category["images"]["iconPng"]["url"], 'icon':"https://www.o2tv.cz" + category["images"]["iconPng"]["url"]})
-        xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+  categories, subcategories, slugs = load_categories() # pylint: disable=unused-variable 
+  subcategory_keys = {}
+  for num in subcategories[category].keys():
+    subcategory_keys.update({int(num) : num})
+  for num in sorted(subcategory_keys.keys()):
+    subcategory =subcategory_keys[num]
+    if subcategories[category][subcategory]["type"] == "programs" and subcategories[category][subcategory]["filter"]["contentType"].encode("utf-8") != "živý přenos":
+      filtr = json.dumps({"genres" : subcategories[category][subcategory]["filter"]["genres"], "notGenres" : subcategories[category][subcategory]["filter"]["notGenres"], "containsAllGenres" : subcategories[category][subcategory]["filter"]["containsAllGenres"], "contentType" : subcategories[category][subcategory]["filter"]["contentType"]}).encode("utf-8")
+      list_item = xbmcgui.ListItem(label=subcategories[category][subcategory]["name"].encode("utf-8"))
+      url = get_url(action='list_category', category = subcategories[category][subcategory]["name"].encode("utf-8"), dataSource = subcategories[category][subcategory]["dataSource"], filtr = filtr, label = label + " / " + subcategories[category][subcategory]["name"].encode("utf-8"))  
+      xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+  xbmcplugin.endOfDirectory(_handle)              
 
-    xbmcplugin.endOfDirectory(_handle)              
-  else:
-    xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením ketegorií", xbmcgui.NOTIFICATION_ERROR, 4000)
-    sys.exit()  
-
-def list_category(category, dataSource, filtr, label):
+def list_category(category, dataSource, filtr, page, label):
   xbmcplugin.setPluginCategory(_handle, label)
+  page_limit = int(addon.getSetting("category_pagesize"))
   filtr = json.loads(filtr)
   params = ""
   genres = []
@@ -97,31 +125,44 @@ def list_category(category, dataSource, filtr, label):
     if len(nongenre) > 0:
       params = params + "&notGenres=" + quote_plus(nongenre.encode("utf8"))
       nongenres.append(nongenre)
+  contentType = filtr["contentType"]
   
-  if 1 == 0:
+  channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter=1) # pylint: disable=unused-variable 
+  events = {}
+  data = call_o2_api(url = "https://www.o2tv.cz" + dataSource + "?containsAllGenres=" + str(filtr["containsAllGenres"]).lower() + "&contentType=" + contentType + params + "&encodedChannels=" + o2api.encodedChannels + "&sort=-o2rating&grouped=true&isFuture=false&limit=500&offset=0", data = None, header = o2api.header_unity)
+  if "err" in data:
+    xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
+    sys.exit()        
+  if "result" in data and len(data["result"]) > 0:
+    num = 0
+    cnt = 0
+    characters = []
     channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter=1) # pylint: disable=unused-variable 
-    events = get_category(genres, nongenres, series = False)
-    print(category)
-    print(dataSource)
-    print(filtr)
-    for event in events:
-      epgId = event.keys()[0]
-      list_item = xbmcgui.ListItem(label = event[epgId]["title"] + " (" + event[epgId]["channel"] + ")")
-      list_item = o2api.get_epg_details(list_item, str(epgId), "")  
-      url = get_url(action='play_archiv', channelKey = channels_data[event[epgId]["channel"]]["channelKey"].encode("utf-8"), start = event[epgId]["startts"], end = event[epgId]["endts"], epgId = epgId)
-      list_item.setProperty("IsPlayable", "true")
-      list_item.setContentLookup(False)         
-      xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
-    xbmcplugin.endOfDirectory(_handle)
-  else:
-    data = call_o2_api(url = "https://www.o2tv.cz" + dataSource + "?containsAllGenres=" + str(filtr["containsAllGenres"]).lower() + "&contentType=" + category + params + "&encodedChannels=" + o2api.encodedChannels + "&sort=-o2rating&grouped=true&isFuture=false&limit=500&offset=0", data = None, header = o2api.header_unity)
-    if "err" in data:
-      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
-      sys.exit()        
-    if "result" in data and len(data["result"]) > 0:
-      channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter=1) # pylint: disable=unused-variable 
-      for event in data["result"]:
-        if event["channelKey"] in channels_key_mapping and channels_key_mapping[event["channelKey"]] in channels_nums.values():
+    for event in data["result"]:
+      if event["channelKey"] in channels_key_mapping and channels_key_mapping[event["channelKey"]] in channels_nums.values():
+        cnt = cnt + 1
+        if addon.getSetting("categories_sorting") == "ratingu":
+          events.update({ num : event})
+          num = num + 1
+        else:
+          events.update({ event["name"] : event})
+          if remove_diacritics(event["name"][:1].upper()) not in characters:
+            characters.append(remove_diacritics(event["name"][:1].upper()))
+    if addon.getSetting("categories_sorting") == "názvu" and page is None and page_limit > 0 and len(events) > page_limit:
+      characters.sort()
+      for character in characters:
+        list_item = xbmcgui.ListItem(label=character)
+        url = get_url(action='list_category', category = contentType, dataSource = dataSource, filtr = json.dumps(filtr), page = character.encode("utf-8"), label = label + " / " + character.encode("utf-8"))  
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, True)        
+    else:  
+      if addon.getSetting("categories_sorting") == "ratingu" and page_limit > 0:
+        if page is None:
+          page = 1
+        startitem = (int(page)-1) * page_limit
+      cnt = 0
+      for key in sorted(events.keys()):
+        if page is None or page_limit == 0 or (page is not None and addon.getSetting("categories_sorting") == "názvu" and remove_diacritics(events[key]["name"][:1].upper()) == page) or (page is not None and addon.getSetting("categories_sorting") == "ratingu" and cnt >= startitem and cnt < startitem + page_limit):
+          event = events[key]
           startts = event["start"]/1000
           start = datetime.fromtimestamp(event["start"]/1000)
           endts = event["end"]/1000
@@ -168,6 +209,7 @@ def list_category(category, dataSource, filtr, label):
             for genre in event["genreInfo"]["genres"]:      
               genres.append(genre["name"].encode("utf-8"))
             list_item.setInfo("video", {"genre" : genres})    
+          list_item.addContextMenuItems([("Související pořady", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(epgId) + "&label=Související / " + event["name"].encode("utf-8") + ")"), ("Vysílání pořadu", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(epgId) + "&label=" + event["name"].encode("utf-8") + ")")])       
           if isSeries == 0:
             list_item.setProperty("IsPlayable", "true")
             list_item.setContentLookup(False)          
@@ -181,14 +223,21 @@ def list_category(category, dataSource, filtr, label):
             list_item.setProperty("IsPlayable", "false")
             url = get_url(action='list_series', epgId = epgId, season = season, label = event["name"].encode("utf-8"))
             xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-      xbmcplugin.endOfDirectory(_handle)
+        cnt = cnt + 1
+
+      if page is not None and addon.getSetting("categories_sorting") == "ratingu" and int(page) * page_limit <= cnt:
+        list_item = xbmcgui.ListItem(label="další strana")
+        url = get_url(action='list_category', category = contentType, dataSource = dataSource, filtr = json.dumps(filtr), page = int(page) + 1, label = label)  
+        list_item.setProperty("IsPlayable", "false")
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, True)     
+  xbmcplugin.endOfDirectory(_handle)
+
 
 def list_series(epgId, season, label):
   xbmcplugin.setPluginCategory(_handle, label)
   params = ""
   if int(season) > 0:
     params = params + "&seasonNumber=" + str(season)
-
   data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/episodes/?containsAllGenres=false&isFuture=false" + params, data = None, header = o2api.header_unity)
   if "err" in data:
     xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
@@ -204,10 +253,63 @@ def list_series(epgId, season, label):
         epgId = event["epgId"]
         list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
         list_item.setInfo("video", {"mediatype":"movie"})
-        list_item = o2api.get_epg_details(list_item, str(event["epgId"]), "")
+        list_item = get_listitem_epg_details(list_item, str(event["epgId"]), "")
         list_item.setProperty("IsPlayable", "true")
         list_item.setContentLookup(False)          
         url = get_url(action='play_archiv', channelKey = event["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)      
     xbmcplugin.endOfDirectory(_handle)
+    
+def list_related(epgId, label):
+  xbmcplugin.setPluginCategory(_handle, label)
+  o2api.login()
+  data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/related/?encodedChannels=" + o2api.encodedChannels + "&isFuture=false", data = None, header = o2api.header_unity)
+  if "err" in data:
+    xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
+    sys.exit()        
+  if "result" in data and len(data["result"]) > 0:
+    channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter=1) # pylint: disable=unused-variable
+    for event in data["result"]:
+      if event["channelKey"] in channels_key_mapping and channels_key_mapping[event["channelKey"]] in channels_nums.values():
+        startts = event["start"]/1000
+        start = datetime.fromtimestamp(event["start"]/1000)
+        endts = event["end"]/1000
+        end = datetime.fromtimestamp(event["end"]/1000)
+        epgId = event["epgId"]
+        list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
+        list_item.setInfo("video", {"mediatype":"movie"})
+        list_item = get_listitem_epg_details(list_item, str(event["epgId"]), "")
+        list_item.setProperty("IsPlayable", "true")
+        list_item.setContentLookup(False)          
+        url = get_url(action='play_archiv', channelKey = event["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, False)      
+    xbmcplugin.endOfDirectory(_handle)
+  else:  
+    xbmcgui.Dialog().notification("Sledování O2TV","Žádné pořady nenalezeny", xbmcgui.NOTIFICATION_INFO, 4000)
 
+
+def list_same(epgId, label):
+  xbmcplugin.setPluginCategory(_handle, label)
+  data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/grouped/", data = None, header = o2api.header_unity)
+  if "err" in data:
+    xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
+    sys.exit()        
+  if "result" in data and len(data["result"]) > 0:
+    channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter=1) # pylint: disable=unused-variable
+    for event in data["result"]:
+      if event["channel"]["channelKey"] in channels_key_mapping and channels_key_mapping[event["channel"]["channelKey"]] in channels_nums.values():
+        startts = event["program"]["start"]/1000
+        start = datetime.fromtimestamp(event["program"]["start"]/1000)
+        endts = event["program"]["end"]/1000
+        end = datetime.fromtimestamp(event["program"]["end"]/1000)
+        epgId = event["program"]["epgId"]
+        list_item = xbmcgui.ListItem(label = event["program"]["name"] + " (" + channels_key_mapping[event["channel"]["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
+        list_item.setInfo("video", {"mediatype":"movie"})
+        list_item = get_listitem_epg_details(list_item, str(event["program"]["epgId"]), "")
+        list_item.setProperty("IsPlayable", "true")
+        list_item.setContentLookup(False)          
+        url = get_url(action='play_archiv', channelKey = event["channel"]["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, False)      
+    xbmcplugin.endOfDirectory(_handle)    
+  else:
+    xbmcgui.Dialog().notification("Sledování O2TV","Žádné pořady nenalezeny", xbmcgui.NOTIFICATION_INFO, 4000)

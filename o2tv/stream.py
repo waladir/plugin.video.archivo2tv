@@ -10,9 +10,12 @@ from urllib import urlencode, quote
 from urllib2 import urlopen, Request
 
 from datetime import datetime 
+import time
 
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
+from o2tv.epg import get_listitem_epg_details, get_epg_live
+from o2tv.channels import load_channels 
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
@@ -32,21 +35,14 @@ def play_video(type, channelKey, start, end, epgId, title):
 
     if type == "live" or type == "live_iptv" or type == "live_iptv_epg":
       startts = 0
-      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = o2api.header_unity)                                                               
-      if "err" in data:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
-      if "result" in data and len(data["result"]) > 0:
-        for channel in data["result"]:
-          if "live" in channel and channel["channel"]["channelKey"].encode("utf-8") == channelKey:
-            start = datetime.fromtimestamp(int(channel["live"]["start"])/1000)
-            startts = int(channel["live"]["start"])
-            end = datetime.fromtimestamp(int(channel["live"]["end"])/1000)
-            epgId = str(channel["live"]["epgId"])
-      else:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
-
+      channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter = 0) # pylint: disable=unused-variable 
+      channels_details = get_epg_live(len(channels_nums.keys()))      
+      if channelKey.decode("utf-8") in channels_key_mapping:
+        data = channels_details[channels_key_mapping[channelKey.decode("utf-8")]]
+        start = data["start"]
+        startts = int(time.mktime(start.timetuple()))
+        end = data["end"]
+        epgId = str(data["epgId"])
 
     if addon.getSetting("stream_type") == "MPEG-DASH-web":
       if type == "archiv" or type == "archiv_iptv":
@@ -76,7 +72,7 @@ def play_video(type, channelKey, start, end, epgId, title):
         post = {"serviceType" : "TIMESHIFT_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type,  "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "fromTimestamp" : str(start), "toTimestamp" : str(end + (int(addon.getSetting("offset"))*60*1000)), "id" : epgId, "encryptionType" : "NONE"}
       if type == "live" or type == "live_iptv" or type == "live_iptv_epg":
          if addon.getSetting("stream_type") == "MPEG-DASH"  and startts > 0 and addon.getSetting("startover") == "true":
-           startts = int(startts) - 300000
+           startts = int(startts) * 1000 - 300000
            post = {"serviceType" : "STARTOVER_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "fromTimestamp" : startts, "encryptionType" : "NONE"}
          else:
            post = {"serviceType" : "LIVE_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "encryptionType" : "NONE"}
@@ -107,10 +103,10 @@ def play_video(type, channelKey, start, end, epgId, title):
                                                     
     if type == "live_iptv" or type == "live_iptv_epg":
       list_item = xbmcgui.ListItem(path = url)
-      list_item = o2api.get_epg_details(list_item, epgId, "")
+      list_item = get_listitem_epg_details(list_item, epgId, "")
     elif type == "archiv_iptv":
       list_item = xbmcgui.ListItem(title)
-      list_item = o2api.get_epg_details(list_item, str(epgId), "")
+      list_item = get_listitem_epg_details(list_item, str(epgId), "")
     else:
       list_item = xbmcgui.ListItem(path = url)
 

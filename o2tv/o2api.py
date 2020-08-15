@@ -134,50 +134,6 @@ def get_auth_password():
       xbmcgui.Dialog().notification("Sledování O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()
 
-def get_epg_details(list_item, epgId, img):
-    if addon.getSetting("use_epg_db") == "true":
-      from o2tv.epg import get_listitem_epg_details
-      return get_listitem_epg_details(list_item, epgId, img)
-    else:
-      cast = []
-      directors = []
-      genres = []
-      list_item.setInfo("video", {"mediatype":"movie"})
-
-      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = header_unity)
-      if not "err" in data:
-        if "images" in data and len(data["images"]) > 0:
-          list_item.setArt({'poster': "https://www.o2tv.cz/" + data["images"][0]["cover"],'thumb': "https://www.o2tv.cz/" + data["images"][0]["cover"], 'icon': "https://www.o2tv.cz/" + data["images"][0]["cover"]})
-        else:
-          list_item.setArt({'thumb': img, 'icon': img})    
-        if "longDescription" in data and len(data["longDescription"]) > 0:
-          list_item.setInfo("video", {"plot": data["longDescription"]})
-        if "ratings" in data and len(data["ratings"]) > 0:
-          for rating, rating_value in data["ratings"].items():
-            list_item.setRating(rating, int(rating_value)/10)
-        if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "cast" in data["castAndCrew"] and len(data["castAndCrew"]["cast"]) > 0:
-          for person in data["castAndCrew"]["cast"]:      
-            cast.append(person["name"].encode("utf-8"))
-          list_item.setInfo("video", {"cast" : cast})  
-        if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "directors" in data["castAndCrew"] and len(data["castAndCrew"]["directors"]) > 0:
-          for person in data["castAndCrew"]["directors"]:      
-            directors.append(person["name"].encode("utf-8"))
-          list_item.setInfo("video", {"director" : directors})  
-        if "origin" in data and len(data["origin"]) > 0:
-          if "year" in data["origin"] and len(str(data["origin"]["year"])) > 0:
-            list_item.setInfo("video", {"year": data["origin"]["year"]})
-          if "country" in data["origin"] and len(data["origin"]["country"]) > 0:
-            list_item.setInfo("video", {"country": data["origin"]["country"]["name"]})
-        if "origName" in data and len(data["origName"]) > 0:
-          list_item.setInfo("video", {"originaltitle": data["origName"]})
-        if "ext" in data and len(data["ext"]) > 0 and "imdbId" in data["ext"] and len(data["ext"]["imdbId"]) > 0:
-          list_item.setInfo("video", {"imdbnumber": data["ext"]["imdbId"]})
-        if "genreInfo" in data and len(data["genreInfo"]) > 0 and "genres" in data["genreInfo"] and len(data["genreInfo"]["genres"]) > 0:
-          for genre in data["genreInfo"]["genres"]:      
-            genres.append(genre["name"].encode("utf-8"))
-          list_item.setInfo("video", {"genre" : genres})    
-      return list_item
-
 def login():
   global access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels
   global header_unity

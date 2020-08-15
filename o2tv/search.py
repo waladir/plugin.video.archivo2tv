@@ -15,6 +15,7 @@ from o2tv import o2api
 from o2tv.utils import get_url, get_color
 from o2tv import utils
 from o2tv.channels import load_channels 
+from o2tv.epg import get_listitem_epg_details
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
@@ -67,7 +68,7 @@ def program_search(query, label):
           end = datetime.fromtimestamp(programs["end"]/1000)
           epgId = programs["epgId"]
           list_item = xbmcgui.ListItem(label = programs["name"] + " (" + programs["channelKey"] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
-          list_item = o2api.get_epg_details(list_item, str(epgId), "")
+          list_item = get_listitem_epg_details(list_item, str(epgId), "")
           list_item.setProperty("IsPlayable", "true")
           list_item.setContentLookup(False)          
           url = get_url(action='play_archiv', channelKey = programs["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)

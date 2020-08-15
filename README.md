@@ -7,6 +7,15 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v1.9.0 (2020-08-15)<br>
+- ukládání kategorií O2 s aktualizací jednou za 24 hodin<br>
+- využítí EPG DB plánování nahrávek a získání informací o pořadech při přehrávání streamu<br>
+- odstranění zbývajících přímých volání API O2 (mimo nahrávek, vyhledávání a URL streamu)<br>
+- odstraněna možnost použití EPG DB v nastavení, bude se používat vždy mimo vyhledávání a kategorie<br>
+- zmenšená prodleva při ukončení Kodi/doplňku<br>
+- u live, archivních pořadů a pořadů v kategoriích přidáno do kontextového menu vyhledání souvisejících a stejných pořadů<br>
+- opravena chyba v nahrávkách, pokud žádná neexistovala<br><br>
+
 v1.8.6 (2020-08-09)<br>
 - oprava plnění DB<br><br>
 
