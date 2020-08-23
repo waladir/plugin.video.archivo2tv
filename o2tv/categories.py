@@ -145,7 +145,7 @@ def list_category(category, dataSource, filtr, page, label):
           events.update({ num : event})
           num = num + 1
         else:
-          events.update({ event["name"] : event})
+          events.update({ remove_diacritics(event["name"]) : event})
           if remove_diacritics(event["name"][:1].upper()) not in characters:
             characters.append(remove_diacritics(event["name"][:1].upper()))
     if addon.getSetting("categories_sorting") == "názvu" and page is None and page_limit > 0 and len(events) > page_limit:
@@ -209,7 +209,9 @@ def list_category(category, dataSource, filtr, page, label):
             for genre in event["genreInfo"]["genres"]:      
               genres.append(genre["name"].encode("utf-8"))
             list_item.setInfo("video", {"genre" : genres})    
-          list_item.addContextMenuItems([("Související pořady", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(epgId) + "&label=Související / " + event["name"].encode("utf-8") + ")"), ("Vysílání pořadu", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(epgId) + "&label=" + event["name"].encode("utf-8") + ")")])       
+          list_item.addContextMenuItems([("Související pořady", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(epgId) + "&label=Související / " + event["name"].encode("utf-8") + ")"), 
+                                        ("Vysílání pořadu", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(epgId) + "&label=" + event["name"].encode("utf-8") + ")"),
+                                        ("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])       
           if isSeries == 0:
             list_item.setProperty("IsPlayable", "true")
             list_item.setContentLookup(False)          
@@ -281,12 +283,12 @@ def list_related(epgId, label):
         list_item = get_listitem_epg_details(list_item, str(event["epgId"]), "")
         list_item.setProperty("IsPlayable", "true")
         list_item.setContentLookup(False)          
+        list_item.addContextMenuItems([("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])         
         url = get_url(action='play_archiv', channelKey = event["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)      
     xbmcplugin.endOfDirectory(_handle)
   else:  
     xbmcgui.Dialog().notification("Sledování O2TV","Žádné pořady nenalezeny", xbmcgui.NOTIFICATION_INFO, 4000)
-
 
 def list_same(epgId, label):
   xbmcplugin.setPluginCategory(_handle, label)
@@ -302,14 +304,16 @@ def list_same(epgId, label):
         start = datetime.fromtimestamp(event["program"]["start"]/1000)
         endts = event["program"]["end"]/1000
         end = datetime.fromtimestamp(event["program"]["end"]/1000)
-        epgId = event["program"]["epgId"]
-        list_item = xbmcgui.ListItem(label = event["program"]["name"] + " (" + channels_key_mapping[event["channel"]["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
-        list_item.setInfo("video", {"mediatype":"movie"})
-        list_item = get_listitem_epg_details(list_item, str(event["program"]["epgId"]), "")
-        list_item.setProperty("IsPlayable", "true")
-        list_item.setContentLookup(False)          
-        url = get_url(action='play_archiv', channelKey = event["channel"]["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
-        xbmcplugin.addDirectoryItem(_handle, url, list_item, False)      
+        if endts < int(time.mktime(datetime.now().timetuple())):
+          epgId = event["program"]["epgId"]
+          list_item = xbmcgui.ListItem(label = event["program"]["name"] + " (" + channels_key_mapping[event["channel"]["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
+          list_item.setInfo("video", {"mediatype":"movie"})
+          list_item = get_listitem_epg_details(list_item, event["program"]["epgId"], "")
+          list_item.setProperty("IsPlayable", "true")
+          list_item.setContentLookup(False)      
+          list_item.addContextMenuItems([("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])         
+          url = get_url(action='play_archiv', channelKey = event["channel"]["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
+          xbmcplugin.addDirectoryItem(_handle, url, list_item, False)      
     xbmcplugin.endOfDirectory(_handle)    
   else:
     xbmcgui.Dialog().notification("Sledování O2TV","Žádné pořady nenalezeny", xbmcgui.NOTIFICATION_INFO, 4000)

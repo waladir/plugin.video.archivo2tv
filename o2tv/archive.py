@@ -6,7 +6,10 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-from urllib import urlencode, quote
+try:
+    from urllib import urlencode, quote
+except ImportError:
+    from urllib.parse import urlencode, quote
 from datetime import date, datetime, timedelta 
 import time
 
@@ -73,7 +76,14 @@ def list_program(channelKey, day_min, label):
         list_item = get_listitem_epg_details(list_item, str(events[key]["epgId"]), "")
         list_item.setProperty("IsPlayable", "true")
         list_item.setContentLookup(False)          
-        list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(events[key]["epgId"]) + ")") , ("Související pořady", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(events[key]["epgId"]) + "&label=Související / " + events[key]["title"].encode("utf-8") + ")"), ("Vysílání pořadu", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(events[key]["epgId"]) + "&label=" + events[key]["title"].encode("utf-8") + ")")])       
+        if addon.getSetting("download_streams") == "true": 
+          menus = [("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(events[key]["epgId"]) + ")") , 
+                  ("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(events[key]["epgId"]) + ")") , 
+                  ("Související pořady", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(events[key]["epgId"]) + "&label=Související / " + events[key]["title"].encode("utf-8") + ")"), 
+                  ("Vysílání pořadu", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(events[key]["epgId"]) + "&label=" + events[key]["title"].encode("utf-8") + ")")]
+        else:  
+          menus = [("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(events[key]["epgId"]) + ")") , ("Související pořady", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(events[key]["epgId"]) + "&label=Související / " + events[key]["title"].encode("utf-8") + ")"), ("Vysílání pořadu", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(events[key]["epgId"]) + "&label=" + events[key]["title"].encode("utf-8") + ")")]
+        list_item.addContextMenuItems(menus)       
         url = get_url(action='play_archiv', channelKey = channelKey, start = events[key]["startts"], end = events[key]["endts"], epgId = events[key]["epgId"])
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)

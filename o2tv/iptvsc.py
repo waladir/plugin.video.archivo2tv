@@ -16,8 +16,8 @@ from o2tv import utils
 from o2tv.stream import play_video
 from o2tv.recordings import add_recording
 from o2tv.channels import load_channels 
-
-from o2tv.epg import load_epg_all, get_epg_all, get_epgId_iptvsc
+from o2tv.downloader import add_to_queue
+from o2tv.epg import load_epg_all, get_epg_all, get_epgId_iptvsc, get_epg_details
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 
@@ -167,6 +167,24 @@ def iptv_sc_rec(channelName, startdatetime):
     epgId = event["epgId"]
     if epgId > 0:
       add_recording(epgId)
+    else:
+      xbmcgui.Dialog().notification("Sledování O2TV","Pořad u O2 nenalezen! Používáte EPG z doplňku Sledování O2TV?", xbmcgui.NOTIFICATION_ERROR, 10000)
+      sys.exit()  
+
+def iptv_sc_download(channelName, startdatetime):
+    epgId = -1
+    from_ts = int(time.mktime(time.strptime(startdatetime, "%d.%m.%Y %H:%M")))
+    event = get_epgId_iptvsc(channelName.decode("utf-8"), from_ts)
+    epgId = event["epgId"]
+    if epgId > 0:
+      event = get_epg_details([epgId])
+      if event["startTime"] > int(time.mktime(datetime.now().timetuple())) or event["endTime"] > int(time.mktime(datetime.now().timetuple())):
+        xbmcgui.Dialog().notification("Sledování O2TV","Lze stáhnout jen už odvysílaný pořad!", xbmcgui.NOTIFICATION_ERROR, 5000)
+        sys.exit()  
+      if event["availableTo"] < int(time.mktime(datetime.now().timetuple())):
+        xbmcgui.Dialog().notification("Sledování O2TV","Pořad u O2 už není k dispozici!", xbmcgui.NOTIFICATION_ERROR, 5000)
+        sys.exit()         
+      add_to_queue(epgId, None)
     else:
       xbmcgui.Dialog().notification("Sledování O2TV","Pořad u O2 nenalezen! Používáte EPG z doplňku Sledování O2TV?", xbmcgui.NOTIFICATION_ERROR, 10000)
       sys.exit()  

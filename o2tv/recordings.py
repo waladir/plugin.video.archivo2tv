@@ -104,7 +104,8 @@ def list_recordings(label):
         list_item.setProperty("IsPlayable", "true")
         list_item = get_listitem_epg_details(list_item, recordings[recording]["epgId"], "")
         list_item.setContentLookup(False)   
-        list_item.addContextMenuItems([("Smazat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_recording&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")",)])       
+        list_item.addContextMenuItems([("Smazat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_recording&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")",),
+                                       ("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(recordings[recording]["epgId"]) + "&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")")])         
         url = get_url(action='play_recording', pvrProgramId = recordings[recording]["pvrProgramId"], title = recordings[recording]["name"].encode("utf-8"))
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)

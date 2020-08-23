@@ -7,11 +7,16 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-import json
+try:
+    from urllib import urlencode, quote
+    from urlparse import parse_qsl
+    from urllib2 import urlopen, Request, HTTPError
+except ImportError:
+    from urllib.parse import urlencode, quote, parse_qsl
+    from urllib.request import urlopen, Request
+    from urllib.error import HTTPError
 
-from urllib import urlencode, quote
-from urlparse import parse_qsl
-from urllib2 import urlopen, Request, HTTPError
+import json
 import time
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
@@ -21,10 +26,12 @@ header_unity = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0)
 header = {"X-NanguTv-App-Version" : "Android#6.4.1", "User-Agent" : "Dalvik/2.1.0", "Accept-Encoding" : "gzip", "Connection" : "Keep-Alive", "Content-Type" : "application/x-www-form-urlencoded;charset=UTF-8", "X-NanguTv-Device-Id" : addon.getSetting("deviceid"), "X-NanguTv-Device-Name" : addon.getSetting("devicename")}
 
 def call_o2_api(url, data, header):
+    if data != None:
+      data = data.encode("utf-8")
     request = Request(url = url , data = data, headers = header)
     if addon.getSetting("log_request_url") == "true":
       xbmc.log(url)
-    if addon.getSetting("log_request_data") == "true" and data <> None:
+    if addon.getSetting("log_request_data") == "true" and data != None:
       xbmc.log(data)
 
     try:
@@ -134,6 +141,52 @@ def get_auth_password():
       xbmcgui.Dialog().notification("Sledování O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()
 
+def get_auth_web():
+    import urllib2
+
+    post = {"username" : addon.getSetting("username"), "password" : addon.getSetting("password")} 
+    req = urllib2.Request("https://www.o2tv.cz/unity/api/v1/services/")
+    req.add_header("Content-Type", "application/json")
+    resp = urllib2.urlopen(req, json.dumps(post))
+    data = json.loads(resp.read())
+    if "err" in data:
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
+      sys.exit()    
+    serviceid_order = 0
+    if "services" in data and "remoteAccessToken" in data and len(data["remoteAccessToken"]) > 0 and serviceid_order + 1 <= len(data["services"]) and "serviceId" in data["services"][serviceid_order] and len(data["services"][serviceid_order]["serviceId"]) > 0:
+      remote_access_token = data["remoteAccessToken"]
+      service_id = data["services"][serviceid_order]['serviceId']
+      post = {"remoteAccessToken" : remote_access_token} 
+      req = urllib2.Request("https://www.o2tv.cz/unity/api/v1/services/selection/" + service_id + "/")
+      req.add_header('Content-Type', 'application/json')
+      resp = urllib2.urlopen(req, json.dumps(post))
+      data = json.loads(resp.read())
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()    
+      if "accessToken" in data and len(data["accessToken"]) > 0:
+        access_token = data["accessToken"]
+        header_unity = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : str(access_token), "x-o2tv-device-id" : addon.getSetting("deviceid"), "x-o2tv-device-name" : addon.getSetting("devicename")}
+        data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/user/profile/", data = None, header = header_unity)
+        if "err" in data:
+          xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
+          sys.exit()   
+        isp = 1
+        subscription = data["code"]
+        sdata = data["sdata"]
+        locality = data["locality"]
+        offers = data["subscription"]["offers"]
+        tariff = data["tariff"]
+        encodedChannels = data["encodedChannels"]
+        header_unity.update({"x-o2tv-sdata" : str(sdata)})
+        return access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels
+      else:
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()            
+    else:
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s příhlášením", xbmcgui.NOTIFICATION_ERROR, 4000)
+      sys.exit()            
+
 def login():
   global access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels
   global header_unity
@@ -160,6 +213,7 @@ def login():
   else:  
     if "@" in addon.getSetting("username"):
       access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels = get_auth_token()
+#      access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels = get_auth_web()
     else:
       access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels = get_auth_password() 
     auth_data = json.dumps({ "access_token" : access_token, "subscription" : subscription, "isp" : isp, "locality" : locality, "offers" : offers, "tariff" : tariff, "sdata" : sdata, "encodedChannels" : encodedChannels, "valid_to" : int(time.time()) + 60*60*24})

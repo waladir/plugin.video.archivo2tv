@@ -72,6 +72,7 @@ def program_search(query, label):
           list_item.setProperty("IsPlayable", "true")
           list_item.setContentLookup(False)          
           url = get_url(action='play_archiv', channelKey = programs["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
+          list_item.addContextMenuItems([("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])         
           xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
       xbmcplugin.endOfDirectory(_handle)
     else:

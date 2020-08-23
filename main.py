@@ -6,8 +6,12 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-from urlparse import parse_qsl
-from urllib import quote
+
+try:
+    from urllib import quote
+    from urlparse import parse_qsl
+except ImportError:
+    from urllib.parse import quote, parse_qsl
 
 from o2tv.o2api import login
 from o2tv import o2api
@@ -21,7 +25,8 @@ from o2tv.stream import play_video
 from o2tv.search import list_search, program_search
 from o2tv.channels import list_channels_list, list_channels_edit, get_o2_channels_lists, load_o2_channel_list, reset_channel_list, edit_channel, delete_channel, list_channels_add, add_channel
 from o2tv.channels import list_channels_groups, add_channel_group, delete_channel_group, select_channel_group, edit_channel_group, edit_channel_group_list_channels, edit_channel_group_add_channel, edit_channel_group_delete_channel
-from o2tv.iptvsc import generate_playlist, generate_epg, iptv_sc_play, iptv_sc_rec
+from o2tv.iptvsc import generate_playlist, generate_epg, iptv_sc_play, iptv_sc_rec, iptv_sc_download
+from o2tv.downloader import list_downloads, add_to_queue, remove_from_queue
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
@@ -55,7 +60,13 @@ def list_menu():
     list_item.setArt({ "thumb" : os.path.join(icons_dir , 'search.png'), "icon" : os.path.join(icons_dir , 'search.png') })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     
-    if addon.getSetting("hide_channel_list_edit") <> "true":
+    if addon.getSetting("download_streams") == "true":
+        list_item = xbmcgui.ListItem(label="Stahování")
+        url = get_url(action='list_downloads', label = "Stahování")  
+        list_item.setArt({ "thumb" : os.path.join(icons_dir , 'downloads.png'), "icon" : os.path.join(icons_dir , 'downloads.png') })
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
+    if addon.getSetting("hide_channel_list_edit") != "true":
         list_item = xbmcgui.ListItem(label="Seznam kanálů")
         url = get_url(action='list_channels_list', label = "Seznam kanálů")  
         list_item.setArt({ "thumb" : os.path.join(icons_dir , 'settings.png'), "icon" : os.path.join(icons_dir , 'settings.png') })
@@ -173,8 +184,21 @@ def router(paramstring):
             iptv_sc_play(params["channel"], params["startdatetime"], 1)
         elif params['action'] == 'iptv_sc_rec':
             iptv_sc_rec(params["channel"], params["startdatetime"])
+        elif params['action'] == 'iptv_sc_download':
+            iptv_sc_download(params["channel"], params["startdatetime"])            
         elif params['action'] == 'reset_session':
             o2api.session_reset()
+
+        elif params['action'] == 'add_to_queue':
+            if "pvrProgramId" in params:
+                pvrProgramId = params["pvrProgramId"]
+            else:
+                pvrProgramId = None
+            add_to_queue(epgId = params["epgId"], pvrProgramId = pvrProgramId)            
+        elif params['action'] == 'remove_from_queue':
+            remove_from_queue(epgId = params["epgId"])            
+        elif params['action'] == 'list_downloads':
+            list_downloads(params["label"])
         else:
             raise ValueError('Neznámý parametr: {0}!'.format(paramstring))
     else:

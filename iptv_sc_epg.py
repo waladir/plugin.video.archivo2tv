@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import threading
 import json
 import codecs
 import xbmcgui
@@ -8,12 +9,15 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
+
 from urllib2 import Request, urlopen, HTTPError, URLError
 from urllib import urlencode, quote
 
 from datetime import date, datetime, timedelta
 import time
 import string, random 
+
+import downloader
 
 from o2tv.o2api import login
 from o2tv import o2api
@@ -28,6 +32,10 @@ addon_userdata_dir = xbmc.translatePath( addon.getAddonInfo('profile') )
 header_unity = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type":"application/json"}
 header = {"X-NanguTv-App-Version" : "Android#6.4.1", "User-Agent" : "Dalvik/2.1.0", "Accept-Encoding" : "gzip", "Connection" : "Keep-Alive", "Content-Type" : "application/x-www-form-urlencoded;charset=UTF-8", "X-NanguTv-Device-Id" : addon.getSetting("deviceid"), "X-NanguTv-Device-Name" : addon.getSetting("devicename")}
 tz_offset = int((time.mktime(datetime.now().timetuple())-time.mktime(datetime.utcnow().timetuple()))/3600)
+
+class DownloaderThreadClass(threading.Thread):
+    def run(self):
+      downloader.read_queue()
 
 def load_epg_db():
     check_settings() 
@@ -102,13 +110,18 @@ if not addon.getSetting("epg_interval"):
 else:
   interval = int(addon.getSetting("epg_interval"))*60*60
 next = time.time()
+
+dt = DownloaderThreadClass()
+dt.start()
+
 while not xbmc.Monitor().abortRequested():
   if(next < time.time()):
     time.sleep(10)
-    load_epg_all()
-    #load_epg_details_inc()
-    if addon.getSetting("autogen") == "true":
-      load_epg_db()      
+    if addon.getSetting("username") and len(addon.getSetting("username")) > 0 and addon.getSetting("password") and len(addon.getSetting("password")) > 0:
+      load_epg_all()
+      #load_epg_details_inc()
+      if addon.getSetting("autogen") == "true":
+        load_epg_db()      
     if not addon.getSetting("epg_interval"):
       interval = 12*60*60
     else:

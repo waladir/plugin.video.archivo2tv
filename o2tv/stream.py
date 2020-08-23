@@ -5,17 +5,24 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 import xbmc
+import subprocess
 
-from urllib import urlencode, quote
-from urllib2 import urlopen, Request
+try:
+    from urllib import urlencode, quote
+    from urllib2 import urlopen, Request
+except ImportError:
+    from urllib.parse import urlencode, quote
+    from urllib.request import urlopen, Request
 
 from datetime import datetime 
 import time
 
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
-from o2tv.epg import get_listitem_epg_details, get_epg_live
+from o2tv.epg import get_listitem_epg_details, get_epg_live, get_epg_details
 from o2tv.channels import load_channels 
+from o2tv.utils import remove_diacritics
+from o2tv.downloader import add_to_queue
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
@@ -23,7 +30,7 @@ _handle = int(sys.argv[1])
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 
 def play_video(type, channelKey, start, end, epgId, title):
-    if addon.getSetting("select_resolution") == "true" and addon.getSetting("stream_type") == "HLS" and addon.getSetting("only_sd") <> "true":
+    if addon.getSetting("select_resolution") == "true" and addon.getSetting("stream_type") == "HLS" and addon.getSetting("only_sd") != "true":
       resolution = xbmcgui.Dialog().select('Rozlišení', ['HD', 'SD' ], preselect = 0)
     else:
       resolution = -1  
@@ -78,7 +85,7 @@ def play_video(type, channelKey, start, end, epgId, title):
            post = {"serviceType" : "LIVE_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "encryptionType" : "NONE"}
       if type == "recording":
         post = {"serviceType" : "NPVR", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "contentId" : epgId, "encryptionType" : "NONE"}
-      if addon.getSetting("stream_type") <> "MPEG-DASH" and (addon.getSetting("only_sd") == "true" or resolution == 1):
+      if addon.getSetting("stream_type") != "MPEG-DASH" and (addon.getSetting("only_sd") == "true" or resolution == 1):
         post.update({"resolution" : "SD"})
       data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = o2api.header)
       if "err" in data:
@@ -87,7 +94,7 @@ def play_video(type, channelKey, start, end, epgId, title):
       url = ""
       if "uris" in data and len(data["uris"]) > 0 and "uri" in data["uris"][0] and len(data["uris"][0]["uri"]) > 0 :
         for uris in data["uris"]:
-          if addon.getSetting("only_sd") <> "true" and resolution <> 1 and uris["resolution"] == "HD":
+          if addon.getSetting("only_sd") != "true" and resolution != 1 and uris["resolution"] == "HD":
             url = uris["uri"]
           if (addon.getSetting("only_sd") == "true" or resolution == 1) and uris["resolution"] == "SD": 
             url = uris["uri"]
@@ -115,7 +122,7 @@ def play_video(type, channelKey, start, end, epgId, title):
       list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
       list_item.setMimeType('application/dash+xml')
 
-    if type == "archiv_iptv" or (type == "live_iptv" and addon.getSetting("stream_type") <> "HLS" and addon.getSetting("startover") == "true") or type == "live_iptv_epg":
+    if type == "archiv_iptv" or (type == "live_iptv" and addon.getSetting("stream_type") != "HLS" and addon.getSetting("startover") == "true") or type == "live_iptv_epg":
       playlist=xbmc.PlayList(1)
       playlist.clear()
       xbmc.PlayList(1).add(url, list_item)
@@ -123,3 +130,5 @@ def play_video(type, channelKey, start, end, epgId, title):
     else:
       list_item.setContentLookup(False)       
       xbmcplugin.setResolvedUrl(_handle, True, list_item)
+
+ 

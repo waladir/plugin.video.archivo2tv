@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.9.0">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="1.9.1">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
   </requires>
@@ -14,6 +14,12 @@
             Window.IsActive(MyPVRGuide.xml)
           </visible>
       </item> 
+      <item library="iptv_sc_dwn.py">
+          <label>Stáhnout</label>
+          <visible>
+            Window.IsActive(MyPVRGuide.xml)
+          </visible>
+      </item>
       <item library="iptv_sc.py">
           <label>Spustit ve Sledování O2TV</label>
           <visible>
@@ -44,10 +50,14 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v1.9.1 (2020-08-23)
+- úprava třídění podle abecedy v kategoriích
+- při vyhledání stejných pořadů se nezobrazují budoucí pořady
+- podpora stahování pořadů 
 
 v1.9.0 (2020-08-15)
 - ukládání kategorií O2 s aktualizací jednou za 24 hodin
-- využítí EPG DB plánování nahrávek a získání informací o pořadech při přehrávání streamu
+- využití EPG DB k plánování nahrávek a získání informací o pořadech při přehrávání streamu
 - odstranění zbývajících přímých volání API O2 (mimo nahrávek, vyhledávání a URL streamu)
 - odstraněna možnost použití EPG DB v nastavení, bude se používat vždy mimo vyhledávání a kategorie
 - zmenšená prodleva při ukončení Kodi/doplňku

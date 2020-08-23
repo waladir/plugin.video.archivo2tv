@@ -7,7 +7,11 @@ import xbmcgui
 import xbmcaddon
 import xbmc
 
-from urllib import urlencode
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
+
 import string, random 
 import unicodedata
 
@@ -29,6 +33,21 @@ def check_settings():
     if (addon.getSetting("stream_type") == "MPEG-DASH" or addon.getSetting("stream_type") == "MPEG-DASH-web") and not xbmc.getCondVisibility('System.HasAddon(inputstream.adaptive)'):
       xbmcgui.Dialog().notification("Sledování O2TV","Při použítí streamu MPEG-DASH je nutné mít nainstalovaný doplněk InputStream Adaptive", xbmcgui.NOTIFICATION_ERROR, 20000)
       sys.exit()
+
+    if addon.getSetting("download_streams") == "true" and (addon.getSetting("ffmpeg_bin") is None or len(addon.getSetting("ffmpeg_bin")) == 0 or not os.path.isfile(addon.getSetting("ffmpeg_bin")) or not os.access(addon.getSetting("ffmpeg_bin"), os.X_OK)):
+      test_bin1 = "/usr/bin/ffmpeg"
+      test_bin2 = "/storage/.kodi/addons/tools.ffmpeg-tools/bin/ffmpeg"
+      if os.path.isfile(test_bin1) and os.access(test_bin1, os.X_OK):
+        addon.setSetting("ffmpeg_bin", test_bin1)
+      elif os.path.isfile(test_bin2) and os.access(test_bin2, os.X_OK):
+        addon.setSetting("ffmpeg_bin", test_bin2)
+      else:
+        xbmcgui.Dialog().notification("Sledování O2TV","Nastav cestu k ffmpeg!", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit() 
+
+    if addon.getSetting("download_streams") == "true" and (addon.getSetting("downloads_dir") is None or len(addon.getSetting("downloads_dir")) == 0):
+      xbmcgui.Dialog().notification("Sledování O2TV","Nastav adresář pro stahování!", xbmcgui.NOTIFICATION_ERROR, 4000)
+      sys.exit() 
 
 def get_color(settings_color):
     if len(settings_color) >2 and settings_color.find("]") > 1:

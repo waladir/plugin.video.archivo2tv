@@ -1,6 +1,11 @@
+v1.9.1 (2020-08-23)
+- úprava třídění podle abecedy v kategoriích
+- při vyhledání stejných pořadů se nezobrazují budoucí pořady
+- podpora stahování pořadů 
+
 v1.9.0 (2020-08-15)
 - ukládání kategorií O2 s aktualizací jednou za 24 hodin
-- využítí EPG DB plánování nahrávek a získání informací o pořadech při přehrávání streamu
+- využití EPG DB k plánování nahrávek a získání informací o pořadech při přehrávání streamu
 - odstranění zbývajících přímých volání API O2 (mimo nahrávek, vyhledávání a URL streamu)
 - odstraněna možnost použití EPG DB v nastavení, bude se používat vždy mimo vyhledávání a kategorie
 - zmenšená prodleva při ukončení Kodi/doplňku

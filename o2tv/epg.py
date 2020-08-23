@@ -293,9 +293,18 @@ def load_epg_all():
 
 def get_epg_details(epgIds):
     global db
-
     open_db()
     for epgId in epgIds:
+      row = None
+      epg = 0
+      for row in db.execute('SELECT startTime, endTime, channel, title, availableTo FROM epg WHERE epgId = ?', [epgId]):
+        startTime = int(row[0])
+        endTime = int(row[1])
+        channel = row[2]
+        title = row[3]
+        availableTo = int(row[4])
+        epg = 1
+
       row = None
       for row in db.execute('SELECT * FROM epg_details WHERE epgId = ?', [epgId]):
         epgId = row[0]
@@ -337,6 +346,16 @@ def get_epg_details(epgIds):
 
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = o2api.header_unity)
         if not "err" in data:
+          if epg == 0:
+            channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
+            startTime = int(data["start"])/1000
+            endTime = int(data["end"])/1000
+            channel = channels_key_mapping[data["channelKey"]]
+            title = data["name"]
+            availableTo = data["availableTo"]
+            db.execute('INSERT INTO epg VALUES(?, ?, ?, ?, ?, ?)', (epgId, startTime, endTime, channel, title, availableTo))      
+            db.commit
+
           if "images" in data and len(data["images"]) > 0:
             cover = data["images"][0]["cover"]
           elif "picture" in data and len(data["picture"]) > 0:
@@ -384,7 +403,7 @@ def get_epg_details(epgIds):
         db.execute('INSERT INTO epg_details VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (epgId, cover, description, json.dumps(ratings), json.dumps(cast), json.dumps(directors), year, country, original, json.dumps(genres), imdb, episodeNumber, episodeName, seasonNumber, episodesInSeason, seasonName, seriesName, contentType))      
     db.commit()
     close_db()
-    event = { "epgId" : epgId, "cover" : cover, "description" : description, "ratings" : ratings, "cast" : cast, "directors" : directors, "year" : year, "country" : country, "original" : original, "genres" : genres, "imdb" : imdb, "episodeNumber" : episodeNumber, "episodeName" : episodeName, "seasonNumber" : seasonNumber, "episodesInSeason" : episodesInSeason, "seasonName" : seasonName, "seriesName" : seriesName }
+    event = { "epgId" : epgId, "startTime" : startTime, "endTime" : endTime, "channel" : channel, "title" : title, "availableTo" : availableTo, "cover" : cover, "description" : description, "ratings" : ratings, "cast" : cast, "directors" : directors, "year" : year, "country" : country, "original" : original, "genres" : genres, "imdb" : imdb, "episodeNumber" : episodeNumber, "episodeName" : episodeName, "seasonNumber" : seasonNumber, "episodesInSeason" : episodesInSeason, "seasonName" : seasonName, "seriesName" : seriesName }
     return event
 
 def get_listitem_epg_details(list_item, epgId, img):

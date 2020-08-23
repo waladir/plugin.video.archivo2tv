@@ -24,6 +24,11 @@
         <setting label="Výběr kvality před přehráváním streamu (pouze u HLS a HD kvalitě)" type="bool" id="select_resolution" default="false"/>
         <setting label="Typ streamu" type="select" id="stream_type" values="HLS|MPEG-DASH|MPEG-DASH-web" default="HLS"/>
         <setting label="Přetáčení u živého vysílání (pouze s MPEG-DASH a MPEG-DASH-web)" type="bool" id="startover" default="true"/>
+        
+        <setting label="Stahování streamů" type="lsep"/>
+        <setting label="Povolit stahování streamů" type="bool" id="download_streams" default="false"/>
+        <setting label="Cesta k ffmpeg" type="executable" id="ffmpeg_bin"/>
+        <setting label="Adresář pro stahování" type="folder" id="downloads_dir" default=""/>
 	</category>
 	<category label="IPTV Simple Client">
         <setting label="Adresář pro playlist/epg" type="folder" id="output_dir" default=""/>
