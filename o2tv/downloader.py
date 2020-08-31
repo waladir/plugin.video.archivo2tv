@@ -14,7 +14,7 @@ from datetime import datetime
 from sqlite3 import OperationalError
 import sqlite3
 
-from o2tv.utils import get_url
+from o2tv.utils import get_url, encode
 from o2tv.epg import get_epg_details
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
@@ -87,7 +87,7 @@ def add_to_queue(epgId, pvrProgramId):
     if row == None:
         db.execute('INSERT INTO queue VALUES (?, ?, ?, ?, ?, ?, ?)', [epgId, event["title"], event["startTime"], event["endTime"], 0, "null", pvrProgramId])
         db.commit()
-        xbmcgui.Dialog().notification("Sledování O2TV","Pořad " + event["title"].encode("utf-8") + " byl přidaný do fronty ke stažení", xbmcgui.NOTIFICATION_INFO, 4000)           
+        xbmcgui.Dialog().notification("Sledování O2TV","Pořad " + encode(event["title"]) + " byl přidaný do fronty ke stažení", xbmcgui.NOTIFICATION_INFO, 4000)           
     close_db() 
 
 def remove_from_queue(epgId):
@@ -95,7 +95,6 @@ def remove_from_queue(epgId):
     row = None
     for row in db.execute('SELECT status, downloadts FROM queue WHERE epgId = ?', [str(epgId)]):
       if int(row[0]) == 0 and row[1] != "null":
-        print("kill")
         check_process()
       db.execute('DELETE FROM queue WHERE epgId = ?', [str(epgId)])
       db.commit()
@@ -122,14 +121,14 @@ def list_downloads(label):
         downloadts = None  
       currentts = int(time.mktime(datetime.now().timetuple()))
       if status == 1:
-        title = title.encode("utf-8") + " (100%)"
+        title = encode(title) + " (100%)"
       elif status == -1:  
-        title = title.encode("utf-8") + " (CHYBA)"
+        title = encode(title) + " (CHYBA)"
       elif downloadts == None:
-        title = title.encode("utf-8") + " (ČEKÁ)"
+        title = encode(title) + " (ČEKÁ)"
       else:
         pct = float(currentts-downloadts)/(endts-startts)*100
-        title = title.encode("utf-8") + " (" + str(int(pct)) + "%)"
+        title = encode(title) + " (" + str(int(pct)) + "%)"
       list_item = xbmcgui.ListItem(label=title)
       list_item.setProperty("IsPlayable", "false")
       list_item.setContentLookup(False)   

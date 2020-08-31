@@ -6,13 +6,18 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-from urllib import urlencode, quote
+try:
+    from urllib import urlencode, quote
+except ImportError:
+    from urllib.parse import urlencode, quote
+    
 from datetime import date, datetime, timedelta
 import time
 import codecs
 
 from o2tv import o2api
 from o2tv import utils
+from o2tv.utils import encode, decode
 from o2tv.stream import play_video
 from o2tv.recordings import add_recording
 from o2tv.channels import load_channels 
@@ -110,7 +115,7 @@ def generate_playlist():
         else:
           line = "#EXTINF:-1 tvh-epg=\"0\" tvg-logo=\"" + logo + "\"," + channels_nums[num]
         file.write('%s\n' % line)
-        line = "plugin://plugin.video.archivo2tv/?action=get_stream_url&channelKey=" + quote(channels_data[channels_nums[num]]["channelKey"].encode("utf-8"))
+        line = "plugin://plugin.video.archivo2tv/?action=get_stream_url&channelKey=" + quote(encode(channels_data[channels_nums[num]]["channelKey"]))
         file.write('%s\n' % line)
           
     xbmcgui.Dialog().notification("Sledování O2TV","Playlist byl uložený", xbmcgui.NOTIFICATION_INFO, 4000)    
@@ -129,13 +134,13 @@ def iptv_sc_play(channelName, startdatetime, epg):
       from_ts = int(time.mktime(datetime.now().timetuple()))
 
     channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable       
-    channelKey = channels_data[channelName.decode("utf-8")]["channelKey"].encode("utf-8")
+    channelKey = encode(channels_data[decode(channelName)]["channelKey"])
  
     if from_ts > int(time.mktime(datetime.now().timetuple())):
         xbmcgui.Dialog().notification("Sledování O2TV","Nelze přehrát budoucí pořad!", xbmcgui.NOTIFICATION_ERROR, 5000)
         sys.exit()  
     else:
-      event = get_epgId_iptvsc(channelName.decode("utf-8"), from_ts)
+      event = get_epgId_iptvsc(decode(channelName), from_ts)
       epgId = event["epgId"]
       if epgId > 0:
         startts = event["start"]
@@ -143,7 +148,7 @@ def iptv_sc_play(channelName, startdatetime, epg):
         endts = event["end"]
         end = datetime.fromtimestamp(event["end"])        
         epgId = event["epgId"]
-        title = utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + event["title"]
+        title = decode(utils.day_translation_short[start.strftime("%w")]) + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + event["title"]
 
       if int(epgId) > 0:
         if int(endts) < int(time.mktime(datetime.now().timetuple())):
@@ -163,7 +168,7 @@ def iptv_sc_play(channelName, startdatetime, epg):
 def iptv_sc_rec(channelName, startdatetime):
     epgId = -1
     from_ts = int(time.mktime(time.strptime(startdatetime, "%d.%m.%Y %H:%M")))
-    event = get_epgId_iptvsc(channelName.decode("utf-8"), from_ts)
+    event = get_epgId_iptvsc(decode(channelName), from_ts)
     epgId = event["epgId"]
     if epgId > 0:
       add_recording(epgId)
@@ -174,7 +179,7 @@ def iptv_sc_rec(channelName, startdatetime):
 def iptv_sc_download(channelName, startdatetime):
     epgId = -1
     from_ts = int(time.mktime(time.strptime(startdatetime, "%d.%m.%Y %H:%M")))
-    event = get_epgId_iptvsc(channelName.decode("utf-8"), from_ts)
+    event = get_epgId_iptvsc(decode(channelName), from_ts)
     epgId = event["epgId"]
     if epgId > 0:
       event = get_epg_details([epgId])

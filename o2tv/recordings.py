@@ -6,7 +6,11 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-from urllib import urlencode, quote
+try:
+    from urllib import urlencode, quote
+except ImportError:
+    from urllib.parse import urlencode, quote
+    
 from datetime import date, datetime, timedelta
 import time
 import random
@@ -15,7 +19,7 @@ from o2tv.o2api import call_o2_api
 from o2tv import o2api
 
 from o2tv.channels import load_channels 
-from o2tv.utils import get_url
+from o2tv.utils import get_url, decode, encode
 from o2tv import utils
 from o2tv.epg import get_listitem_epg_details, get_epg_ts
 
@@ -33,7 +37,7 @@ def list_planning_recordings(label):
       list_item = xbmcgui.ListItem(label=channels_nums[num])
       if channels_data[channels_nums[num]] and len(channels_data[channels_nums[num]]["logo"]) > 0:
         list_item.setArt({'thumb': channels_data[channels_nums[num]]["logo"], 'icon': channels_data[channels_nums[num]]["logo"]})
-      url = get_url(action='list_rec_days', channelKey = channels_data[channels_nums[num]]["channelKey"].encode("utf-8"), label = label + " / " + channels_nums[num].encode("utf-8"))  
+      url = get_url(action='list_rec_days', channelKey = encode(channels_data[channels_nums[num]]["channelKey"]), label = label + " / " + encode(channels_nums[num]))  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle)
     
@@ -49,7 +53,7 @@ def list_rec_days(channelKey, label):
         den = "Zítra"
       else:
         den_label = utils.day_translation_short[day.strftime("%w")] + " " + day.strftime("%d.%m")
-        den = utils.day_translation[day.strftime("%w")].decode("utf-8") + " " + day.strftime("%d.%m.%Y")
+        den = decode(utils.day_translation[day.strftime("%w")]) + " " + day.strftime("%d.%m.%Y")
       list_item = xbmcgui.ListItem(label=den)
       url = get_url(action='future_program', channelKey = channelKey, day = i, label = label + " / " + den_label)  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
@@ -67,12 +71,12 @@ def future_program(channelKey, day, label):
     from_ts = int(time.mktime(from_datetime.timetuple()))
     to_ts = int(time.mktime(to_datetime.timetuple()))
 
-    events = get_epg_ts(channelKey.decode("utf-8"), from_ts, to_ts, 5)
+    events = get_epg_ts(decode(channelKey), from_ts, to_ts, 5)
     for key in sorted(events.keys()):
       epgId = events[key]["epgId"]
       start = events[key]["start"]
       end = events[key]["end"]
-      list_item = xbmcgui.ListItem(label= utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + events[key]["title"])
+      list_item = xbmcgui.ListItem(label= decode(utils.day_translation_short[start.strftime("%w")]) + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + " | " + events[key]["title"])
       list_item = get_listitem_epg_details(list_item, str(epgId), "")
       list_item.setProperty("IsPlayable", "false")
       list_item.addContextMenuItems([("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")",)])       
@@ -97,16 +101,18 @@ def list_recordings(label):
     if "result" in data and len(data["result"]) > 0:
       for program in data["result"]:
         if program["state"] == "DONE":
-          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : program["pvrProgramId"], "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%w")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "epgId" : program["program"]["epgId"]}}) 
+          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : program["pvrProgramId"], "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : decode(utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%w")]) + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "epgId" : program["program"]["epgId"]}}) 
 
       for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")
         list_item.setProperty("IsPlayable", "true")
         list_item = get_listitem_epg_details(list_item, recordings[recording]["epgId"], "")
-        list_item.setContentLookup(False)   
-        list_item.addContextMenuItems([("Smazat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_recording&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")",),
-                                       ("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(recordings[recording]["epgId"]) + "&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")")])         
-        url = get_url(action='play_recording', pvrProgramId = recordings[recording]["pvrProgramId"], title = recordings[recording]["name"].encode("utf-8"))
+        list_item.setContentLookup(False) 
+        menus = [("Smazat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_recording&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")")]
+        if addon.getSetting("download_streams") == "true": 
+          menus.append(("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(recordings[recording]["epgId"]) + "&pvrProgramId=" + str(recordings[recording]["pvrProgramId"]) + ")"))      
+        list_item.addContextMenuItems(menus)         
+        url = get_url(action='play_recording', pvrProgramId = recordings[recording]["pvrProgramId"], title = encode(recordings[recording]["name"]))
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)
 
@@ -120,7 +126,7 @@ def list_future_recordings(label):
     if "result" in data and len(data["result"]) > 0:
       for program in data["result"]:
         if program["state"] != "DONE":
-          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : program["pvrProgramId"], "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%w")].decode("utf-8") + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "epgId" : program["program"]["epgId"]}}) 
+          recordings.update({program["program"]["start"]+random.randint(0,100) : {"pvrProgramId" : program["pvrProgramId"], "name" : program["program"]["name"], "channelKey" : program["program"]["channelKey"], "start" : decode(utils.day_translation_short[datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%w")]) + " " + datetime.fromtimestamp(program["program"]["start"]/1000).strftime("%d.%m %H:%M"), "end" : datetime.fromtimestamp(program["program"]["end"]/1000).strftime("%H:%M"), "epgId" : program["program"]["epgId"]}}) 
 
       for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]["name"] + " (" + recordings[recording]["channelKey"] + " | " + recordings[recording]["start"] + " - " + recordings[recording]["end"] + ")")
@@ -137,7 +143,7 @@ def list_future_recordings(label):
 def delete_recording(pvrProgramId):
     post = {"pvrProgramId" : int(pvrProgramId)}
     data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/vod/pvr-remove-program.json", data = urlencode(post), header = o2api.header)
-    if data <> None and "err" in data:
+    if data != None and "err" in data:
       xbmcgui.Dialog().notification("Sledování O2TV","Problém s odstraněním nahrávky", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit() 
     else:  

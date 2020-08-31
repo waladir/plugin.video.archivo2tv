@@ -1,3 +1,8 @@
+v2.0.0 (2020-08-31)
+- skrytí položky stahování v kontextovém menu, pokud není povolené v nastavení
+- oprava nefunkčního přehrávání ve výsledcích vyhledávání
+- kompatibilita s Kodi 19 (Python 3)
+
 v1.9.1 (2020-08-23)
 - úprava třídění podle abecedy v kategoriích
 - při vyhledání stejných pořadů se nezobrazují budoucí pořady

@@ -6,7 +6,10 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-from urllib import urlencode, quote
+try:
+    from urllib import urlencode, quote
+except ImportError:
+    from urllib.parse import urlencode, quote
 
 from datetime import datetime, timedelta 
 from datetime import date

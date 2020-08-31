@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import sys
 import xbmcgui
 import xbmcplugin
@@ -7,14 +6,18 @@ import xbmcaddon
 import xbmc
 import json
 
-from urllib import urlencode, quote_plus
+try:
+    from urllib import urlencode, quote_plus
+except ImportError:
+    from urllib.parse import urlencode, quote_plus
+
 from datetime import datetime 
 import time
 import codecs
 
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
-from o2tv.utils import get_url, remove_diacritics
+from o2tv.utils import get_url, remove_diacritics, decode, encode
 from o2tv import utils
 from o2tv.channels import load_channels 
 from o2tv.epg import get_listitem_epg_details
@@ -57,7 +60,7 @@ def load_categories():
       
       for slug in slugs:
         if categories[slug]["type"] == "list":
-          data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/?name=" + categories[slug]["filter"]["name"].encode("utf-8"), data = None, header = o2api.header_unity)  
+          data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/?name=" + encode(categories[slug]["filter"]["name"]), data = None, header = o2api.header_unity)  
           if "err" in data:
             xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorií", xbmcgui.NOTIFICATION_ERROR, 4000)
             sys.exit()  
@@ -85,13 +88,13 @@ def list_categories(label):
   categories, subcategories, slugs = load_categories() # pylint: disable=unused-variable 
   for slug in slugs:
     if categories[slug]["type"] == "programs" and "filter" in categories[slug]:
-      filtr = json.dumps({"genres" : categories[slug]["filter"]["genres"], "notGenres" : categories[slug]["filter"]["notGenres"], "containsAllGenres" : categories[slug]["filter"]["containsAllGenres"], "contentType" : categories[slug]["filter"]["contentType"]}).encode("utf-8")
-      list_item = xbmcgui.ListItem(label=categories[slug]["name"].encode("utf-8"))
-      url = get_url(action='list_category', category = categories[slug]["filter"]["contentType"].encode("utf-8"), dataSource = categories[slug]["dataSource"], filtr = filtr, label = label + " / " + categories[slug]["name"].encode("utf-8"))  
+      filtr = encode(json.dumps({"genres" : categories[slug]["filter"]["genres"], "notGenres" : categories[slug]["filter"]["notGenres"], "containsAllGenres" : categories[slug]["filter"]["containsAllGenres"], "contentType" : categories[slug]["filter"]["contentType"]}))
+      list_item = xbmcgui.ListItem(label=encode(categories[slug]["name"]))
+      url = get_url(action='list_category', category = encode(categories[slug]["filter"]["contentType"]), dataSource = categories[slug]["dataSource"], filtr = filtr, label = label + " / " + encode(categories[slug]["name"]))  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     if categories[slug]["type"] == "list" and "filter" in categories[slug]:
-      list_item = xbmcgui.ListItem(label=categories[slug]["name"].encode("utf-8"))
-      url = get_url(action='list_subcategories', category = categories[slug]["filter"]["name"].encode("utf-8"), dataSource = categories[slug]["dataSource"], label = label + " / " + categories[slug]["name"].encode("utf-8"))  
+      list_item = xbmcgui.ListItem(label=encode(categories[slug]["name"]))
+      url = get_url(action='list_subcategories', category = encode(categories[slug]["filter"]["name"]), dataSource = categories[slug]["dataSource"], label = label + " / " + encode(categories[slug]["name"]))  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
   xbmcplugin.endOfDirectory(_handle)              
 
@@ -103,10 +106,10 @@ def list_subcategories(category, label):
     subcategory_keys.update({int(num) : num})
   for num in sorted(subcategory_keys.keys()):
     subcategory =subcategory_keys[num]
-    if subcategories[category][subcategory]["type"] == "programs" and subcategories[category][subcategory]["filter"]["contentType"].encode("utf-8") != "živý přenos":
-      filtr = json.dumps({"genres" : subcategories[category][subcategory]["filter"]["genres"], "notGenres" : subcategories[category][subcategory]["filter"]["notGenres"], "containsAllGenres" : subcategories[category][subcategory]["filter"]["containsAllGenres"], "contentType" : subcategories[category][subcategory]["filter"]["contentType"]}).encode("utf-8")
-      list_item = xbmcgui.ListItem(label=subcategories[category][subcategory]["name"].encode("utf-8"))
-      url = get_url(action='list_category', category = subcategories[category][subcategory]["name"].encode("utf-8"), dataSource = subcategories[category][subcategory]["dataSource"], filtr = filtr, label = label + " / " + subcategories[category][subcategory]["name"].encode("utf-8"))  
+    if subcategories[category][subcategory]["type"] == "programs" and encode(subcategories[category][subcategory]["filter"]["contentType"]) != "živý přenos":
+      filtr = encode(json.dumps({"genres" : subcategories[category][subcategory]["filter"]["genres"], "notGenres" : subcategories[category][subcategory]["filter"]["notGenres"], "containsAllGenres" : subcategories[category][subcategory]["filter"]["containsAllGenres"], "contentType" : subcategories[category][subcategory]["filter"]["contentType"]}))
+      list_item = xbmcgui.ListItem(label=encode(subcategories[category][subcategory]["name"]))
+      url = get_url(action='list_category', category = encode(subcategories[category][subcategory]["name"]), dataSource = subcategories[category][subcategory]["dataSource"], filtr = filtr, label = label + " / " + encode(subcategories[category][subcategory]["name"]))  
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
   xbmcplugin.endOfDirectory(_handle)              
 
@@ -119,11 +122,11 @@ def list_category(category, dataSource, filtr, page, label):
   nongenres = []
   for genre in filtr["genres"]:
     if len(genre) > 0:
-      params = params + "&genres=" + quote_plus(genre.encode("utf8"))
+      params = params + "&genres=" + quote_plus(encode(genre))
       genres.append(genre)
   for nongenre in filtr["notGenres"]:
     if len(nongenre) > 0:
-      params = params + "&notGenres=" + quote_plus(nongenre.encode("utf8"))
+      params = params + "&notGenres=" + quote_plus(encode(nongenre))
       nongenres.append(nongenre)
   contentType = filtr["contentType"]
   
@@ -152,7 +155,7 @@ def list_category(category, dataSource, filtr, page, label):
       characters.sort()
       for character in characters:
         list_item = xbmcgui.ListItem(label=character)
-        url = get_url(action='list_category', category = contentType, dataSource = dataSource, filtr = json.dumps(filtr), page = character.encode("utf-8"), label = label + " / " + character.encode("utf-8"))  
+        url = get_url(action='list_category', category = contentType, dataSource = dataSource, filtr = json.dumps(filtr), page = encode(character), label =  label + " / " + encode(character.decode("utf-8")))  
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)        
     else:  
       if addon.getSetting("categories_sorting") == "ratingu" and page_limit > 0:
@@ -161,7 +164,7 @@ def list_category(category, dataSource, filtr, page, label):
         startitem = (int(page)-1) * page_limit
       cnt = 0
       for key in sorted(events.keys()):
-        if page is None or page_limit == 0 or (page is not None and addon.getSetting("categories_sorting") == "názvu" and remove_diacritics(events[key]["name"][:1].upper()) == page) or (page is not None and addon.getSetting("categories_sorting") == "ratingu" and cnt >= startitem and cnt < startitem + page_limit):
+        if page is None or page_limit == 0 or (page is not None and addon.getSetting("categories_sorting") == "názvu" and remove_diacritics(events[key]["name"][:1].upper()) == page.encode("utf-8")) or (page is not None and addon.getSetting("categories_sorting") == "ratingu" and cnt >= startitem and cnt < startitem + page_limit):
           event = events[key]
           startts = event["start"]/1000
           start = datetime.fromtimestamp(event["start"]/1000)
@@ -176,7 +179,7 @@ def list_category(category, dataSource, filtr, page, label):
               event["name"] = event["name"] # + " ["+ str(event["seriesInfo"]["seasonNumber"]) + "]"
             list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + ")")
           else:
-            list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
+            list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + decode(utils.day_translation_short[start.strftime("%w")]) + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
           cast = []
           directors = []
           genres = []
@@ -190,11 +193,11 @@ def list_category(category, dataSource, filtr, page, label):
               list_item.setRating(rating, int(rating_value)/10)
           if "castAndCrew" in event and len(event["castAndCrew"]) > 0 and "cast" in event["castAndCrew"] and len(event["castAndCrew"]["cast"]) > 0:
             for person in event["castAndCrew"]["cast"]:      
-              cast.append(person["name"].encode("utf-8"))
+              cast.append(encode(person["name"]))
             list_item.setInfo("video", {"cast" : cast})  
           if "castAndCrew" in event and len(event["castAndCrew"]) > 0 and "directors" in event["castAndCrew"] and len(event["castAndCrew"]["directors"]) > 0:
             for person in event["castAndCrew"]["directors"]:      
-              directors.append(person["name"].encode("utf-8"))
+              directors.append(encode(person["name"]))
             list_item.setInfo("video", {"director" : directors})  
           if "origin" in event and len(event["origin"]) > 0:
             if "year" in event["origin"] and len(str(event["origin"]["year"])) > 0:
@@ -207,15 +210,17 @@ def list_category(category, dataSource, filtr, page, label):
             list_item.setInfo("video", {"imdbnumber": event["ext"]["imdbId"]})
           if "genreInfo" in event and len(event["genreInfo"]) > 0 and "genres" in event["genreInfo"] and len(event["genreInfo"]["genres"]) > 0:
             for genre in event["genreInfo"]["genres"]:      
-              genres.append(genre["name"].encode("utf-8"))
+              genres.append(encode(genre["name"]))
             list_item.setInfo("video", {"genre" : genres})    
-          list_item.addContextMenuItems([("Související pořady", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(epgId) + "&label=Související / " + event["name"].encode("utf-8") + ")"), 
-                                        ("Vysílání pořadu", "XBMC.Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(epgId) + "&label=" + event["name"].encode("utf-8") + ")"),
-                                        ("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])       
+          menus = [("Související pořady", "Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(epgId) + "&label=Související / " + encode(event["name"]) + ")"), 
+                   ("Vysílání pořadu", "Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(epgId) + "&label=" + encode(event["name"]) + ")")]
+          if addon.getSetting("download_streams") == "true": 
+            menus.append(("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")"))      
+          list_item.addContextMenuItems(menus)       
           if isSeries == 0:
             list_item.setProperty("IsPlayable", "true")
             list_item.setContentLookup(False)          
-            url = get_url(action='play_archiv', channelKey = event["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
+            url = get_url(action='play_archiv', channelKey = encode(event["channelKey"]), start = startts, end = endts, epgId = epgId)
             xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
           else:
             if "seasonNumber" in event["seriesInfo"] and int(event["seriesInfo"]["seasonNumber"]) > 0:
@@ -223,7 +228,7 @@ def list_category(category, dataSource, filtr, page, label):
             else:
               season = -1  
             list_item.setProperty("IsPlayable", "false")
-            url = get_url(action='list_series', epgId = epgId, season = season, label = event["name"].encode("utf-8"))
+            url = get_url(action='list_series', epgId = epgId, season = season, label = encode(event["name"]))
             xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
         cnt = cnt + 1
 
@@ -253,12 +258,12 @@ def list_series(epgId, season, label):
         endts = event["end"]/1000
         end = datetime.fromtimestamp(event["end"]/1000)
         epgId = event["epgId"]
-        list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
+        list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + decode(utils.day_translation_short[start.strftime("%w")]) + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
         list_item.setInfo("video", {"mediatype":"movie"})
         list_item = get_listitem_epg_details(list_item, str(event["epgId"]), "")
         list_item.setProperty("IsPlayable", "true")
         list_item.setContentLookup(False)          
-        url = get_url(action='play_archiv', channelKey = event["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
+        url = get_url(action='play_archiv', channelKey = encode(event["channelKey"]), start = startts, end = endts, epgId = epgId)
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)      
     xbmcplugin.endOfDirectory(_handle)
     
@@ -278,13 +283,14 @@ def list_related(epgId, label):
         endts = event["end"]/1000
         end = datetime.fromtimestamp(event["end"]/1000)
         epgId = event["epgId"]
-        list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
+        list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + decode(utils.day_translation_short[start.strftime("%w")]) + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
         list_item.setInfo("video", {"mediatype":"movie"})
         list_item = get_listitem_epg_details(list_item, str(event["epgId"]), "")
         list_item.setProperty("IsPlayable", "true")
-        list_item.setContentLookup(False)          
-        list_item.addContextMenuItems([("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])         
-        url = get_url(action='play_archiv', channelKey = event["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
+        list_item.setContentLookup(False)  
+        if addon.getSetting("download_streams") == "true": 
+          list_item.addContextMenuItems([("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])         
+        url = get_url(action='play_archiv', channelKey = encode(event["channelKey"]), start = startts, end = endts, epgId = epgId)
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)      
     xbmcplugin.endOfDirectory(_handle)
   else:  
@@ -295,9 +301,11 @@ def list_same(epgId, label):
   data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/grouped/", data = None, header = o2api.header_unity)
   if "err" in data:
     xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
-    sys.exit()        
+    sys.exit()
+
   if "result" in data and len(data["result"]) > 0:
     channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter=1) # pylint: disable=unused-variable
+    cnt = 0
     for event in data["result"]:
       if event["channel"]["channelKey"] in channels_key_mapping and channels_key_mapping[event["channel"]["channelKey"]] in channels_nums.values():
         startts = event["program"]["start"]/1000
@@ -305,15 +313,21 @@ def list_same(epgId, label):
         endts = event["program"]["end"]/1000
         end = datetime.fromtimestamp(event["program"]["end"]/1000)
         if endts < int(time.mktime(datetime.now().timetuple())):
+          cnt = cnt + 1
           epgId = event["program"]["epgId"]
-          list_item = xbmcgui.ListItem(label = event["program"]["name"] + " (" + channels_key_mapping[event["channel"]["channelKey"]] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
+          list_item = xbmcgui.ListItem(label = event["program"]["name"] + " (" + channels_key_mapping[event["channel"]["channelKey"]] + " | " + decode(utils.day_translation_short[start.strftime("%w")]) + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
           list_item.setInfo("video", {"mediatype":"movie"})
           list_item = get_listitem_epg_details(list_item, event["program"]["epgId"], "")
           list_item.setProperty("IsPlayable", "true")
           list_item.setContentLookup(False)      
-          list_item.addContextMenuItems([("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])         
-          url = get_url(action='play_archiv', channelKey = event["channel"]["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
+          if addon.getSetting("download_streams") == "true": 
+            list_item.addContextMenuItems([("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])         
+          url = get_url(action='play_archiv', channelKey = encode(event["channel"]["channelKey"]), start = startts, end = endts, epgId = epgId)
           xbmcplugin.addDirectoryItem(_handle, url, list_item, False)      
-    xbmcplugin.endOfDirectory(_handle)    
+    if cnt == 0:
+      xbmcgui.Dialog().notification("Sledování O2TV","Žádné pořady nenalezeny", xbmcgui.NOTIFICATION_INFO, 4000)
+    else:
+      xbmcplugin.endOfDirectory(_handle)  
+
   else:
     xbmcgui.Dialog().notification("Sledování O2TV","Žádné pořady nenalezeny", xbmcgui.NOTIFICATION_INFO, 4000)

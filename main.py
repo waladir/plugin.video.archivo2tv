@@ -6,12 +6,11 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-
 try:
-    from urllib import quote
+    from urllib import urlencode
     from urlparse import parse_qsl
 except ImportError:
-    from urllib.parse import quote, parse_qsl
+    from urllib.parse import urlencode, parse_qsl
 
 from o2tv.o2api import login
 from o2tv import o2api

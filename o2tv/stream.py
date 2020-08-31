@@ -8,11 +8,11 @@ import xbmc
 import subprocess
 
 try:
-    from urllib import urlencode, quote
     from urllib2 import urlopen, Request
+    from urllib import urlencode, quote
 except ImportError:
-    from urllib.parse import urlencode, quote
     from urllib.request import urlopen, Request
+    from urllib.parse import urlencode, quote    
 
 from datetime import datetime 
 import time
@@ -21,7 +21,7 @@ from o2tv.o2api import call_o2_api
 from o2tv import o2api
 from o2tv.epg import get_listitem_epg_details, get_epg_live, get_epg_details
 from o2tv.channels import load_channels 
-from o2tv.utils import remove_diacritics
+from o2tv.utils import remove_diacritics, decode
 from o2tv.downloader import add_to_queue
 
 _url = sys.argv[0]
@@ -44,8 +44,8 @@ def play_video(type, channelKey, start, end, epgId, title):
       startts = 0
       channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter = 0) # pylint: disable=unused-variable 
       channels_details = get_epg_live(len(channels_nums.keys()))      
-      if channelKey.decode("utf-8") in channels_key_mapping:
-        data = channels_details[channels_key_mapping[channelKey.decode("utf-8")]]
+      if decode(channelKey) in channels_key_mapping:
+        data = channels_details[channels_key_mapping[decode(channelKey)]]
         start = data["start"]
         startts = int(time.mktime(start.timetuple()))
         end = data["end"]
@@ -74,12 +74,12 @@ def play_video(type, channelKey, start, end, epgId, title):
         sys.exit()  
     else:
       if type == "archiv" or type == "archiv_iptv":
-        start = int(start) * 1000
-        end = int(end) * 1000
+        start = int(float(start) * 1000)
+        end = int(float(end) * 1000)
         post = {"serviceType" : "TIMESHIFT_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type,  "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "fromTimestamp" : str(start), "toTimestamp" : str(end + (int(addon.getSetting("offset"))*60*1000)), "id" : epgId, "encryptionType" : "NONE"}
       if type == "live" or type == "live_iptv" or type == "live_iptv_epg":
          if addon.getSetting("stream_type") == "MPEG-DASH"  and startts > 0 and addon.getSetting("startover") == "true":
-           startts = int(startts) * 1000 - 300000
+           startts = int(float(startts) * 1000 - 300000)
            post = {"serviceType" : "STARTOVER_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "fromTimestamp" : startts, "encryptionType" : "NONE"}
          else:
            post = {"serviceType" : "LIVE_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "encryptionType" : "NONE"}

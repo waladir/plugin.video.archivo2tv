@@ -17,7 +17,7 @@ except ImportError:
 from sqlite3 import OperationalError
 import sqlite3
 
-from o2tv.utils import check_settings
+from o2tv.utils import check_settings, encode
 from o2tv.epg import get_epg_details
 from o2tv.o2api import call_o2_api, login
 from o2tv import o2api
@@ -69,8 +69,13 @@ def migrate_db(version):
 def get_filename(title, startts):
     import unicodedata
     import re
+    try:
+      unicode('')
+    except NameError:
+      unicode = str
     starttime = datetime.fromtimestamp(startts).strftime("%Y-%m-%d_%H-%M")
     title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore')
+    title = title.decode("utf-8")
     title = unicode(re.sub(r'[^\w\s-]', '', title).strip())
     title = unicode(re.sub(r'[-\s]+', '-', title))
     return title + "_" + starttime + ".ts"
@@ -87,7 +92,7 @@ def get_event(epgId, pvrProgramId, title):
       if event["startTime"] < current_ts:
         if event["endTime"] < current_ts:
           if pvrProgramId == None:
-            channelKey = channels_data[event["channel"]]["channelKey"].encode("utf-8")
+            channelKey = encode(channels_data[event["channel"]]["channelKey"])
             post = {"serviceType" : "TIMESHIFT_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type,  "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "fromTimestamp" : str(event["startTime"]*1000), "toTimestamp" : str(event["endTime"]*1000 + (int(addon.getSetting("offset"))*60*1000)), "id" : epgId, "encryptionType" : "NONE"}
           else:
             post = {"serviceType" : "NPVR", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "contentId" : pvrProgramId, "encryptionType" : "NONE"}                        
@@ -102,7 +107,7 @@ def get_event(epgId, pvrProgramId, title):
       err = 1
 
     if err == 1:
-      xbmcgui.Dialog().notification("Sledování O2TV","Problém s stažením " + title.encode("utf-8"), xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s stažením " + encode(title), xbmcgui.NOTIFICATION_ERROR, 4000)
       current_ts = int(time.mktime(datetime.now().timetuple()))
       db.execute('UPDATE queue SET status = -1, downloadts = ? WHERE epgId = ?', [str(current_ts), str(epgId)])
       db.commit()
@@ -129,7 +134,7 @@ def get_event(epgId, pvrProgramId, title):
 def download_stream(epgId, url, event):
     downloads_dir = addon.getSetting("downloads_dir")
     ffmpeg_bin = addon.getSetting("ffmpeg_bin")       
-    xbmcgui.Dialog().notification("Sledování O2TV","Stahování " + event["title"].encode("utf-8") + " začalo", xbmcgui.NOTIFICATION_INFO, 4000)       
+    xbmcgui.Dialog().notification("Sledování O2TV","Stahování " + encode(event["title"]) + " začalo", xbmcgui.NOTIFICATION_INFO, 4000)       
     filename = get_filename(event["title"], event["startTime"])        
     close_db()
     open_db()
@@ -144,7 +149,7 @@ def download_stream(epgId, url, event):
       subprocess.call(cmd,stdin=None,stdout=None,stderr=None,shell=False,creationflags=0x08000000)
     else:
       subprocess.call(cmd,stdin=None,stdout=None,stderr=None,shell=True)
-    xbmcgui.Dialog().notification("Sledování O2TV","Stahování " + event["title"].encode("utf-8") + " bylo dokončeno", xbmcgui.NOTIFICATION_INFO, 4000)       
+    xbmcgui.Dialog().notification("Sledování O2TV","Stahování " + encode(event["title"]) + " bylo dokončeno", xbmcgui.NOTIFICATION_INFO, 4000)       
     open_db()
     current_ts = int(time.mktime(datetime.now().timetuple()))
     db.execute('UPDATE queue SET status = 1, downloadts = ? WHERE epgId = ?', [str(current_ts), str(epgId)])

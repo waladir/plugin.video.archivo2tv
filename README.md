@@ -7,6 +7,11 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.0.0 (2020-08-31)<br>
+- skrytí položky stahování v kontextovém menu, pokud není povolené v nastavení<br>
+- oprava nefunkčního přehrávání ve výsledcích vyhledávání<br>
+- kompatibilita s Kodi 19 (Python 3)<br><br>
+ 
 v1.9.1 (2020-08-23)<br>
 - úprava třídění podle abecedy v kategoriích<br>
 - při vyhledání stejných pořadů se nezobrazují budoucí pořady<br>

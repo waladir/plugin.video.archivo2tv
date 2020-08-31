@@ -9,9 +9,13 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-
-from urllib2 import Request, urlopen, HTTPError, URLError
-from urllib import urlencode, quote
+try:
+    from urllib2 import urlopen, Request, HTTPError
+    from urllib import urlencode, quote
+except ImportError:
+    from urllib.request import urlopen, Request
+    from urllib.error import HTTPError
+    from urllib.parse import urlencode, quote
 
 from datetime import date, datetime, timedelta
 import time
@@ -128,4 +132,4 @@ while not xbmc.Monitor().abortRequested():
       interval = int(addon.getSetting("epg_interval"))*60*60      
     next = time.time() + float(interval)
   time.sleep(1)
-  
+downloader.check_process()  

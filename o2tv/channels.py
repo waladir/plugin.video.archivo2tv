@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import os
 import sys
 import xbmcgui
@@ -7,18 +6,22 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-from urllib import urlencode, quote
+try:
+    from urllib import urlencode, quote
+except ImportError:
+    from urllib.parse import urlencode, quote
+    
 import json
 import time
 import codecs
 
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
-from o2tv.utils import get_url
+from o2tv.utils import get_url, decode, encode
 
 _url = sys.argv[0]
 if len(sys.argv) > 1:
-  _handle = int(sys.argv[1])
+    _handle = int(sys.argv[1])
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
@@ -26,13 +29,13 @@ addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile'))
 def list_channels_list(label):
     xbmcplugin.setPluginCategory(_handle, label)
     list_item = xbmcgui.ListItem(label="Ruční editace")
-    url = get_url(action="list_channels_edit", label = label + " / " + "Ruční editace")  
+    url = get_url(action="list_channels_edit", label = label + " / Ruční editace")  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     list_item = xbmcgui.ListItem(label="Načtení uživatelského seznamu z O2")
-    url = get_url(action="get_o2_channels_lists", label = label + " / " + "Načtení z O2")  
+    url = get_url(action="get_o2_channels_lists", label = label + " / Načtení z O2")  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     list_item = xbmcgui.ListItem(label="Vlastní skupiny kanálů")
-    url = get_url(action="list_channels_groups", label = label + " / " + "Skupiny kanálů")  
+    url = get_url(action="list_channels_groups", label = label + " / Skupiny kanálů")  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     list_item = xbmcgui.ListItem(label="Resetovat seznam kanálů")
     url = get_url(action="reset_channel_list")  
@@ -52,7 +55,7 @@ def get_o2_channels_lists(label):
     if "listUserChannelNumbers" in data and len(data["listUserChannelNumbers"]) > 0:
       for list in data["listUserChannelNumbers"]:
         list_item = xbmcgui.ListItem(label= list.replace("user::",""))
-        url = get_url(action="load_o2_channel_list", list = list.encode("utf-8"))  
+        url = get_url(action="load_o2_channel_list", list = encode(list))  
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
       xbmcplugin.endOfDirectory(_handle)
     else:
@@ -72,9 +75,9 @@ def load_o2_channel_list(list):
       sys.exit() 
     if "listUserChannelNumbers" in data and len(data["listUserChannelNumbers"]) > 0:
       for list_name in data["listUserChannelNumbers"]:
-        if list == list_name.encode("utf-8"):
-          for channel in data["listUserChannelNumbers"][list.decode("utf-8")]:
-            channels.update({int(data["listUserChannelNumbers"][list.decode("utf-8")][channel]) : channel})
+        if list == encode(list_name):
+          for channel in data["listUserChannelNumbers"][decode(list)]:
+            channels.update({int(data["listUserChannelNumbers"][decode(list)][channel]) : channel})
           with codecs.open(filename, "w", encoding="utf-8") as file:
             for key in sorted(channels.keys()):
               if channels[key] in channels_key_mapping: 
@@ -117,8 +120,8 @@ def list_channels_edit(label):
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
       for num in sorted(channels_nums.keys()):
         list_item = xbmcgui.ListItem(label=str(num) + " " + channels_nums[num])
-        url = get_url(action='edit_channel', channelName = channels_nums[num].encode("utf-8"), channelNum = num)  
-        list_item.addContextMenuItems([("Smazat kanál", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_channel&channelName=" + channels_nums[num].encode("utf-8") + "&channelNum=" + str(num) + ")",)])       
+        url = get_url(action='edit_channel', channelName = encode(channels_nums[num]), channelNum = num)  
+        list_item.addContextMenuItems([("Smazat kanál", encode("RunPlugin(plugin://plugin.video.archivo2tv?action=delete_channel&channelName=" + channels_nums[num] + "&channelNum=" + str(num) + ")"),)])       
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
       xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 
@@ -239,10 +242,10 @@ def edit_channel(channelName, channelNum):
     new_num = xbmcgui.Dialog().numeric(0, "Číslo kanálu", str(channelNum))
     if int(new_num) > 0:
       if int(new_num) in channels_nums:
-        xbmcgui.Dialog().notification("Sledování O2TV","Číslo kanálu " + new_num + " je už použité u kanálu " + channels_nums[int(new_num)].encode("utf-8"), xbmcgui.NOTIFICATION_ERROR, 5000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Číslo kanálu " + new_num + " je už použité u kanálu " + encode(channels_nums[int(new_num)]), xbmcgui.NOTIFICATION_ERROR, 5000)
       else:  
+        channels_nums.update({ int(new_num) : channels_nums[int(channelNum)] })
         del channels_nums[int(channelNum)]
-        channels_nums.update({ int(new_num) : channelName})
         with codecs.open(filename, "w", encoding = "utf-8") as file:
           for num in sorted(channels_nums.keys()):
             line = channels_nums[num]+";"+str(num)
@@ -254,7 +257,7 @@ def delete_channel(channelName, channelNum):
     filename_data = addon_userdata_dir + "channels_data.txt"
     channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
  
-    if channelNum in channels_nums and channels_nums[channelNum] == channelName.decode("utf-8"):
+    if channelNum in channels_nums and channels_nums[channelNum] == decode(channelName):
       del channels_key_mapping[channels_data[channels_nums[channelNum]]["channelKey"]]
       del channels_data[channels_nums[channelNum]]
       del channels_nums[channelNum]
@@ -284,13 +287,13 @@ def list_channels_add(label):
     for num in sorted(channels_nums_all.keys()):
       if channels_nums_all[num] in new_channels:
         list_item = xbmcgui.ListItem(label=str(num) + " " + channels_nums_all[num])
-        url = get_url(action='add_channel', channelName = channels_nums_all[num].encode("utf-8"), channelNum = num)  
+        url = get_url(action='add_channel', channelName = encode(channels_nums_all[num]), channelNum = num)  
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 
 def add_channel(channelName, channelNum):
     channelNum = int(channelNum)
-    channelName = channelName.decode("utf-8")
+    channelName = decode(channelName)
     filename = addon_userdata_dir + "channels.txt"
     filename_data = addon_userdata_dir + "channels_data.txt"
     channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
@@ -382,8 +385,9 @@ def list_channels_groups(label):
         list_item = xbmcgui.ListItem(label="[B]" + channel_group + "[/B]")                
       else:
         list_item = xbmcgui.ListItem(label=channel_group)
-      url = get_url(action='edit_channel_group', group = channel_group.encode("utf-8"), label = "Skupiny kanálů / " + channel_group.encode("utf-8"))  
-      list_item.addContextMenuItems([("Vybrat skupinu", "RunPlugin(plugin://plugin.video.archivo2tv?action=select_channel_group&group=" + quote(channel_group.encode("utf-8")) + ")") , ("Smazat skupinu", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_channel_group&group=" + quote(channel_group.encode("utf-8")) + ")")])       
+      url = get_url(action='edit_channel_group', group = encode(channel_group), label = "Skupiny kanálů / " + encode(channel_group)) 
+      list_item.addContextMenuItems([("Vybrat skupinu", "RunPlugin(plugin://plugin.video.archivo2tv?action=select_channel_group&group=" + quote(encode(channel_group)) + ")"), 
+                                     ("Smazat skupinu", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_channel_group&group=" + quote(encode(channel_group)) + ")")])       
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 
@@ -400,13 +404,13 @@ def add_channel_group(label):
     if group in channels_groups:
       xbmcgui.Dialog().notification("Sledování O2TV","Název skupiny je už použitý", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()          
-    channels_groups.append(group.decode("utf-8"))
+    channels_groups.append(decode(group))
     save_channels_groups(channels_groups, channels_groups_channels, selected)
 
 def delete_channel_group(group):
-    group = group.decode("utf-8")
-    response = xbmcgui.Dialog().yesno("Smazání skupiny kanálů", "Opravdu smazat skupinu kanálů " + group.encode("utf-8") + "?", nolabel = "Ne", yeslabel = "Ano")
+    response = xbmcgui.Dialog().yesno("Smazání skupiny kanálů", "Opravdu smazat skupinu kanálů " + group + "?", nolabel = "Ne", yeslabel = "Ano")
     if response:
+      group = decode(group)
       channels_groups, channels_groups_channels, selected = load_channels_groups() # pylint: disable=unused-variable
       channels_groups.remove(group)
       if group in channels_groups_channels:
@@ -417,7 +421,7 @@ def delete_channel_group(group):
     xbmc.executebuiltin('Container.Refresh')
 
 def select_channel_group(group):
-    group = group.decode("utf-8")
+    group = decode(group)
     channels_groups, channels_groups_channels, selected = load_channels_groups() # pylint: disable=unused-variable
     selected = group
     save_channels_groups(channels_groups, channels_groups_channels, selected)
@@ -426,23 +430,23 @@ def select_channel_group(group):
       xbmcgui.Dialog().notification("Sledování O2TV","Vybraná skupina je prázdná", xbmcgui.NOTIFICATION_WARNING, 4000)    
 
 def edit_channel_group(group, label):
-    group = group.decode("utf-8")
+    group = decode(group)
     channels_groups, channels_groups_channels, selected = load_channels_groups() # pylint: disable=unused-variable
     xbmcplugin.setPluginCategory(_handle, label)    
    
     list_item = xbmcgui.ListItem(label="Přidat kanál")
-    url = get_url(action='edit_channel_group_list_channels', group = group.encode("utf-8"), label = group.encode("utf-8") + " / " + "Přidat kanál")  
+    url = get_url(action='edit_channel_group_list_channels', group = encode(group), label = encode(group) + " / Přidat kanál")  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     if group in channels_groups_channels:
       for channel in channels_groups_channels[group]:
         list_item = xbmcgui.ListItem(label=channel)
-        url = get_url(action='edit_channel_group', group = group.encode("utf-8"), label = label)  
-        list_item.addContextMenuItems([("Smazat kanál", "RunPlugin(plugin://plugin.video.archivo2tv?action=edit_channel_group_delete_channel&group=" + quote(group.encode("utf-8")) + "&channel="  + quote(channel.encode("utf-8")) + ")",)])       
+        url = get_url(action='edit_channel_group', group = encode(group), label = label)  
+        list_item.addContextMenuItems([("Smazat kanál", "RunPlugin(plugin://plugin.video.archivo2tv?action=edit_channel_group_delete_channel&group=" + quote(encode(group)) + "&channel="  + quote(encode(channel)) + ")",)])       
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 
 def edit_channel_group_list_channels(group, label):
-    group = group.decode("utf-8")
+    group = decode(group)
     xbmcplugin.setPluginCategory(_handle, label)  
     channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
     channels_groups, channels_groups_channels, selected = load_channels_groups() # pylint: disable=unused-variable
@@ -450,17 +454,17 @@ def edit_channel_group_list_channels(group, label):
     for num in sorted(channels_nums.keys()):
       if not group in channels_groups or not group in channels_groups_channels or not channels_nums[num] in channels_groups_channels[group]:
         list_item = xbmcgui.ListItem(label=str(num) + " " + channels_nums[num])
-        url = get_url(action='edit_channel_group_add_channel', group = group.encode("utf-8"), channel = channels_nums[num].encode("utf-8"))  
+        url = get_url(action='edit_channel_group_add_channel', group = encode(group), channel = encode(channels_nums[num]))  
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 
 def edit_channel_group_add_channel(group, channel):
-    group = group.decode("utf-8")
+    group = decode(group)
     channels = []
     channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
     channels_groups, channels_groups_channels, selected = load_channels_groups() # pylint: disable=unused-variable
     for num in sorted(channels_nums.keys()):
-      if (group in channels_groups_channels and channels_nums[num] in channels_groups_channels[group]) or channels_nums[num] == channel.decode("utf-8"):
+      if (group in channels_groups_channels and channels_nums[num] in channels_groups_channels[group]) or channels_nums[num] == decode(channel):
          channels.append(channels_nums[num])
     if group in channels_groups_channels:
       del channels_groups_channels[group]
@@ -468,9 +472,9 @@ def edit_channel_group_add_channel(group, channel):
     save_channels_groups(channels_groups, channels_groups_channels, selected)
 
 def edit_channel_group_delete_channel(group, channel):
-    group = group.decode("utf-8")
+    group = decode(group)
     channels_groups, channels_groups_channels, selected = load_channels_groups() # pylint: disable=unused-variable
-    channels_groups_channels[group].remove(channel.decode("utf-8"))
+    channels_groups_channels[group].remove(decode(channel))
     save_channels_groups(channels_groups, channels_groups_channels, selected)
     xbmc.executebuiltin('Container.Refresh')
 

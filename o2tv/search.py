@@ -6,13 +6,17 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-from urllib import urlencode, quote
+try:
+    from urllib import urlencode, quote
+except ImportError:
+    from urllib.parse import urlencode, quote
+    
 from datetime import datetime 
 import time
 
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
-from o2tv.utils import get_url, get_color
+from o2tv.utils import get_url, get_color, decode, encode
 from o2tv import utils
 from o2tv.channels import load_channels 
 from o2tv.epg import get_listitem_epg_details
@@ -62,17 +66,18 @@ def program_search(query, label):
       for item in data["groupedSearch"]["groups"]:
         programs = item["programs"][0]
         if programs["channelKey"] in channels_key_mapping:
-          startts = programs["start"]
+          startts = programs["start"]/1000
           start = datetime.fromtimestamp(programs["start"]/1000)
-          endts = programs["end"]
+          endts = programs["end"]/1000
           end = datetime.fromtimestamp(programs["end"]/1000)
           epgId = programs["epgId"]
-          list_item = xbmcgui.ListItem(label = programs["name"] + " (" + programs["channelKey"] + " | " + utils.day_translation_short[start.strftime("%w")].decode("utf-8") + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
+          list_item = xbmcgui.ListItem(label = programs["name"] + " (" + programs["channelKey"] + " | " + decode(utils.day_translation_short[start.strftime("%w")]) + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
           list_item = get_listitem_epg_details(list_item, str(epgId), "")
           list_item.setProperty("IsPlayable", "true")
           list_item.setContentLookup(False)          
-          url = get_url(action='play_archiv', channelKey = programs["channelKey"].encode("utf-8"), start = startts, end = endts, epgId = epgId)
-          list_item.addContextMenuItems([("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])         
+          url = get_url(action='play_archiv', channelKey = encode(programs["channelKey"]), start = startts, end = endts, epgId = epgId)
+          if addon.getSetting("download_streams") == "true": 
+            list_item.addContextMenuItems([("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])         
           xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
       xbmcplugin.endOfDirectory(_handle)
     else:

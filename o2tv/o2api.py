@@ -8,16 +8,18 @@ import xbmcaddon
 import xbmc
 
 try:
-    from urllib import urlencode, quote
-    from urlparse import parse_qsl
     from urllib2 import urlopen, Request, HTTPError
+    from urllib import urlencode, quote
+    from urlparse import parse_qsl    
 except ImportError:
-    from urllib.parse import urlencode, quote, parse_qsl
     from urllib.request import urlopen, Request
+    from urllib.parse import urlencode, quote, parse_qsl
     from urllib.error import HTTPError
 
 import json
 import time
+
+from o2tv.utils import encode
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
@@ -142,12 +144,10 @@ def get_auth_password():
       sys.exit()
 
 def get_auth_web():
-    import urllib2
-
     post = {"username" : addon.getSetting("username"), "password" : addon.getSetting("password")} 
-    req = urllib2.Request("https://www.o2tv.cz/unity/api/v1/services/")
+    req = Request("https://www.o2tv.cz/unity/api/v1/services/")
     req.add_header("Content-Type", "application/json")
-    resp = urllib2.urlopen(req, json.dumps(post))
+    resp = urlopen(req, json.dumps(post))
     data = json.loads(resp.read())
     if "err" in data:
       xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)
@@ -157,9 +157,9 @@ def get_auth_web():
       remote_access_token = data["remoteAccessToken"]
       service_id = data["services"][serviceid_order]['serviceId']
       post = {"remoteAccessToken" : remote_access_token} 
-      req = urllib2.Request("https://www.o2tv.cz/unity/api/v1/services/selection/" + service_id + "/")
+      req = Request("https://www.o2tv.cz/unity/api/v1/services/selection/" + service_id + "/")
       req.add_header('Content-Type', 'application/json')
-      resp = urllib2.urlopen(req, json.dumps(post))
+      resp = urlopen(req, json.dumps(post))
       data = json.loads(resp.read())
       if "err" in data:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém při přihlášení", xbmcgui.NOTIFICATION_ERROR, 4000)

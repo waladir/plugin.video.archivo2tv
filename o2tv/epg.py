@@ -6,14 +6,19 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
+try:
+    from urllib import quote
+except ImportError:
+    from urllib.parse import quote
+
 from sqlite3 import OperationalError
 import sqlite3
 import json
-from urllib import quote
+
 from datetime import date, datetime, timedelta
 import time
 
-from o2tv.utils import get_url
+from o2tv.utils import get_url, encode
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
 from o2tv.channels import load_channels 
@@ -158,10 +163,10 @@ def load_epg_details():
                 ratings.update({ rating : int(rating_value)})
             if "castAndCrew" in event and len(event["castAndCrew"]) > 0 and "cast" in event["castAndCrew"] and len(event["castAndCrew"]["cast"]) > 0:
               for person in event["castAndCrew"]["cast"]:      
-                cast.append(person["name"].encode("utf-8"))
+                cast.append(encode(person["name"]))
             if "castAndCrew" in event and len(event["castAndCrew"]) > 0 and "directors" in event["castAndCrew"] and len(event["castAndCrew"]["directors"]) > 0:
               for person in event["castAndCrew"]["directors"]:      
-                directors.append(person["name"].encode("utf-8"))
+                directors.append(encode(person["name"]))
             if "origin" in event and len(event["origin"]) > 0:
               if "year" in event["origin"] and len(str(event["origin"]["year"])) > 0:
                 year = event["origin"]["year"]
@@ -173,7 +178,7 @@ def load_epg_details():
               imdb = event["ext"]["imdbId"]
             if "genreInfo" in event and len(event["genreInfo"]) > 0 and "genres" in event["genreInfo"] and len(event["genreInfo"]["genres"]) > 0:
               for genre in event["genreInfo"]["genres"]:      
-                genres.append(genre["name"].encode("utf-8"))
+                genres.append(encode(genre["name"]))
             if "seriesInfo" in event:
               if "episodeNumber" in event["seriesInfo"] and len(str(event["seriesInfo"]["episodeNumber"])) > 0 and int(event["seriesInfo"]["episodeNumber"]) > 0:
                 episodeNumber = int(event["seriesInfo"]["episodeNumber"])
@@ -226,7 +231,7 @@ def load_epg_ts(channelKeys, from_ts, to_ts):
     events_data = {}
     params = ""
     for channelKey in channelKeys:
-      params = params + ("&channelKey=" + quote(channelKey.encode("utf-8"))) 
+      params = params + ("&channelKey=" + quote(encode(channelKey))) 
     url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?forceLimit=true&limit=500" + params + "&from=" + str(from_ts*1000) + "&to=" + str(to_ts*1000) 
     data = o2api.call_o2_api(url = url, data = None, header = o2api.header_unity)
     if "err" in data:
@@ -423,11 +428,11 @@ def get_listitem_epg_details(list_item, epgId, img):
         list_item.setRating(rating, round(float(rating_value)/10,1))
     if "cast" in event and len(event["cast"]) > 0:
       for person in event["cast"]:      
-        cast.append(person.encode("utf-8"))
+        cast.append(encode(person))
       list_item.setInfo("video", {"cast" : cast})  
     if "directors" in event and len(event["directors"]) > 0:
       for person in event["directors"]:      
-        directors.append(person.encode("utf-8"))
+        directors.append(encode(person))
       list_item.setInfo("video", {"director" : directors})  
     if "year" in event and len(str(event["year"])) > 0:
       list_item.setInfo("video", {"year": int(event["year"])})
@@ -439,7 +444,7 @@ def get_listitem_epg_details(list_item, epgId, img):
       list_item.setInfo("video", {"imdbnumber": event["imdb"]})
     if "genres" in event and len(event["genres"]) > 0:
       for genre in event["genres"]:      
-        genres.append(genre.encode("utf-8"))
+        genres.append(encode(genre))
       list_item.setInfo("video", {"genre" : genres})    
     if "episodeNumber" in event and event["episodeNumber"] != None and int(event["episodeNumber"]) > 0:
      # list_item.setInfo("video", {"mediatype": "episode", "episode" : int(event["episodeNumber"])}) 
