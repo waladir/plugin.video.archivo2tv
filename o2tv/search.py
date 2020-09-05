@@ -101,9 +101,8 @@ def save_search_history(query):
     except IOError:
       history = []
       
-    print(history)
     history.insert(0,query)
-    print(history)
+
     with open(filename, "w") as file:
       for item  in history:
         cnt = cnt + 1
