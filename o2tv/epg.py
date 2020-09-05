@@ -247,6 +247,13 @@ def load_epg_ts(channelKeys, from_ts, to_ts):
       row = None
       for row in db.execute('SELECT * FROM epg WHERE epgId = ?', [epgId]):
         event = row
+        startTime = int(row[1])
+        endTime = int(row[2])
+        channel = row[3]
+        title = row[4]
+        availableTo = int(row[5])
+        if startTime != events_data[epgId]["startTime"] or endTime != events_data[epgId]["endTime"] or channel != events_data[epgId]["channel"] or title != events_data[epgId]["title"] or availableTo != events_data[epgId]["availableTo"]:
+          db.execute('UPDATE epg SET startTime = ?, endTime = ?, channel = ?, title = ?, availableTo = ? WHERE epgId = ?', (events_data[epgId]["startTime"], events_data[epgId]["endTime"], events_data[epgId]["channel"], events_data[epgId]["title"], events_data[epgId]["availableTo"], epgId))
       if not row:
         cnt = cnt + 1
         db.execute('INSERT INTO epg VALUES(?, ?, ?, ?, ?, ?)', (epgId, events_data[epgId]["startTime"], events_data[epgId]["endTime"], events_data[epgId]["channel"], events_data[epgId]["title"], events_data[epgId]["availableTo"]))      

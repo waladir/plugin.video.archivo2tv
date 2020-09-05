@@ -76,8 +76,12 @@ def program_search(query, label):
           list_item.setProperty("IsPlayable", "true")
           list_item.setContentLookup(False)          
           url = get_url(action='play_archiv', channelKey = encode(programs["channelKey"]), start = startts, end = endts, epgId = epgId)
+          menus = [("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")"), 
+                ("Související pořady", "Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(epgId) + "&label=Související / " + encode(programs["name"]) + ")"), 
+                ("Vysílání pořadu", "Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(epgId) + "&label=" + encode(programs["name"]) + ")")]
           if addon.getSetting("download_streams") == "true": 
-            list_item.addContextMenuItems([("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")")])         
+            menus.append(("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")"))
+          list_item.addContextMenuItems(menus)       
           xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
       xbmcplugin.endOfDirectory(_handle)
     else:
@@ -97,8 +101,9 @@ def save_search_history(query):
     except IOError:
       history = []
       
+    print(history)
     history.insert(0,query)
-
+    print(history)
     with open(filename, "w") as file:
       for item  in history:
         cnt = cnt + 1
