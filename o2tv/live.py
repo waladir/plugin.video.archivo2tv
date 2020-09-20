@@ -46,9 +46,12 @@ def list_live(page, label):
           list_item.setInfo("video", {"mediatype":"movie", "title": encode(channelName) + encode(live_noncolor)}) 
           list_item = get_listitem_epg_details(list_item, str(channels_details[channels_nums[num]]["epgId"]), channels_data[channels_nums[num]]["logo"])
         else: 
+          print(channelName.encode("utf-8"))
           live = ""
           live_noncolor = ""
           list_item = xbmcgui.ListItem(label=encode(channelName) + encode(live))
+          list_item.setInfo("video", {"mediatype":"movie", "title": encode(channelName) + encode(live)}) 
+
         list_item.setContentLookup(False)          
         list_item.setProperty("IsPlayable", "true")
         if channels_nums[num] in channels_details:

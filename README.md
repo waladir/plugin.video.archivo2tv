@@ -7,6 +7,12 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.0.2 (2020-09-20)<br>
+- oprava přehrávání kanálů pro dospělé<br>
+- ošetření chyb při stahování EPG<br>
+- při generování EPG v nastavení se nebude spouštět stahování EPG z O2<br>
+- přidané detailní logování průběhu stahování EPG do kodi.log (se zapnutým debugem)<br><br>
+
 v2.0.1 (2020-09-05)<br>
 - aktualizace změn v EPG při změnách na straně O2<br>
 - doplnění položek Související pořady a Vysílání pořadu do kontextového menu ve výsledcích vyhledávání<br><br>

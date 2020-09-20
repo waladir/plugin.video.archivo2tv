@@ -8,8 +8,10 @@ import xbmc
 
 try:
     from urllib import quote
+    from urllib2 import URLError
 except ImportError:
     from urllib.parse import quote
+    from urllib.request import URLError
 
 from sqlite3 import OperationalError
 import sqlite3
@@ -231,35 +233,40 @@ def load_epg_ts(channelKeys, from_ts, to_ts):
     events_data = {}
     params = ""
     for channelKey in channelKeys:
-      params = params + ("&channelKey=" + quote(encode(channelKey))) 
-    url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?forceLimit=true&limit=500" + params + "&from=" + str(from_ts*1000) + "&to=" + str(to_ts*1000) 
-    data = o2api.call_o2_api(url = url, data = None, header = o2api.header_unity)
-    if "err" in data:
-      xbmcgui.Dialog().notification("Sledování O2TV","Chyba API O2 při načítání EPG!", xbmcgui.NOTIFICATION_ERROR, 4000)
-      sys.exit()
-    if "epg" in data and len(data["epg"]) > 0 and "items" in data["epg"] and len(data["epg"]["items"]) > 0:
-      for channel in data["epg"]["items"]:
-        for event in channel["programs"]:
-          events_data.update({event["epgId"] : {"startTime" : int(event["start"]/1000), "endTime" : int(event["end"]/1000), "channel" : channel["channel"]["name"], "title" : event["name"], "availableTo" : int(event["availableTo"]/1000)}})
-    cnt = 0
-    open_db()
-    for epgId in events_data.keys():
-      row = None
-      for row in db.execute('SELECT * FROM epg WHERE epgId = ?', [epgId]):
-        event = row
-        startTime = int(row[1])
-        endTime = int(row[2])
-        channel = row[3]
-        title = row[4]
-        availableTo = int(row[5])
-        if startTime != events_data[epgId]["startTime"] or endTime != events_data[epgId]["endTime"] or channel != events_data[epgId]["channel"] or title != events_data[epgId]["title"] or availableTo != events_data[epgId]["availableTo"]:
-          db.execute('UPDATE epg SET startTime = ?, endTime = ?, channel = ?, title = ?, availableTo = ? WHERE epgId = ?', (events_data[epgId]["startTime"], events_data[epgId]["endTime"], events_data[epgId]["channel"], events_data[epgId]["title"], events_data[epgId]["availableTo"], epgId))
-      if not row:
-        cnt = cnt + 1
-        db.execute('INSERT INTO epg VALUES(?, ?, ?, ?, ?, ?)', (epgId, events_data[epgId]["startTime"], events_data[epgId]["endTime"], events_data[epgId]["channel"], events_data[epgId]["title"], events_data[epgId]["availableTo"]))      
-    db.commit()
-    close_db()
-    print("INSERTED epg: " + str(cnt))
+      params = params + ("&channelKey=" + quote(encode(channelKey)))
+    try: 
+      url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?forceLimit=true&limit=500" + params + "&from=" + str(from_ts*1000) + "&to=" + str(to_ts*1000) 
+      data = o2api.call_o2_api(url = url, data = None, header = o2api.header_unity)
+      if "err" in data:
+        xbmcgui.Dialog().notification("Sledování O2TV","Chyba API O2 při načítání EPG!", xbmcgui.NOTIFICATION_ERROR, 4000)
+        sys.exit()
+      if "epg" in data and len(data["epg"]) > 0 and "items" in data["epg"] and len(data["epg"]["items"]) > 0:
+        for channel in data["epg"]["items"]:
+          for event in channel["programs"]:
+            events_data.update({event["epgId"] : {"startTime" : int(event["start"]/1000), "endTime" : int(event["end"]/1000), "channel" : channel["channel"]["name"], "title" : event["name"], "availableTo" : int(event["availableTo"]/1000)}})
+      cnt = 0
+      open_db()
+      for epgId in events_data.keys():
+        row = None
+        for row in db.execute('SELECT * FROM epg WHERE epgId = ?', [epgId]):
+          event = row
+          startTime = int(row[1])
+          endTime = int(row[2])
+          channel = row[3]
+          title = row[4]
+          availableTo = int(row[5])
+          if startTime != events_data[epgId]["startTime"] or endTime != events_data[epgId]["endTime"] or channel != events_data[epgId]["channel"] or title != events_data[epgId]["title"] or availableTo != events_data[epgId]["availableTo"]:
+            db.execute('UPDATE epg SET startTime = ?, endTime = ?, channel = ?, title = ?, availableTo = ? WHERE epgId = ?', (events_data[epgId]["startTime"], events_data[epgId]["endTime"], events_data[epgId]["channel"], events_data[epgId]["title"], events_data[epgId]["availableTo"], epgId))
+        if not row:
+          cnt = cnt + 1
+          db.execute('INSERT INTO epg VALUES(?, ?, ?, ?, ?, ?)', (epgId, events_data[epgId]["startTime"], events_data[epgId]["endTime"], events_data[epgId]["channel"], events_data[epgId]["title"], events_data[epgId]["availableTo"]))      
+      db.commit()
+      close_db()
+      print("INSERTED epg: " + str(cnt))
+    except URLError:
+      print("Error getting EPG data")
+      time.sleep(30)
+      pass
 
 def load_epg_all():
     channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
@@ -278,15 +285,19 @@ def load_epg_all():
 
     for day in range(-8,8,1):
       from_datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days = -1*int(day))
+      print("Začínám stahování EPG za " + from_datetime.strftime("%d.%m.%Y"))
       from_ts = int(time.mktime(from_datetime.timetuple()))
       to_ts = from_ts+(24*60*60)-1
       if to_ts > min_ts:
         if from_ts < min_ts:
           from_ts = min_ts
         load_epg_ts(channelKeys, from_ts, to_ts)
+      print("Dokončeno stahování EPG za " + from_datetime.strftime("%d.%m.%Y"))
 
+    print("Začínám stahování detailů EPG")
     load_epg_details()  
     err = 0
+    print("Dokončeno stahování detailů EPG")
     rec_epgIds = get_recordings_epgIds()
     for epgId in rec_epgIds:
       if epgId == "err":

@@ -44,7 +44,12 @@ def play_video(type, channelKey, start, end, epgId, title):
       startts = 0
       channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter = 0) # pylint: disable=unused-variable 
       channels_details = get_epg_live(len(channels_nums.keys()))      
-      if decode(channelKey) in channels_key_mapping:
+      if channels_key_mapping[decode(channelKey)] in channels_details:
+        without_details = 0
+      else:
+        without_details = 1  
+
+      if decode(channelKey) in channels_key_mapping and without_details == 0:
         data = channels_details[channels_key_mapping[decode(channelKey)]]
         start = data["start"]
         startts = int(time.mktime(start.timetuple()))
@@ -103,17 +108,19 @@ def play_video(type, channelKey, start, end, epgId, title):
         if addon.getSetting("stream_type") == "MPEG-DASH":
           request = Request(url = url , data = None, headers = o2api.header)
           response = urlopen(request)
-          url = response.geturl()
+          url = response.geturl().replace("http:","https:")
       else:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()
                                                     
     if type == "live_iptv" or type == "live_iptv_epg":
       list_item = xbmcgui.ListItem(path = url)
-      list_item = get_listitem_epg_details(list_item, epgId, "")
+      if without_details == 0:
+        list_item = get_listitem_epg_details(list_item, epgId, "")
     elif type == "archiv_iptv":
       list_item = xbmcgui.ListItem(title)
-      list_item = get_listitem_epg_details(list_item, str(epgId), "")
+      if without_details == 0:
+        list_item = get_listitem_epg_details(list_item, str(epgId), "")
     else:
       list_item = xbmcgui.ListItem(path = url)
 
