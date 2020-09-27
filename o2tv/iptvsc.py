@@ -121,7 +121,8 @@ def generate_playlist():
     xbmcgui.Dialog().notification("Sledování O2TV","Playlist byl uložený", xbmcgui.NOTIFICATION_INFO, 4000)    
 
 def generate_epg():
- #   load_epg_all()
+    if addon.getSetting("disabled_scheduler") != "true":
+      load_epg_all()
     load_epg_db()      
     
 def iptv_sc_play(channelName, startdatetime, epg):

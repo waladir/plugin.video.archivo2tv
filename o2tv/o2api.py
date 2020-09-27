@@ -221,7 +221,7 @@ def login():
       with open(filename, "w") as file:
         file.write('%s\n' % auth_data)
     except IOError:
-      print("Chyba uložení session")
+      xbmc.log("Chyba uložení session")
 
 def session_reset():     
     filename = addon_userdata_dir + "session.txt"

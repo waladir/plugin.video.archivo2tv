@@ -15,7 +15,6 @@ from datetime import datetime, timedelta
 from datetime import date
 import time
 
-
 path = xbmc.getInfoLabel('ListItem.FileNameAndPath')
 channel = xbmc.getInfoLabel('ListItem.ChannelName')
 startdatetime = xbmc.getInfoLabel('ListItem.Date')

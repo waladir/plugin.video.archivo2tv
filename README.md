@@ -7,6 +7,17 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.0.3 (2020-09-27)<br>
+- přidání kontroly session před začátkem stahování EPG<br>
+- přidání informačních hlášek o průběhu stahování EPG<br>
+- přidání možnosti vypnout v nastavení informační hlášky z procesů běžících na pozadí (generování EPG pro IPTV Simple Clienta, stahování EPG)<br>
+- posun začátku stahování EPG z 30 na 60 s po startu Kodi<br>
+- snížení pauz v cyklu plánovače<br>
+- přidané stažení EPG dat před generováním EPG v nastavení<br>
+- možnost v nastavení vypnout procesy běžící na pozadí (stahování EPG z O2, stahování streamů, generování EPG pri IPTV Simple Clienta)<br>
+- oprava spouštění v historii kanálů IPTV Simple Clienta<br>
+- oprava přehrávání živého vysílání bez EPG dat<br><br>
+
 v2.0.2 (2020-09-20)<br>
 - oprava přehrávání kanálů pro dospělé<br>
 - ošetření chyb při stahování EPG<br>

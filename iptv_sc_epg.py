@@ -99,7 +99,8 @@ def load_epg_db():
                   file.write('       <desc lang="cs"></desc>\n')
                 file.write('    </programme>\n')
           file.write('</tv>\n')
-          xbmcgui.Dialog().notification("Sledování O2TV","EPG bylo uložené", xbmcgui.NOTIFICATION_INFO, 3000)    
+          if addon.getSetting("info_enabled"):
+            xbmcgui.Dialog().notification("Sledování O2TV","EPG bylo uložené", xbmcgui.NOTIFICATION_INFO, 3000)    
           
       except IOError:
         xbmcgui.Dialog().notification("Sledování O2TV","Nemohu zapsat do " + addon.getSetting("output_dir") + "o2_epg.xml" + "!", xbmcgui.NOTIFICATION_ERROR, 6000)
@@ -108,7 +109,10 @@ def load_epg_db():
       xbmcgui.Dialog().notification("Sledování O2TV","Nevráceny žádná data!", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()
 
-time.sleep(30)
+if addon.getSetting("disabled_scheduler") == "true":
+  sys.exit()
+
+time.sleep(60)
 if not addon.getSetting("epg_interval"):
   interval = 12*60*60
 else:
@@ -120,8 +124,9 @@ dt.start()
 
 while not xbmc.Monitor().abortRequested():
   if(next < time.time()):
-    time.sleep(10)
+    time.sleep(3)
     if addon.getSetting("username") and len(addon.getSetting("username")) > 0 and addon.getSetting("password") and len(addon.getSetting("password")) > 0:
+      login()
       load_epg_all()
       #load_epg_details_inc()
       if addon.getSetting("autogen") == "true":

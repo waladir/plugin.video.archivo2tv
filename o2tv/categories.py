@@ -76,7 +76,7 @@ def load_categories():
           data = json.dumps({"categories" : categories, "subcategories" : subcategories, "slugs" : slugs, "valid_to" : int(time.time()) + 60*60*24})
           file.write('%s\n' % data)
       except IOError:
-        print("Chyba uložení kategorií") 
+        xbmc.log("Chyba uložení kategorií") 
     else:
       categories = data["categories"]  
       subcategories = data["subcategories"]  

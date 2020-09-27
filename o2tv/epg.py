@@ -118,106 +118,111 @@ def migrate_db(version):
 def load_epg_details():
     global db
     events_detailed_data = {}
-    url = "https://www.o2tv.cz/unity/api/v1/epg/"
-    data = o2api.call_o2_api(url = url, data = None, header = o2api.header_unity)
-    if "err" in data:
-      print("Chyba API O2 při načítání detailních dat pro EPG!")
-      sys.exit()
-    if "result" in data and len(data["result"]) > 0 and "count" in data and data["count"] > 0:
-      offset = 0
-      step = 50
-      cnt = data["count"]
-      for offset in range(0, cnt + step, step):
-        url = "https://www.o2tv.cz/unity/api/v1/epg/?offset=" + str(offset)
-        data = o2api.call_o2_api(url = url, data = None, header = o2api.header_unity)
-        if "err" in data:
-          print("Chyba API O2 při načítání detailních dat pro EPG!")
-          sys.exit()
-        if "result" in data and len(data["result"]) > 0:
-          for event in data["result"]:
-            cover = ""
-            description = ""
-            ratings = {}
-            cast = []
-            directors = []
-            year = ""
-            country = ""
-            original = ""
-            imdb = ""
-            genres = []
-            episodeNumber = -1
-            episodeName = ""
-            seasonNumber = -1
-            episodesInSeason = -1
-            seasonName = ""
-            seriesName = ""    
-            contentType = ""        
-            if "images" in event and len(event["images"]) > 0:
-              cover = event["images"][0]["cover"]
-            elif "picture" in event and len(event["picture"]) > 0:
-              cover = event["picture"]
-            if "longDescription" in event and len(event["longDescription"]) > 0:
-              description = event["longDescription"]
-            elif "shortDescription" in event and len(event["shortDescription"]) > 0:
-              description = event["shortDescription"]
-            if "ratings" in event and len(event["ratings"]) > 0:
-              for rating, rating_value in event["ratings"].items():
-                ratings.update({ rating : int(rating_value)})
-            if "castAndCrew" in event and len(event["castAndCrew"]) > 0 and "cast" in event["castAndCrew"] and len(event["castAndCrew"]["cast"]) > 0:
-              for person in event["castAndCrew"]["cast"]:      
-                cast.append(encode(person["name"]))
-            if "castAndCrew" in event and len(event["castAndCrew"]) > 0 and "directors" in event["castAndCrew"] and len(event["castAndCrew"]["directors"]) > 0:
-              for person in event["castAndCrew"]["directors"]:      
-                directors.append(encode(person["name"]))
-            if "origin" in event and len(event["origin"]) > 0:
-              if "year" in event["origin"] and len(str(event["origin"]["year"])) > 0:
-                year = event["origin"]["year"]
-              if "country" in event["origin"] and len(event["origin"]["country"]) > 0:
-                country = event["origin"]["country"]["name"]
-            if "origName" in event and len(event["origName"]) > 0:
-              original = event["origName"]
-            if "ext" in event and len(event["ext"]) > 0 and "imdbId" in event["ext"] and len(event["ext"]["imdbId"]) > 0:
-              imdb = event["ext"]["imdbId"]
-            if "genreInfo" in event and len(event["genreInfo"]) > 0 and "genres" in event["genreInfo"] and len(event["genreInfo"]["genres"]) > 0:
-              for genre in event["genreInfo"]["genres"]:      
-                genres.append(encode(genre["name"]))
-            if "seriesInfo" in event:
-              if "episodeNumber" in event["seriesInfo"] and len(str(event["seriesInfo"]["episodeNumber"])) > 0 and int(event["seriesInfo"]["episodeNumber"]) > 0:
-                episodeNumber = int(event["seriesInfo"]["episodeNumber"])
-              if "episodeName" in event["seriesInfo"] and len(event["seriesInfo"]["episodeName"]) > 0:
-                episodeName = event["seriesInfo"]["episodeName"]
-              if "seasonNumber" in event["seriesInfo"] and len(str(event["seriesInfo"]["seasonNumber"])) > 0 and int(event["seriesInfo"]["seasonNumber"]) > 0:
-                seasonNumber = int(event["seriesInfo"]["seasonNumber"])
-              if "episodesInSeason" in event["seriesInfo"] and len(str(event["seriesInfo"]["episodesInSeason"])) > 0 and int(event["seriesInfo"]["episodesInSeason"]) > 0:
-                episodesInSeason = int(event["seriesInfo"]["episodesInSeason"])
-              if "seasonName" in event["seriesInfo"] and len(event["seriesInfo"]["seasonName"]) > 0:
-                seasonName = event["seriesInfo"]["seasonName"]
-              if "seriesName" in event["seriesInfo"] and len(event["seriesInfo"]["seriesName"]) > 0:
-                seriesName = event["seriesInfo"]["seriesName"]    
-            if "contentType" in event and len(event["contentType"]) > 0:
-              contentType = event["contentType"]                           
-            events_detailed_data.update({event["epgId"] : {"cover" : cover, "description" : description, "ratings" : ratings, "cast" : cast, "directors" : directors, "year" : year, "country" : country, "original" : original, "genres" : genres, "imdb" : imdb, "episodeNumber" : episodeNumber, "episodeName" : episodeName, "seasonNumber" : seasonNumber, "episodesInSeason" : episodesInSeason, "seasonName" : seasonName, "seriesName" : seriesName, "contentType" : contentType}})    
-    cnt = 0
-    open_db()
-    for epgId in events_detailed_data.keys():
-      row = None
-      for row in db.execute('SELECT * FROM epg WHERE epgId = ?', [epgId]):
-        event = row
-      if row:
+    try:
+      url = "https://www.o2tv.cz/unity/api/v1/epg/"
+      data = o2api.call_o2_api(url = url, data = None, header = o2api.header_unity)
+      if "err" in data:
+        xbmc.log("Chyba API O2 při načítání detailních dat pro EPG!")
+        sys.exit()
+      if "result" in data and len(data["result"]) > 0 and "count" in data and data["count"] > 0:
+        offset = 0
+        step = 50
+        cnt = data["count"]
+        for offset in range(0, cnt + step, step):
+          url = "https://www.o2tv.cz/unity/api/v1/epg/?offset=" + str(offset)
+          data = o2api.call_o2_api(url = url, data = None, header = o2api.header_unity)
+          if "err" in data:
+            xbmc.log("Chyba API O2 při načítání detailních dat pro EPG!")
+            sys.exit()
+          if "result" in data and len(data["result"]) > 0:
+            for event in data["result"]:
+              cover = ""
+              description = ""
+              ratings = {}
+              cast = []
+              directors = []
+              year = ""
+              country = ""
+              original = ""
+              imdb = ""
+              genres = []
+              episodeNumber = -1
+              episodeName = ""
+              seasonNumber = -1
+              episodesInSeason = -1
+              seasonName = ""
+              seriesName = ""    
+              contentType = ""        
+              if "images" in event and len(event["images"]) > 0:
+                cover = event["images"][0]["cover"]
+              elif "picture" in event and len(event["picture"]) > 0:
+                cover = event["picture"]
+              if "longDescription" in event and len(event["longDescription"]) > 0:
+                description = event["longDescription"]
+              elif "shortDescription" in event and len(event["shortDescription"]) > 0:
+                description = event["shortDescription"]
+              if "ratings" in event and len(event["ratings"]) > 0:
+                for rating, rating_value in event["ratings"].items():
+                  ratings.update({ rating : int(rating_value)})
+              if "castAndCrew" in event and len(event["castAndCrew"]) > 0 and "cast" in event["castAndCrew"] and len(event["castAndCrew"]["cast"]) > 0:
+                for person in event["castAndCrew"]["cast"]:      
+                  cast.append(encode(person["name"]))
+              if "castAndCrew" in event and len(event["castAndCrew"]) > 0 and "directors" in event["castAndCrew"] and len(event["castAndCrew"]["directors"]) > 0:
+                for person in event["castAndCrew"]["directors"]:      
+                  directors.append(encode(person["name"]))
+              if "origin" in event and len(event["origin"]) > 0:
+                if "year" in event["origin"] and len(str(event["origin"]["year"])) > 0:
+                  year = event["origin"]["year"]
+                if "country" in event["origin"] and len(event["origin"]["country"]) > 0:
+                  country = event["origin"]["country"]["name"]
+              if "origName" in event and len(event["origName"]) > 0:
+                original = event["origName"]
+              if "ext" in event and len(event["ext"]) > 0 and "imdbId" in event["ext"] and len(event["ext"]["imdbId"]) > 0:
+                imdb = event["ext"]["imdbId"]
+              if "genreInfo" in event and len(event["genreInfo"]) > 0 and "genres" in event["genreInfo"] and len(event["genreInfo"]["genres"]) > 0:
+                for genre in event["genreInfo"]["genres"]:      
+                  genres.append(encode(genre["name"]))
+              if "seriesInfo" in event:
+                if "episodeNumber" in event["seriesInfo"] and len(str(event["seriesInfo"]["episodeNumber"])) > 0 and int(event["seriesInfo"]["episodeNumber"]) > 0:
+                  episodeNumber = int(event["seriesInfo"]["episodeNumber"])
+                if "episodeName" in event["seriesInfo"] and len(event["seriesInfo"]["episodeName"]) > 0:
+                  episodeName = event["seriesInfo"]["episodeName"]
+                if "seasonNumber" in event["seriesInfo"] and len(str(event["seriesInfo"]["seasonNumber"])) > 0 and int(event["seriesInfo"]["seasonNumber"]) > 0:
+                  seasonNumber = int(event["seriesInfo"]["seasonNumber"])
+                if "episodesInSeason" in event["seriesInfo"] and len(str(event["seriesInfo"]["episodesInSeason"])) > 0 and int(event["seriesInfo"]["episodesInSeason"]) > 0:
+                  episodesInSeason = int(event["seriesInfo"]["episodesInSeason"])
+                if "seasonName" in event["seriesInfo"] and len(event["seriesInfo"]["seasonName"]) > 0:
+                  seasonName = event["seriesInfo"]["seasonName"]
+                if "seriesName" in event["seriesInfo"] and len(event["seriesInfo"]["seriesName"]) > 0:
+                  seriesName = event["seriesInfo"]["seriesName"]    
+              if "contentType" in event and len(event["contentType"]) > 0:
+                contentType = event["contentType"]                           
+              events_detailed_data.update({event["epgId"] : {"cover" : cover, "description" : description, "ratings" : ratings, "cast" : cast, "directors" : directors, "year" : year, "country" : country, "original" : original, "genres" : genres, "imdb" : imdb, "episodeNumber" : episodeNumber, "episodeName" : episodeName, "seasonNumber" : seasonNumber, "episodesInSeason" : episodesInSeason, "seasonName" : seasonName, "seriesName" : seriesName, "contentType" : contentType}})    
+      cnt = 0
+      open_db()
+      for epgId in events_detailed_data.keys():
         row = None
-        for row in db.execute('SELECT * FROM epg_details WHERE epgId = ?', [epgId]):
+        for row in db.execute('SELECT * FROM epg WHERE epgId = ?', [epgId]):
           event = row
-        if not row:
-          cnt = cnt + 1
-          db.execute('INSERT INTO epg_details VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (epgId, events_detailed_data[epgId]["cover"], events_detailed_data[epgId]["description"], json.dumps(events_detailed_data[epgId]["ratings"]), json.dumps(events_detailed_data[epgId]["cast"]), json.dumps(events_detailed_data[epgId]["directors"]), events_detailed_data[epgId]["year"], events_detailed_data[epgId]["country"], events_detailed_data[epgId]["original"], json.dumps(events_detailed_data[epgId]["genres"]), events_detailed_data[epgId]["imdb"], events_detailed_data[epgId]["episodeNumber"], events_detailed_data[epgId]["episodeName"], events_detailed_data[epgId]["seasonNumber"], events_detailed_data[epgId]["episodesInSeason"], events_detailed_data[epgId]["seasonName"], events_detailed_data[epgId]["seriesName"], events_detailed_data[epgId]["contentType"]))      
-    db.commit()
-    close_db()
-    print("INSERTED epg_details: " + str(cnt))
+        if row:
+          row = None
+          for row in db.execute('SELECT * FROM epg_details WHERE epgId = ?', [epgId]):
+            event = row
+          if not row:
+            cnt = cnt + 1
+            db.execute('INSERT INTO epg_details VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (epgId, events_detailed_data[epgId]["cover"], events_detailed_data[epgId]["description"], json.dumps(events_detailed_data[epgId]["ratings"]), json.dumps(events_detailed_data[epgId]["cast"]), json.dumps(events_detailed_data[epgId]["directors"]), events_detailed_data[epgId]["year"], events_detailed_data[epgId]["country"], events_detailed_data[epgId]["original"], json.dumps(events_detailed_data[epgId]["genres"]), events_detailed_data[epgId]["imdb"], events_detailed_data[epgId]["episodeNumber"], events_detailed_data[epgId]["episodeName"], events_detailed_data[epgId]["seasonNumber"], events_detailed_data[epgId]["episodesInSeason"], events_detailed_data[epgId]["seasonName"], events_detailed_data[epgId]["seriesName"], events_detailed_data[epgId]["contentType"]))      
+      db.commit()
+      close_db()
+      xbmc.log("INSERTED epg_details: " + str(cnt))
+    except URLError:
+      xbmcgui.Dialog().notification("Sledování O2TV","Chyba API O2 při načítání EPG!", xbmcgui.NOTIFICATION_WARNING, 4000)
+      xbmc.log("Error getting EPG data")
+      pass
 
 def load_epg_details_inc():
     limit = 250
     limit_ts = int(time.mktime(datetime.now().timetuple()))
-    print("start incremental loading epg details")
+    xbmc.log("start incremental loading epg details")
     open_db()
     epgIds = []
     for row in db.execute('SELECT epgId FROM epg WHERE startTime < ? AND epgId not in (SELECT epgId FROM epg_details) LIMIT ' + str(limit),[str(limit_ts),]):    
@@ -225,8 +230,8 @@ def load_epg_details_inc():
     close_db()
     if len(epgIds) > 0:
       get_epg_details(epgIds)
-    print("total epgIds: " + str(len(epgIds)))
-    print("end incremental loading epg details")
+    xbmc.log("total epgIds: " + str(len(epgIds)))
+    xbmc.log("end incremental loading epg details")
 
 def load_epg_ts(channelKeys, from_ts, to_ts):
     global db
@@ -262,10 +267,10 @@ def load_epg_ts(channelKeys, from_ts, to_ts):
           db.execute('INSERT INTO epg VALUES(?, ?, ?, ?, ?, ?)', (epgId, events_data[epgId]["startTime"], events_data[epgId]["endTime"], events_data[epgId]["channel"], events_data[epgId]["title"], events_data[epgId]["availableTo"]))      
       db.commit()
       close_db()
-      print("INSERTED epg: " + str(cnt))
+      xbmc.log("INSERTED epg: " + str(cnt))
     except URLError:
-      print("Error getting EPG data")
-      time.sleep(30)
+      xbmc.log("Error getting EPG data")
+      xbmcgui.Dialog().notification("Sledování O2TV","Chyba API O2 při načítání EPG!", xbmcgui.NOTIFICATION_WARNING, 4000)
       pass
 
 def load_epg_all():
@@ -283,36 +288,42 @@ def load_epg_all():
     # close_db()
     min_ts = 0
 
+    if addon.getSetting("info_enabled"):
+      xbmcgui.Dialog().notification("Sledování O2TV","Začalo stahování dat EPG", xbmcgui.NOTIFICATION_INFO, 3000)  
     for day in range(-8,8,1):
       from_datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days = -1*int(day))
-      print("Začínám stahování EPG za " + from_datetime.strftime("%d.%m.%Y"))
       from_ts = int(time.mktime(from_datetime.timetuple()))
       to_ts = from_ts+(24*60*60)-1
       if to_ts > min_ts:
         if from_ts < min_ts:
           from_ts = min_ts
         load_epg_ts(channelKeys, from_ts, to_ts)
-      print("Dokončeno stahování EPG za " + from_datetime.strftime("%d.%m.%Y"))
 
-    print("Začínám stahování detailů EPG")
+    if addon.getSetting("info_enabled"):
+      xbmcgui.Dialog().notification("Sledování O2TV","Začalo stahování detailních dat EPG", xbmcgui.NOTIFICATION_INFO, 3000)  
     load_epg_details()  
+    if addon.getSetting("info_enabled"):
+      xbmcgui.Dialog().notification("Sledování O2TV","Stahování dat EPG dokončeno", xbmcgui.NOTIFICATION_INFO, 3000)  
+
     err = 0
-    print("Dokončeno stahování detailů EPG")
-    rec_epgIds = get_recordings_epgIds()
-    for epgId in rec_epgIds:
-      if epgId == "err":
-        err = 1
-    if err == 0:
-      in_epgId = ""
-      if len(rec_epgIds) > 0:
-        in_epgId = "epgId not in (" + ','.join(rec_epgIds) + ") and "
-      now_ts = int(time.mktime(datetime.now().timetuple()))
-      open_db()
-      db.execute('DELETE FROM epg WHERE ' + in_epgId + 'availableTo < ?', [now_ts])
-      db.execute('DELETE FROM epg_details WHERE epgId NOT IN (SELECT epgId FROM epg)')
-      db.commit()
-      db.execute('VACUUM')
-      close_db()
+    try:
+      rec_epgIds = get_recordings_epgIds()
+      for epgId in rec_epgIds:
+        if epgId == "err":
+          err = 1
+      if err == 0:
+        in_epgId = ""
+        if len(rec_epgIds) > 0:
+          in_epgId = "epgId not in (" + ','.join(rec_epgIds) + ") and "
+        now_ts = int(time.mktime(datetime.now().timetuple()))
+        open_db()
+        db.execute('DELETE FROM epg WHERE ' + in_epgId + 'availableTo < ?', [now_ts])
+        db.execute('DELETE FROM epg_details WHERE epgId NOT IN (SELECT epgId FROM epg)')
+        db.commit()
+        db.execute('VACUUM')
+        close_db()
+    except URLError:
+      pass
 
 def get_epg_details(epgIds):
     global db
@@ -327,7 +338,6 @@ def get_epg_details(epgIds):
         title = row[3]
         availableTo = int(row[4])
         epg = 1
-
       row = None
       for row in db.execute('SELECT * FROM epg_details WHERE epgId = ?', [epgId]):
         epgId = row[0]
@@ -430,6 +440,10 @@ def get_epg_details(epgIds):
     return event
 
 def get_listitem_epg_details(list_item, epgId, img):
+    if epgId == None:
+      list_item.setInfo("video", {"mediatype":"movie"})
+      return list_item
+
     event = get_epg_details([epgId])
     cast = []
     directors = []

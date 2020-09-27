@@ -1,3 +1,14 @@
+v2.0.3 (2020-09-27)
+- přidání kontroly session před začátkem stahování EPG 
+- přidání informačních hlášek o průběhu stahování EPG
+- přidání možnosti vypnout v nastavení informační hlášky z procesů běžících na pozadí (generování EPG pro IPTV Simple Clienta, stahování EPG)
+- posun začátku stahování EPG z 30 na 60 s po startu kodi
+- snížení pauz v cyklu plánovače
+- přidané stažení EPG dat před generováním EPG v nastavení
+- možnost v nastavení vypnout procesy běžící na pozadí (stahování EPG z O2, stahování streamů, generování EPG pri IPTV Simple Clienta)
+- oprava spouštění v historii kanálů IPTV Simple Clienta
+- oprava přehrávání živého vysílání bez EPG dat
+
 v2.0.2 (2020-09-20)
 - oprava přehrávání kanálů pro dospělé
 - ošetření chyb při stahování EPG 

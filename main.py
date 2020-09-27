@@ -175,7 +175,7 @@ def router(paramstring):
         elif params['action'] == 'generate_epg':
             generate_epg()
         elif params['action'] == 'get_stream_url':
-            if addon.getSetting("switch_channel_archiv") == "true":
+            if addon.getSetting("switch_channel_archiv") == "true" and len(xbmc.getInfoLabel('ListItem.ChannelName')) > 0:
                 iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), xbmc.getInfoLabel('ListItem.Date'), 0)
             else:
                 play_video(type = "live_iptv", channelKey = params["channelKey"], start = None, end = None, epgId = None, title = None)

@@ -216,13 +216,13 @@ def load_channels(channels_groups_filter = 0):
                 line = channels_nums[num] + ";" + str(num)
                 file.write('%s\n' % line)
         except IOError:
-          print("Chyba uložení kanálů")   
+          xbmc.log("Chyba uložení kanálů")   
         try:
           with codecs.open(filename_data, "w", encoding="utf-8") as file:
             data = json.dumps({"channels_data" : channels_data, "channels_key_mapping" : channels_key_mapping,"valid_to" : int(time.time()) + 60*60*24})
             file.write('%s\n' % data)
         except IOError:
-          print("Chyba uložení kanálů")  
+          xbmc.log("Chyba uložení kanálů")  
         for num in sorted(channels_nums.keys()):
           if not channels_nums[num] in channels_data:
             del channels_nums[num] 
@@ -267,13 +267,13 @@ def delete_channel(channelName, channelNum):
             line = channels_nums[num] + ";" + str(num)
             file.write('%s\n' % line)
       except IOError:
-        print("Chyba uložení kanálů")   
+        xbmc.log("Chyba uložení kanálů")   
       try:
         with codecs.open(filename_data, "w", encoding="utf-8") as file:
           data = json.dumps({"channels_data" : channels_data, "channels_key_mapping" : channels_key_mapping,"valid_to" : int(time.time()) + 60*60*24})
           file.write('%s\n' % data)
       except IOError:
-        print("Chyba uložení kanálů")       
+        xbmc.log("Chyba uložení kanálů")       
     xbmc.executebuiltin('Container.Refresh')                
 
 def list_channels_add(label):
@@ -311,13 +311,13 @@ def add_channel(channelName, channelNum):
             line = channels_nums[num] + ";" + str(num)
             file.write('%s\n' % line)
       except IOError:
-        print("Chyba uložení kanálů")   
+        xbmc.log("Chyba uložení kanálů")   
       try:
         with codecs.open(filename_data, "w", encoding="utf-8") as file:
           data = json.dumps({"channels_data" : channels_data, "channels_key_mapping" : channels_key_mapping,"valid_to" : int(time.time()) + 60*60*24})
           file.write('%s\n' % data)
       except IOError:
-        print("Chyba uložení kanálů")       
+        xbmc.log("Chyba uložení kanálů")       
       xbmc.executebuiltin('Container.Refresh')                
 
 def load_channels_groups():
@@ -365,7 +365,7 @@ def save_channels_groups(channels_groups, channels_groups_channels, selected):
                 line = channel_group + ";" + channel
                 file.write('%s\n' % line)
       except IOError:
-        print("Chyba uložení skupiny")   
+        xbmc.log("Chyba uložení skupiny")   
 
 def list_channels_groups(label):
     xbmcplugin.setPluginCategory(_handle, label)    

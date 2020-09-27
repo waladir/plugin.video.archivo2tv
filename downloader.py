@@ -97,13 +97,13 @@ def get_event(epgId, pvrProgramId, title):
           else:
             post = {"serviceType" : "NPVR", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "contentId" : pvrProgramId, "encryptionType" : "NONE"}                        
         else:
-          print("live")
+          xbmc.log("live")
           err = 1
       else:
-        print("future")
+        xbmc.log("future")
         err = 1
     else:
-      print("neni")
+      xbmc.log("neni")
       err = 1
 
     if err == 1:
@@ -179,7 +179,7 @@ def read_queue():
           check_settings()
           login()
 
-          print("Kontroluji frontu pro stahování")
+          xbmc.log("Kontroluji frontu pro stahování")
           open_db()
           try:
             row = None
@@ -196,16 +196,16 @@ def read_queue():
               event = {}
               event, url = get_event(epgId, pvrProgramId, title)
               if len(url) > 0:
-                print("Začátek stahování: " + str(epgId))
+                xbmc.log("Začátek stahování: " + str(epgId))
                 download_stream(epgId = epgId, url = url, event = event)
-                print("Konec stahování: " + str(epgId))
+                xbmc.log("Konec stahování: " + str(epgId))
           except OperationalError:
-            print("DB not ready")
+            xbmc.log("DB not ready")
           open_db()
           deletets = int(time.mktime(datetime.now().timetuple()))-7*60*60*24
           try:
             db.execute('DELETE FROM queue WHERE downloadts < ?', [str(deletets)])
           except OperationalError:
-            print("DB not ready")
+            xbmc.log("DB not ready")
           close_db()
         time.sleep(60)
