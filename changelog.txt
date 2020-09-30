@@ -1,3 +1,6 @@
+v2.0.4 (2020-09-30)
+- ošetření redirectu streamu na https, pokud O2 vrátí URL s http protokolem
+
 v2.0.3 (2020-09-27)
 - přidání kontroly session před začátkem stahování EPG 
 - přidání informačních hlášek o průběhu stahování EPG

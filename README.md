@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.0.4 (2020-09-30)<br>
+- ošetření redirectu streamu na https, pokud O2 vrátí URL s http protokolem<br><br>
+
 v2.0.3 (2020-09-27)<br>
 - přidání kontroly session před začátkem stahování EPG<br>
 - přidání informačních hlášek o průběhu stahování EPG<br>
