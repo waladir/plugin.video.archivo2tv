@@ -288,7 +288,7 @@ def load_epg_all():
     # close_db()
     min_ts = 0
 
-    if addon.getSetting("info_enabled"):
+    if addon.getSetting("info_enabled") == "true":
       xbmcgui.Dialog().notification("Sledování O2TV","Začalo stahování dat EPG", xbmcgui.NOTIFICATION_INFO, 3000)  
     for day in range(-8,8,1):
       from_datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days = -1*int(day))
@@ -299,10 +299,10 @@ def load_epg_all():
           from_ts = min_ts
         load_epg_ts(channelKeys, from_ts, to_ts)
 
-    if addon.getSetting("info_enabled"):
+    if addon.getSetting("info_enabled") == "true":
       xbmcgui.Dialog().notification("Sledování O2TV","Začalo stahování detailních dat EPG", xbmcgui.NOTIFICATION_INFO, 3000)  
     load_epg_details()  
-    if addon.getSetting("info_enabled"):
+    if addon.getSetting("info_enabled") == "true":
       xbmcgui.Dialog().notification("Sledování O2TV","Stahování dat EPG dokončeno", xbmcgui.NOTIFICATION_INFO, 3000)  
 
     err = 0

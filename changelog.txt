@@ -1,3 +1,7 @@
+v2.0.5 (2020-10-04)
+- oprava vypnutí zobrazování informačních hlášek o práci s EPG (stahování/generování)
+- přejmenování v nastavení
+
 v2.0.4 (2020-09-30)
 - ošetření redirectu streamu na https, pokud O2 vrátí URL s http protokolem
 

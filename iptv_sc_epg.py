@@ -99,7 +99,7 @@ def load_epg_db():
                   file.write('       <desc lang="cs"></desc>\n')
                 file.write('    </programme>\n')
           file.write('</tv>\n')
-          if addon.getSetting("info_enabled"):
+          if addon.getSetting("info_enabled") == "true":
             xbmcgui.Dialog().notification("Sledování O2TV","EPG bylo uložené", xbmcgui.NOTIFICATION_INFO, 3000)    
           
       except IOError:

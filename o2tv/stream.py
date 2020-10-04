@@ -108,7 +108,7 @@ def play_video(type, channelKey, start, end, epgId, title):
         if addon.getSetting("stream_type") == "MPEG-DASH":
           request = Request(url = url , data = None, headers = o2api.header)
           response = urlopen(request)
-          url = response.geturl().replace("http:","https:").replace(":80/",":443/")
+          url = response.geturl().replace("http:","https:")
       else:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()
