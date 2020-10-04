@@ -1,3 +1,7 @@
+v2.0.6 (2020-10-04)
+- oprava zobrazení nahrávek při chybějícím EPG
+- přejmenování vypnutí informačních hlášek v nastavení
+
 v2.0.5 (2020-10-04)
 - oprava vypnutí zobrazování informačních hlášek o práci s EPG (stahování/generování)
 - přejmenování v nastavení

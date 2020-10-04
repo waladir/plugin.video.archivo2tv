@@ -331,6 +331,11 @@ def get_epg_details(epgIds):
     for epgId in epgIds:
       row = None
       epg = 0
+      startTime = -1
+      endTime = -1
+      channel = "N/A"
+      title = "N/A"
+      availableTo = -1
       for row in db.execute('SELECT startTime, endTime, channel, title, availableTo FROM epg WHERE epgId = ?', [epgId]):
         startTime = int(row[0])
         endTime = int(row[1])
