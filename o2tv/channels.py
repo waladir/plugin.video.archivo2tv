@@ -138,7 +138,7 @@ def get_channels_data():
 
     data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = o2api.header_unity)                                                               
     if "err" in data:
-      xbmcgui.Dialog().notification("Sledování O2TV","xProblém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
     if "result" in data and len(data["result"]) > 0:
       for channel in data["result"]:
@@ -149,7 +149,7 @@ def get_channels_data():
       post = {"locality" : o2api.locality, "tariff" : o2api.tariff, "isp" : o2api.isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
       data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = o2api.header)                                                               
       if "err" in data:
-        xbmcgui.Dialog().notification("Sledování O2TV","yProblém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
       if "channels" in data and len(data["channels"]) > 0:
         for channel in data["channels"]:
