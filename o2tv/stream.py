@@ -124,6 +124,7 @@ def play_video(type, channelKey, start, end, epgId, title):
 
     if addon.getSetting("stream_type") == "MPEG-DASH" or addon.getSetting("stream_type") == "MPEG-DASH-web":
       list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
+      list_item.setProperty('inputstream', 'inputstream.adaptive')
       list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
       list_item.setMimeType('application/dash+xml')
 

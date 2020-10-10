@@ -1,3 +1,8 @@
+v2.0.7 (2020-10-10)    
+- filtrování kanálů bez streamu
+- přidané mazání položek v historii vyhledávání do kontextového menu
+- oprava problémů v Kodi 19 (Matrix)
+
 v2.0.6 (2020-10-04)
 - oprava zobrazení nahrávek při chybějícím EPG
 - přejmenování vypnutí informačních hlášek v nastavení

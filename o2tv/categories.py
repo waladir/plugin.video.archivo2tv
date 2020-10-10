@@ -7,6 +7,11 @@ import xbmc
 import json
 
 try:
+    from xbmcvfs import translatePath
+except ImportError:
+    from xbmc import translatePath
+
+try:
     from urllib import urlencode, quote_plus
 except ImportError:
     from urllib.parse import urlencode, quote_plus
@@ -26,7 +31,7 @@ _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
-addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
+addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 
 def load_categories():
     filename = addon_userdata_dir + "categories.txt"

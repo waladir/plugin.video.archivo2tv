@@ -10,6 +10,11 @@ from datetime import datetime
 import platform
 
 try:
+    from xbmcvfs import translatePath
+except ImportError:
+    from xbmc import translatePath
+
+try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
@@ -24,7 +29,7 @@ from o2tv import o2api
 from o2tv.channels import load_channels
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
-addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
+addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 
 current_version = 2
 

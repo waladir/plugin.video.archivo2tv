@@ -7,6 +7,11 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.0.7 (2020-10-10)<br>
+- filtrování kanálů bez streamu<br>
+- přidané mazání položek v historii vyhledávání do kontextového menu<br>
+- oprava problémů v Kodi 19 (Matrix)<br><br>
+
 v2.0.6 (2020-10-04)<br>
 - oprava zobrazení nahrávek při chybějícím EPG<br>
 - přejmenování vypnutí informačních hlášek v nastavení<br><br>

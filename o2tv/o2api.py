@@ -8,6 +8,11 @@ import xbmcaddon
 import xbmc
 
 try:
+    from xbmcvfs import translatePath
+except ImportError:
+    from xbmc import translatePath
+
+try:
     from urllib2 import urlopen, Request, HTTPError
     from urllib import urlencode, quote
     from urlparse import parse_qsl    
@@ -22,7 +27,7 @@ import time
 from o2tv.utils import encode
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
-addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
+addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 
 header_unity = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type":"application/json"}
 header = {"X-NanguTv-App-Version" : "Android#6.4.1", "User-Agent" : "Dalvik/2.1.0", "Accept-Encoding" : "gzip", "Connection" : "Keep-Alive", "Content-Type" : "application/x-www-form-urlencoded;charset=UTF-8", "X-NanguTv-Device-Id" : addon.getSetting("deviceid"), "X-NanguTv-Device-Name" : addon.getSetting("devicename")}
@@ -32,14 +37,14 @@ def call_o2_api(url, data, header):
       data = data.encode("utf-8")
     request = Request(url = url , data = data, headers = header)
     if addon.getSetting("log_request_url") == "true":
-      xbmc.log(url)
+      xbmc.log(str(url))
     if addon.getSetting("log_request_data") == "true" and data != None:
-      xbmc.log(data)
+      xbmc.log(str(data))
 
     try:
       html = urlopen(request).read()
       if addon.getSetting("log_response") == "true":
-        xbmc.log(html)
+        xbmc.log(str(html))
 
       if html and len(html) > 0:
         data = json.loads(html)

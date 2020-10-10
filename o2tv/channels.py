@@ -7,6 +7,11 @@ import xbmcaddon
 import xbmc
 
 try:
+    from xbmcvfs import translatePath
+except ImportError:
+    from xbmc import translatePath
+
+try:
     from urllib import urlencode, quote
 except ImportError:
     from urllib.parse import urlencode, quote
@@ -24,7 +29,7 @@ if len(sys.argv) > 1:
     _handle = int(sys.argv[1])
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
-addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
+addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 
 def list_channels_list(label):
     xbmcplugin.setPluginCategory(_handle, label)
@@ -133,7 +138,7 @@ def get_channels_data():
 
     data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = o2api.header_unity)                                                               
     if "err" in data:
-      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","xProblém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
     if "result" in data and len(data["result"]) > 0:
       for channel in data["result"]:
@@ -144,11 +149,11 @@ def get_channels_data():
       post = {"locality" : o2api.locality, "tariff" : o2api.tariff, "isp" : o2api.isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
       data = call_o2_api(url = "https://app.o2tv.cz/sws/server/tv/channels.json", data = urlencode(post), header = o2api.header)                                                               
       if "err" in data:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+        xbmcgui.Dialog().notification("Sledování O2TV","yProblém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
       if "channels" in data and len(data["channels"]) > 0:
         for channel in data["channels"]:
-          if data["channels"][channel]["channelType"] == "TV":
+          if data["channels"][channel]["channelType"] == "TV" and data["channels"][channel]["liveTvPlayable"] == True:
             if data["channels"][channel]["channelName"] in channels_logos:
               logo = channels_logos[data["channels"][channel]["channelName"]]
             else:

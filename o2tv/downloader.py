@@ -8,6 +8,11 @@ import xbmcgui
 import platform
 import subprocess
 
+try:
+    from xbmcvfs import translatePath
+except ImportError:
+    from xbmc import translatePath
+
 import time
 from datetime import datetime
 
@@ -18,7 +23,7 @@ from o2tv.utils import get_url, encode
 from o2tv.epg import get_epg_details
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
-addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
+addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 current_version = 2
 
 def open_db():

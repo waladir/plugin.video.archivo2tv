@@ -7,6 +7,11 @@ import xbmcaddon
 import xbmc
 
 try:
+    from xbmcvfs import translatePath
+except ImportError:
+    from xbmc import translatePath
+
+try:
     from urllib import urlencode, quote
 except ImportError:
     from urllib.parse import urlencode, quote
@@ -25,7 +30,7 @@ _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
-addon_userdata_dir = xbmc.translatePath(addon.getAddonInfo('profile')) 
+addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 
 def list_search(label):
   #  test_epg():
@@ -37,6 +42,7 @@ def list_search(label):
     for item in history:
       list_item = xbmcgui.ListItem(label=item)
       url = get_url(action='program_search', query = item, label = label + " / " + item)  
+      list_item.addContextMenuItems([("Smazat", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_search&query=" + quote(item) + ")")])
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 
@@ -120,6 +126,21 @@ def load_search_history():
     except IOError:
       history = []
     return history
+
+
+def delete_search(query):
+    filename = addon_userdata_dir + "search_history.txt"
+    history = load_search_history()
+    for item in history:
+        if item == query:
+            history.remove(item)
+    try:
+        with open(filename, "w") as file:
+            for item in history:
+                file.write('%s\n' % item)
+    except IOError:
+        pass
+    xbmc.executebuiltin('Container.Refresh')
 
 def test_epg():
   from  o2tv.epg import load_epg_all

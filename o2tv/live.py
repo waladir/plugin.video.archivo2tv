@@ -33,6 +33,7 @@ def list_live(page, label):
     color = get_color(addon.getSetting("label_color_live"))   
     startitem = (int(page)-1) * pagesize
     i = 0
+
     for num in sorted(channels_nums.keys()):  
       if i >= startitem and i < startitem + pagesize: 
         channelName = channels_nums[num]
