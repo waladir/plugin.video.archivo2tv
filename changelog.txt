@@ -1,3 +1,7 @@
+v2.0.8 (2020-10-18)
+- úprava titulku při přehrávání přes playlist z IPTVSC
+- omezení kontextového menu jen pro PVR EPG
+
 v2.0.7 (2020-10-10)    
 - filtrování kanálů bez streamu
 - přidané mazání položek v historii vyhledávání do kontextového menu

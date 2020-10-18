@@ -8,19 +8,19 @@
       <item library="iptv_sc_rec.py">
           <label>Uložit jako nahrávku na O2TV</label>
           <visible>
-            Window.IsActive(MyPVRGuide.xml)
+            Window.IsActive(10702)
           </visible>
       </item> 
       <item library="iptv_sc_dwn.py">
           <label>Stáhnout</label>
           <visible>
-            Window.IsActive(MyPVRGuide.xml)
+            Window.IsActive(10702)
           </visible>
       </item>
       <item library="iptv_sc.py">
           <label>Spustit ve Sledování O2TV</label>
           <visible>
-            Window.IsActive(MyPVRGuide.xml)
+            Window.IsActive(10702)
           </visible>
       </item>
     </menu>         
@@ -47,6 +47,10 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v2.0.8 (2020-10-xx)
+- úprava titulku při přehrávání přes playlist z IPTVSC
+- omezení kontextového menu jen pro PVR EPG
+
 v2.0.7 (2020-10-10)    
 - filtrování kanálů bez streamu
 - přidané mazání položek v historii vyhledávání do kontextového menu
