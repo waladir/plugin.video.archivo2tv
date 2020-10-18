@@ -132,7 +132,6 @@ def play_video(type, channelKey, start, end, epgId, title):
       playlist=xbmc.PlayList(1)
       playlist.clear()
       event = get_epg_details([str(epgId)])
-      print(event)
       list_item.setInfo("video", {"title" : event["title"]}) 
       xbmc.PlayList(1).add(url, list_item)
       xbmc.Player().play(playlist)
