@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.0.7">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.0.8">
   <extension library="main.py" point="xbmc.python.pluginsource">
     <provides>video</provides>
   </extension>
@@ -47,7 +47,7 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
-v2.0.8 (2020-10-xx)
+v2.0.8 (2020-10-18)
 - úprava titulku při přehrávání přes playlist z IPTVSC
 - omezení kontextového menu jen pro PVR EPG
 
