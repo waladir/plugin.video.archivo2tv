@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.0.9 (2020-11-04)<br>
+- parsování datumu z IPTV Simple Clienta (velké díky listenerovi)<br><br>
+
 v2.0.8 (2020-10-18)<br>
 - úprava titulku při přehrávání přes playlist z IPTVSC<br>
 - omezení kontextového menu jen pro PVR EPG<br><br>

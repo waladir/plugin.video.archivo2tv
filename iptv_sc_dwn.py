@@ -15,7 +15,10 @@ from datetime import datetime, timedelta
 from datetime import date
 import time
 
+from o2tv.utils import parsedatetime
+
 path = xbmc.getInfoLabel('ListItem.FileNameAndPath')
 channel = xbmc.getInfoLabel('ListItem.ChannelName')
-startdatetime = xbmc.getInfoLabel('ListItem.Date')
+startdatetime = parsedatetime(xbmc.getInfoLabel('ListItem.Date'), xbmc.getInfoLabel('ListItem.StartDate'))
+
 xbmc.executebuiltin('RunPlugin("plugin://plugin.video.archivo2tv?action=iptv_sc_download&channel=' + str(channel) + '&startdatetime=' + startdatetime + '")')

@@ -73,5 +73,29 @@ def encode(string_to_encode):
     else:
       return string_to_encode  
 
+# kod od listenera
+def getNumbers(txt):
+    newstr = ''.join((ch if ch in '0123456789' else ' ') for ch in txt)
+    return [int(i) for i in newstr.split()]
+
+def formatnum(num):
+    num = str(num)
+    return num if len(num) == 2 else '0' + num
+
+def parsedatetime(_short, _long):
+    ix = _short.find(' ')
+    lnums = getNumbers(_long)
+    snums = getNumbers(_short[:ix])
+    year = max(lnums)
+    day = min(lnums)
+    snums.remove(day)
+    day = formatnum(day)
+    month = formatnum(min(snums))
+    day_formated = '%s.%s.%i' % (day, month, year)
+    time_formated = _short[ix + 1:]
+    time_formated = time_formated if len(time_formated) == 5 else '0' + time_formated
+    return '%s %s' % (day_formated, time_formated)
+
+
 day_translation = {"1" : "Pondělí", "2" : "Úterý", "3" : "Středa", "4" : "Čtvrtek", "5" : "Pátek", "6" : "Sobota", "0" : "Neděle"}  
 day_translation_short = {"1" : "Po", "2" : "Út", "3" : "St", "4" : "Čt", "5" : "Pá", "6" : "So", "0" : "Ne"}  

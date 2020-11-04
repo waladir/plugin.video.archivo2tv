@@ -1,3 +1,6 @@
+v2.0.9 (2020-11-04)
+- parsování datumu z IPTV Simple Clienta (velké díky listenerovi)
+
 v2.0.8 (2020-10-18)
 - úprava titulku při přehrávání přes playlist z IPTVSC
 - omezení kontextového menu jen pro PVR EPG

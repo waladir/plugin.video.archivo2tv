@@ -14,7 +14,7 @@ except ImportError:
 
 from o2tv.o2api import login
 from o2tv import o2api
-from o2tv.utils import check_settings, get_url
+from o2tv.utils import check_settings, get_url, parsedatetime
 
 from o2tv.live import list_live
 from o2tv.archive import list_archiv, list_arch_days, list_program
@@ -178,7 +178,7 @@ def router(paramstring):
             generate_epg()
         elif params['action'] == 'get_stream_url':
             if addon.getSetting("switch_channel_archiv") == "true" and len(xbmc.getInfoLabel('ListItem.ChannelName')) > 0:
-                iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), xbmc.getInfoLabel('ListItem.Date'), 0)
+                iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), parsedatetime(xbmc.getInfoLabel('ListItem.Date'), xbmc.getInfoLabel('ListItem.StartDate')), 0)
             else:
                 play_video(type = "live_iptv", channelKey = params["channelKey"], start = None, end = None, epgId = None, title = None)
         elif params['action'] == 'iptv_sc_play':
