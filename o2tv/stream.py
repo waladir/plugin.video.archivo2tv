@@ -131,7 +131,7 @@ def play_video(type, channelKey, start, end, epgId, title):
     if type == "archiv_iptv" or (type == "live_iptv" and addon.getSetting("stream_type") != "HLS" and addon.getSetting("startover") == "true") or type == "live_iptv_epg":
       playlist=xbmc.PlayList(1)
       playlist.clear()
-      event = get_epg_details([str(epgId)])
+      event = get_epg_details([str(epgId)], update_from_api = 1)
       list_item.setInfo("video", {"title" : event["title"]}) 
       xbmc.PlayList(1).add(url, list_item)
       xbmc.Player().play(playlist)

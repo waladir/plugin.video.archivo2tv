@@ -83,7 +83,7 @@ def check_process():
 
 def add_to_queue(epgId, pvrProgramId):
     open_db()
-    event = get_epg_details([epgId])
+    event = get_epg_details([epgId], update_from_api = 1)
     row = None
     for row in db.execute('SELECT epgId FROM queue WHERE epgId = ?', [str(epgId)]):
       xbmcgui.Dialog().notification("Sledování O2TV","Pořad už je ve frontě ke stažení!", xbmcgui.NOTIFICATION_ERROR, 4000)

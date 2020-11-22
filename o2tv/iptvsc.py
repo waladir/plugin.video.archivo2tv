@@ -189,7 +189,7 @@ def iptv_sc_download(channelName, startdatetime):
     event = get_epgId_iptvsc(decode(channelName), from_ts)
     epgId = event["epgId"]
     if epgId > 0:
-      event = get_epg_details([epgId])
+      event = get_epg_details([epgId], update_from_api = 1)
       if event["startTime"] > int(time.mktime(datetime.now().timetuple())) or event["endTime"] > int(time.mktime(datetime.now().timetuple())):
         xbmcgui.Dialog().notification("Sledování O2TV","Lze stáhnout jen už odvysílaný pořad!", xbmcgui.NOTIFICATION_ERROR, 5000)
         sys.exit()  

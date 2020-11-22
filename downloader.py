@@ -90,7 +90,7 @@ def get_event(epgId, pvrProgramId, title):
     url = ""
     stream_type = "HLS"
     current_ts = int(time.mktime(datetime.now().timetuple()))
-    event = get_epg_details([epgId])
+    event = get_epg_details([epgId], update_from_api = 1)
     channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter = 0) # pylint: disable=unused-variable
 
     if event != None and current_ts < event["availableTo"]:

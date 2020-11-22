@@ -330,7 +330,7 @@ def load_epg_all():
     except URLError:
       pass
 
-def get_epg_details(epgIds):
+def get_epg_details(epgIds, update_from_api = 0):
     global db
     open_db()
     for epgId in epgIds:
@@ -387,63 +387,64 @@ def get_epg_details(epgIds):
         seriesName = ""
         contentType = ""
 
-        data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = o2api.header_unity)
-        if not "err" in data:
-          if epg == 0:
-            channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
-            startTime = int(data["start"])/1000
-            endTime = int(data["end"])/1000
-            channel = channels_key_mapping[data["channelKey"]]
-            title = data["name"]
-            availableTo = data["availableTo"]
-            db.execute('INSERT INTO epg VALUES(?, ?, ?, ?, ?, ?)', (epgId, startTime, endTime, channel, title, availableTo))      
-            db.commit
+        if update_from_api == 1:
+          data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = o2api.header_unity)
+          if not "err" in data:
+            if epg == 0:
+              channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
+              startTime = int(data["start"])/1000
+              endTime = int(data["end"])/1000
+              channel = channels_key_mapping[data["channelKey"]]
+              title = data["name"]
+              availableTo = data["availableTo"]
+              db.execute('INSERT INTO epg VALUES(?, ?, ?, ?, ?, ?)', (epgId, startTime, endTime, channel, title, availableTo))      
+              db.commit
 
-          if "images" in data and len(data["images"]) > 0:
-            cover = data["images"][0]["cover"]
-          elif "picture" in data and len(data["picture"]) > 0:
-            cover = data["picture"]
-          if "longDescription" in data and len(data["longDescription"]) > 0:
-            description = data["longDescription"]
-          elif "shortDescription" in data and len(data["shortDescription"]) > 0:
-            description = data["shortDescription"]
-          if "ratings" in data and len(data["ratings"]) > 0:
-            for rating, rating_value in data["ratings"].items():
-              ratings.update({ rating : int(rating_value)})
-          if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "cast" in data["castAndCrew"] and len(data["castAndCrew"]["cast"]) > 0:
-            for person in data["castAndCrew"]["cast"]:      
-              cast.append(person["name"])
-          if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "directors" in data["castAndCrew"] and len(data["castAndCrew"]["directors"]) > 0:
-            for person in data["castAndCrew"]["directors"]:      
-              directors.append(person["name"])
-          if "origin" in data and len(data["origin"]) > 0:
-            if "year" in data["origin"] and len(str(data["origin"]["year"])) > 0:
-              year = data["origin"]["year"]
-            if "country" in data["origin"] and len(data["origin"]["country"]) > 0:
-              country = data["origin"]["country"]["name"]
-          if "origName" in data and len(data["origName"]) > 0:
-            original = data["origName"]
-          if "ext" in data and len(data["ext"]) > 0 and "imdbId" in data["ext"] and len(data["ext"]["imdbId"]) > 0:
-            imdb = data["ext"]["imdbId"]
-          if "genreInfo" in data and len(data["genreInfo"]) > 0 and "genres" in data["genreInfo"] and len(data["genreInfo"]["genres"]) > 0:
-            for genre in data["genreInfo"]["genres"]:      
-              genres.append(genre["name"])
-          if "seriesInfo" in data:
-            if "episodeNumber" in data["seriesInfo"] and len(str(data["seriesInfo"]["episodeNumber"])) > 0 and int(data["seriesInfo"]["episodeNumber"]) > 0:
-              episodeNumber = int(data["seriesInfo"]["episodeNumber"])
-            if "episodeName" in data["seriesInfo"] and len(data["seriesInfo"]["episodeName"]) > 0:
-              episodeName = data["seriesInfo"]["episodeName"]
-            if "seasonNumber" in data["seriesInfo"] and len(str(data["seriesInfo"]["seasonNumber"])) > 0 and int(data["seriesInfo"]["seasonNumber"]) > 0:
-              seasonNumber = int(data["seriesInfo"]["seasonNumber"])
-            if "episodesInSeason" in data["seriesInfo"] and len(str(data["seriesInfo"]["episodesInSeason"])) > 0 and int(data["seriesInfo"]["episodesInSeason"]) > 0:
-              episodesInSeason = int(data["seriesInfo"]["episodesInSeason"])
-            if "seasonName" in data["seriesInfo"] and len(data["seriesInfo"]["seasonName"]) > 0:
-              seasonName = data["seriesInfo"]["seasonName"]
-            if "seriesName" in data["seriesInfo"] and len(data["seriesInfo"]["seriesName"]) > 0:
-              seriesName = data["seriesInfo"]["seriesName"]
-          if "contentType" in data and len(data["contentType"]) > 0:
-            contentType = data["contentType"]
-        db.execute('INSERT INTO epg_details VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (epgId, cover, description, json.dumps(ratings), json.dumps(cast), json.dumps(directors), year, country, original, json.dumps(genres), imdb, episodeNumber, episodeName, seasonNumber, episodesInSeason, seasonName, seriesName, contentType))      
+            if "images" in data and len(data["images"]) > 0:
+              cover = data["images"][0]["cover"]
+            elif "picture" in data and len(data["picture"]) > 0:
+              cover = data["picture"]
+            if "longDescription" in data and len(data["longDescription"]) > 0:
+              description = data["longDescription"]
+            elif "shortDescription" in data and len(data["shortDescription"]) > 0:
+              description = data["shortDescription"]
+            if "ratings" in data and len(data["ratings"]) > 0:
+              for rating, rating_value in data["ratings"].items():
+                ratings.update({ rating : int(rating_value)})
+            if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "cast" in data["castAndCrew"] and len(data["castAndCrew"]["cast"]) > 0:
+              for person in data["castAndCrew"]["cast"]:      
+                cast.append(person["name"])
+            if "castAndCrew" in data and len(data["castAndCrew"]) > 0 and "directors" in data["castAndCrew"] and len(data["castAndCrew"]["directors"]) > 0:
+              for person in data["castAndCrew"]["directors"]:      
+                directors.append(person["name"])
+            if "origin" in data and len(data["origin"]) > 0:
+              if "year" in data["origin"] and len(str(data["origin"]["year"])) > 0:
+                year = data["origin"]["year"]
+              if "country" in data["origin"] and len(data["origin"]["country"]) > 0:
+                country = data["origin"]["country"]["name"]
+            if "origName" in data and len(data["origName"]) > 0:
+              original = data["origName"]
+            if "ext" in data and len(data["ext"]) > 0 and "imdbId" in data["ext"] and len(data["ext"]["imdbId"]) > 0:
+              imdb = data["ext"]["imdbId"]
+            if "genreInfo" in data and len(data["genreInfo"]) > 0 and "genres" in data["genreInfo"] and len(data["genreInfo"]["genres"]) > 0:
+              for genre in data["genreInfo"]["genres"]:      
+                genres.append(genre["name"])
+            if "seriesInfo" in data:
+              if "episodeNumber" in data["seriesInfo"] and len(str(data["seriesInfo"]["episodeNumber"])) > 0 and int(data["seriesInfo"]["episodeNumber"]) > 0:
+                episodeNumber = int(data["seriesInfo"]["episodeNumber"])
+              if "episodeName" in data["seriesInfo"] and len(data["seriesInfo"]["episodeName"]) > 0:
+                episodeName = data["seriesInfo"]["episodeName"]
+              if "seasonNumber" in data["seriesInfo"] and len(str(data["seriesInfo"]["seasonNumber"])) > 0 and int(data["seriesInfo"]["seasonNumber"]) > 0:
+                seasonNumber = int(data["seriesInfo"]["seasonNumber"])
+              if "episodesInSeason" in data["seriesInfo"] and len(str(data["seriesInfo"]["episodesInSeason"])) > 0 and int(data["seriesInfo"]["episodesInSeason"]) > 0:
+                episodesInSeason = int(data["seriesInfo"]["episodesInSeason"])
+              if "seasonName" in data["seriesInfo"] and len(data["seriesInfo"]["seasonName"]) > 0:
+                seasonName = data["seriesInfo"]["seasonName"]
+              if "seriesName" in data["seriesInfo"] and len(data["seriesInfo"]["seriesName"]) > 0:
+                seriesName = data["seriesInfo"]["seriesName"]
+            if "contentType" in data and len(data["contentType"]) > 0:
+              contentType = data["contentType"]
+          db.execute('INSERT INTO epg_details VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (epgId, cover, description, json.dumps(ratings), json.dumps(cast), json.dumps(directors), year, country, original, json.dumps(genres), imdb, episodeNumber, episodeName, seasonNumber, episodesInSeason, seasonName, seriesName, contentType))      
     db.commit()
     close_db()
     event = { "epgId" : epgId, "startTime" : startTime, "endTime" : endTime, "channel" : channel, "title" : title, "availableTo" : availableTo, "cover" : cover, "description" : description, "ratings" : ratings, "cast" : cast, "directors" : directors, "year" : year, "country" : country, "original" : original, "genres" : genres, "imdb" : imdb, "episodeNumber" : episodeNumber, "episodeName" : episodeName, "seasonNumber" : seasonNumber, "episodesInSeason" : episodesInSeason, "seasonName" : seasonName, "seriesName" : seriesName }
