@@ -1,0 +1,9 @@
+version: "1"
+rules:
+  - base: master
+    upstream: waladir:master
+    mergeMethod: hardreset
+  - base: docs
+    upstream: waladir:leia
+    mergeMethod: hardreset
+
