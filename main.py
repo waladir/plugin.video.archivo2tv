@@ -6,22 +6,23 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
+
 try:
-    from urllib import urlencode
+    from urllib import quote
     from urlparse import parse_qsl
 except ImportError:
-    from urllib.parse import urlencode, parse_qsl
+    from urllib.parse import quote, parse_qsl
 
 from o2tv.o2api import login
 from o2tv import o2api
-from o2tv.utils import check_settings, get_url, parsedatetime
+from o2tv.utils import check_settings, get_url
 
 from o2tv.live import list_live
 from o2tv.archive import list_archiv, list_arch_days, list_program
 from o2tv.categories import list_categories, list_subcategories, list_category, list_series, list_related, list_same
 from o2tv.recordings import list_planning_recordings, list_rec_days, future_program, list_recordings, list_future_recordings, delete_recording, add_recording
 from o2tv.stream import play_video
-from o2tv.search import list_search, program_search, delete_search
+from o2tv.search import list_search, program_search
 from o2tv.channels import list_channels_list, list_channels_edit, get_o2_channels_lists, load_o2_channel_list, reset_channel_list, edit_channel, delete_channel, list_channels_add, add_channel
 from o2tv.channels import list_channels_groups, add_channel_group, delete_channel_group, select_channel_group, edit_channel_group, edit_channel_group_list_channels, edit_channel_group_add_channel, edit_channel_group_delete_channel
 from o2tv.iptvsc import generate_playlist, generate_epg, iptv_sc_play, iptv_sc_rec, iptv_sc_download
@@ -33,7 +34,7 @@ addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 
 def list_menu():
     icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
-   
+
     list_item = xbmcgui.ListItem(label="Živé vysílání")
     url = get_url(action='list_live', page = 1, label = "Živé vysílání")  
     list_item.setArt({ "thumb" : os.path.join(icons_dir , 'livetv.png'), "icon" : os.path.join(icons_dir , 'livetv.png') })
@@ -130,8 +131,6 @@ def router(paramstring):
             list_search(params["label"])
         elif params['action'] == 'program_search':
             program_search(params["query"], params["label"])
-        elif params['action'] == 'delete_search':
-            delete_search(params["query"])            
 
         elif params['action'] == 'list_channels_list':
             list_channels_list(params["label"])
@@ -177,8 +176,8 @@ def router(paramstring):
         elif params['action'] == 'generate_epg':
             generate_epg()
         elif params['action'] == 'get_stream_url':
-            if addon.getSetting("switch_channel_archiv") == "true" and len(xbmc.getInfoLabel('ListItem.ChannelName')) > 0:
-                iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), parsedatetime(xbmc.getInfoLabel('ListItem.Date'), xbmc.getInfoLabel('ListItem.StartDate')), 0)
+            if addon.getSetting("switch_channel_archiv") == "true":
+                iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), xbmc.getInfoLabel('ListItem.Date'), 0)
             else:
                 play_video(type = "live_iptv", channelKey = params["channelKey"], start = None, end = None, epgId = None, title = None)
         elif params['action'] == 'iptv_sc_play':
@@ -207,4 +206,3 @@ def router(paramstring):
 
 if __name__ == '__main__':
     router(sys.argv[2][1:])
-

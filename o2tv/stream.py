@@ -115,10 +115,10 @@ def play_video(type, channelKey, start, end, epgId, title):
                                                     
     if type == "live_iptv" or type == "live_iptv_epg":
       list_item = xbmcgui.ListItem(path = url)
-      list_item = get_listitem_epg_details(list_item, str(epgId), "")
+      list_item = get_listitem_epg_details(list_item, str(epgId), "", update_from_api = 1)
     elif type == "archiv_iptv":
       list_item = xbmcgui.ListItem(title)
-      list_item = get_listitem_epg_details(list_item, str(epgId), "")
+      list_item = get_listitem_epg_details(list_item, str(epgId), "", update_from_api = 1)
     else:
       list_item = xbmcgui.ListItem(path = url)
 

@@ -138,7 +138,6 @@ def iptv_sc_play(channelName, startdatetime, epg):
       from_ts = int(time.mktime(time.strptime(startdatetime, "%d.%m.%Y %H:%M")))
     else:
       from_ts = int(time.mktime(datetime.now().timetuple()))
-    print(from_ts)
 
     channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable       
     channelKey = encode(channels_data[decode(channelName)]["channelKey"])
