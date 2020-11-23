@@ -450,12 +450,11 @@ def get_epg_details(epgIds, update_from_api = 0):
     event = { "epgId" : epgId, "startTime" : startTime, "endTime" : endTime, "channel" : channel, "title" : title, "availableTo" : availableTo, "cover" : cover, "description" : description, "ratings" : ratings, "cast" : cast, "directors" : directors, "year" : year, "country" : country, "original" : original, "genres" : genres, "imdb" : imdb, "episodeNumber" : episodeNumber, "episodeName" : episodeName, "seasonNumber" : seasonNumber, "episodesInSeason" : episodesInSeason, "seasonName" : seasonName, "seriesName" : seriesName }
     return event
 
-def get_listitem_epg_details(list_item, epgId, img):
+def get_listitem_epg_details(list_item, epgId, img, update_from_api = 0):
     if epgId == None:
       list_item.setInfo("video", {"mediatype":"movie"})
       return list_item
-
-    event = get_epg_details([epgId])
+    event = get_epg_details([epgId], update_from_api = update_from_api)
     cast = []
     directors = []
     genres = []
