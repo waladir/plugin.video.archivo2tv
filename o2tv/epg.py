@@ -162,7 +162,7 @@ def load_cached_epg():
     except Exception as e:
       xbmc.log("Chyba importu cachovaného EPG: " + e.__class__.__name__)
       return 0
-  
+
 def load_epg_details():
     global db
     events_detailed_data = {}
@@ -335,7 +335,7 @@ def load_epg_all():
     #   min_ts = 0
     # close_db()
     min_ts = 0
-    
+
     if addon.getSetting("info_enabled") == "true":
       xbmcgui.Dialog().notification("Sledování O2TV","Začalo stahování dat EPG", xbmcgui.NOTIFICATION_INFO, 3000)  
     cached_epg = 0

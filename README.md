@@ -10,8 +10,10 @@ Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (ste
 v2.1.1 (2020-11-29)<br>
 - použití kešovaných EPG dat (lze vypnout v nastavení)<br><br>
 
-v2.1.0 (2020-11-22)<br>
-- vypnutí dotahování chybějících detailů k pořadům<br><br>
+v2.1.0 (2020-11-23)<br>
+- vypnutí dotahování chybějících detailů k pořadům<br>
+- zobrazeni loga kanalu, pokud detailní informace chybí<br>
+- přidání závislosti na verzi pythonu (oddělení větví pro Matrix a Leia a starší)<br><br>
 
 v2.0.9 (2020-11-04)<br>
 - parsování datumu z IPTV Simple Clienta (velké díky listenerovi)<br><br>

@@ -1,6 +1,6 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.1.0">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.1.1">
   <requires>
-    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="xbmc.python" version="2.24.0"/>
   </requires>
   <extension library="main.py" point="xbmc.python.pluginsource">
     <provides>video</provides>
@@ -53,7 +53,7 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <news>
 v2.1.1 (2020-11-29)
 - použití kešovaných EPG dat (lze vypnout v nastavení)
-    
+
 v2.1.0 (2020-11-23)
 - vypnutí dotahování chybějících detailů k pořadům
 - zobrazeni loga kanalu, pokud detailní informace chybí

@@ -6,11 +6,11 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
+
 try:
-    from urllib import urlencode
     from urlparse import parse_qsl
 except ImportError:
-    from urllib.parse import urlencode, parse_qsl
+    from urllib.parse import parse_qsl
 
 from o2tv.o2api import login
 from o2tv import o2api
@@ -33,7 +33,7 @@ addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 
 def list_menu():
     icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
-   
+
     list_item = xbmcgui.ListItem(label="Živé vysílání")
     url = get_url(action='list_live', page = 1, label = "Živé vysílání")  
     list_item.setArt({ "thumb" : os.path.join(icons_dir , 'livetv.png'), "icon" : os.path.join(icons_dir , 'livetv.png') })
@@ -131,7 +131,7 @@ def router(paramstring):
         elif params['action'] == 'program_search':
             program_search(params["query"], params["label"])
         elif params['action'] == 'delete_search':
-            delete_search(params["query"])            
+            delete_search(params["query"])              
 
         elif params['action'] == 'list_channels_list':
             list_channels_list(params["label"])
@@ -178,7 +178,7 @@ def router(paramstring):
             generate_epg()
         elif params['action'] == 'get_stream_url':
             if addon.getSetting("switch_channel_archiv") == "true" and len(xbmc.getInfoLabel('ListItem.ChannelName')) > 0:
-                iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), parsedatetime(xbmc.getInfoLabel('ListItem.Date'), xbmc.getInfoLabel('ListItem.StartDate')), 0)
+                iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), parsedatetime(xbmc.getInfoLabel('ListItem.Date'), xbmc.getInfoLabel('ListItem.StartDate')), 0)            
             else:
                 play_video(type = "live_iptv", channelKey = params["channelKey"], start = None, end = None, epgId = None, title = None)
         elif params['action'] == 'iptv_sc_play':
@@ -207,4 +207,3 @@ def router(paramstring):
 
 if __name__ == '__main__':
     router(sys.argv[2][1:])
-
