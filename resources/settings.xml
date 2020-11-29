@@ -9,9 +9,9 @@
         <setting label="Pořadí ServiceId (neměňte)" type="slider" id="serviceid_order" range="0,1,5" default="0" option="int"/>
         <setting label="Nová O2 session" type="action" action="RunPlugin(plugin://plugin.video.archivo2tv?action=reset_session)"/>
 	</category>
+
 	<category label="Nastavení">
         <setting label="Počet kanálů živého vysílání na stránku" type="slider" id="live_pagesize" range="10,5,400" default="20" option="int"/>
-        <setting label="Přehrávat i po konci pořadu (minut)" type="slider" id="offset" range="0,5,120" option="int"/>
         <setting label="Historie vyhledávání" type="number" id="search_history" default="10"/>
         <setting label="Skrýt položku Seznam kanálů v menu" type="bool" id="hide_channel_list_edit" default="false"/>
         <setting label="Nepřidávat nové kanály do seznamu kanálů" type="bool" id="disable_channels_adding" default="false"/>
@@ -20,19 +20,21 @@
         <setting label="Počet položek na stránku v kategoriích (0=stránkování vypnuto)" type="slider" id="category_pagesize" range="0,5,100" default="0" option="int"/>
         <setting label="Zobrazovat informace o stahování/generování EPG" type="bool" id="info_enabled" default="true"/>
         <setting label="Vypnout procesy na pozadí (stahování EPG, streamů, EPG pro IPTV simple clienta)" type="bool" id="disabled_scheduler" default="false"/>
-
+        <setting label="Použít kešované EPG (bez dotazů na O2 servery)" type="bool" id="cached_epg" default="true"/>
 	</category>
+
 	<category label="Stream">
         <setting label="Pouze SD kvalita" type="bool" id="only_sd" default="false"/>
         <setting label="Výběr kvality před přehráváním streamu (pouze u HLS a HD kvalitě)" type="bool" id="select_resolution" default="false"/>
         <setting label="Typ streamu" type="select" id="stream_type" values="HLS|MPEG-DASH|MPEG-DASH-web" default="HLS"/>
         <setting label="Přetáčení u živého vysílání (pouze s MPEG-DASH a MPEG-DASH-web)" type="bool" id="startover" default="true"/>
-        
+        <setting label="Přehrávat i po konci pořadu (minut)" type="slider" id="offset" range="0,5,120" option="int"/>
         <setting label="Stahování streamů" type="lsep"/>
         <setting label="Povolit stahování streamů" type="bool" id="download_streams" default="false"/>
         <setting label="Cesta k ffmpeg" type="executable" id="ffmpeg_bin"/>
         <setting label="Adresář pro stahování" type="folder" id="downloads_dir" default=""/>
 	</category>
+
 	<category label="IPTV Simple Client">
         <setting label="Adresář pro playlist/epg" type="folder" id="output_dir" default=""/>
         <setting label="Odstraňovat HD ze jmen kanálů" type="bool" id="remove_hd" default="false"/>

@@ -58,7 +58,7 @@ def list_arch_days(channelKey, label):
 def list_program(channelKey, day_min, label):
     label = label.replace("Archiv /","")
     xbmcplugin.setPluginCategory(_handle, label)
-    channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter = 1) # pylint: disable=unused-variable 
+
     if int(day_min) == 0:
       from_datetime = datetime.combine(date.today(), datetime.min.time())
       to_datetime = datetime.now()
@@ -74,7 +74,7 @@ def list_program(channelKey, day_min, label):
     for key in sorted(events.keys()):
       if int(events[key]["endts"]) > int(time.mktime(datetime.now().timetuple()))-60*60*24*7:
         list_item = xbmcgui.ListItem(label = decode(utils.day_translation_short[events[key]["start"].strftime("%w")]) + " " + events[key]["start"].strftime("%d.%m %H:%M") + " - " + events[key]["end"].strftime("%H:%M") + " | " + events[key]["title"])
-        list_item = get_listitem_epg_details(list_item, str(events[key]["epgId"]), channels_data[channels_key_mapping[decode(channelKey)]]["logo"])
+        list_item = get_listitem_epg_details(list_item, str(events[key]["epgId"]), "")
         list_item.setProperty("IsPlayable", "true")
         list_item.setContentLookup(False)          
         menus = [("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(events[key]["epgId"]) + ")"), 

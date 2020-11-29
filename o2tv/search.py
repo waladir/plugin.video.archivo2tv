@@ -32,8 +32,12 @@ _handle = int(sys.argv[1])
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 
+def test_epg():
+  from  o2tv.epg import load_cached_epg
+  load_cached_epg()
+
 def list_search(label):
-  #  test_epg():
+#    test_epg()
     xbmcplugin.setPluginCategory(_handle, label)
     list_item = xbmcgui.ListItem(label="Nové hledání")
     url = get_url(action='program_search', query = "-----", label = label + " / " + "Nové hledání")  
@@ -141,7 +145,3 @@ def delete_search(query):
     except IOError:
         pass
     xbmc.executebuiltin('Container.Refresh')
-
-def test_epg():
-  from  o2tv.epg import load_epg_all
-  load_epg_all()

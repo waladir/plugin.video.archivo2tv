@@ -13,14 +13,16 @@ except ImportError:
 
 try:
     from urllib import quote
-    from urllib2 import URLError
+    from urllib2 import URLError, urlopen
 except ImportError:
     from urllib.parse import quote
-    from urllib.request import URLError
+    from urllib.request import URLError, urlopen
 
 from sqlite3 import OperationalError
 import sqlite3
 import json
+import gzip
+import os
 
 from datetime import date, datetime, timedelta
 import time
@@ -120,6 +122,47 @@ def migrate_db(version):
 
     return version
 
+def load_cached_epg():
+    global db
+    try:
+      cached_epg_db_url = "http://176.114.248.168:1080/epg_dump.db.gz"
+      cached_epg_db = urlopen(cached_epg_db_url, timeout = 10)
+      content = cached_epg_db.read()
+      with open(addon_userdata_dir + "cached_epg.db.gz", "wb") as f:
+        f.write(content)
+        f.close() 
+      with gzip.open(addon_userdata_dir + "cached_epg.db.gz", "rb") as f:
+        content = f.read()
+        f.close()
+      os.remove(addon_userdata_dir + "cached_epg.db.gz")  
+      with open(addon_userdata_dir + "cached_epg.db", "wb") as f_out:
+        f_out.write(content)
+        f_out.close()
+      open_db()
+      row = None
+      for row in db.execute('SELECT version FROM version'):
+        db_version = row[0]
+
+      db.execute("ATTACH DATABASE '" + addon_userdata_dir + "cached_epg.db" + "' AS cdb")  
+      row = None
+      for row in db.execute('SELECT version FROM cdb.version'):
+        cdb_version = row[0]
+
+      if db_version == cdb_version:
+        db.execute("DELETE FROM epg WHERE epgId in (SELECT a.epgId FROM epg a, cdb.epg b WHERE (a.startTime<>b.startTime OR a.endTime<>b.endTime OR a.channel<>b.channel OR a.title<>b.title OR a.availableTo<>b.availableTo) AND a.epgId=b.epgId)")
+        db.commit()
+        db.execute("INSERT INTO epg SELECT * FROM cdb.epg WHERE epgId NOT IN (SELECT epgId FROM epg)")
+        db.commit()
+        db.execute("INSERT INTO epg_details SELECT * FROM cdb.epg_details WHERE epgId NOT IN (SELECT epgId FROM epg_details)")
+        db.commit()
+        close_db()  
+        os.remove(addon_userdata_dir + "cached_epg.db")  
+        return 1 
+      return 0
+    except Exception as e:
+      xbmc.log("Chyba importu cachovaného EPG: " + e.__class__.__name__)
+      return 0
+  
 def load_epg_details():
     global db
     events_detailed_data = {}
@@ -292,21 +335,28 @@ def load_epg_all():
     #   min_ts = 0
     # close_db()
     min_ts = 0
-
+    
     if addon.getSetting("info_enabled") == "true":
       xbmcgui.Dialog().notification("Sledování O2TV","Začalo stahování dat EPG", xbmcgui.NOTIFICATION_INFO, 3000)  
-    for day in range(-8,8,1):
-      from_datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days = -1*int(day))
-      from_ts = int(time.mktime(from_datetime.timetuple()))
-      to_ts = from_ts+(24*60*60)-1
-      if to_ts > min_ts:
-        if from_ts < min_ts:
-          from_ts = min_ts
-        load_epg_ts(channelKeys, from_ts, to_ts)
+    cached_epg = 0
+    if addon.getSetting("cached_epg") == "true":
+      cached_epg = load_cached_epg()
+    if  cached_epg == 0:
+      if addon.getSetting("info_enabled") == "true" and addon.getSetting("cached_epg") == "true":
+        xbmcgui.Dialog().notification("Sledování O2TV","Došlo k chybě s EPG keší, stahuji z O2", xbmcgui.NOTIFICATION_INFO, 3000)  
 
-    if addon.getSetting("info_enabled") == "true":
-      xbmcgui.Dialog().notification("Sledování O2TV","Začalo stahování detailních dat EPG", xbmcgui.NOTIFICATION_INFO, 3000)  
-    load_epg_details()  
+      for day in range(-8,8,1):
+        from_datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days = -1*int(day))
+        from_ts = int(time.mktime(from_datetime.timetuple()))
+        to_ts = from_ts+(24*60*60)-1
+        if to_ts > min_ts:
+          if from_ts < min_ts:
+            from_ts = min_ts
+          load_epg_ts(channelKeys, from_ts, to_ts)
+
+      if addon.getSetting("info_enabled") == "true":
+        xbmcgui.Dialog().notification("Sledování O2TV","Začalo stahování detailních dat EPG", xbmcgui.NOTIFICATION_INFO, 3000)  
+      load_epg_details()  
     if addon.getSetting("info_enabled") == "true":
       xbmcgui.Dialog().notification("Sledování O2TV","Stahování dat EPG dokončeno", xbmcgui.NOTIFICATION_INFO, 3000)  
 

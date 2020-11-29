@@ -217,8 +217,9 @@ def login():
     header_unity = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type" : "application/json", "x-o2tv-access-token" : str(access_token), "x-o2tv-device-id" : addon.getSetting("deviceid"), "x-o2tv-device-name" : addon.getSetting("devicename"), "x-o2tv-sdata" : str(sdata)}
   else:  
     if "@" in addon.getSetting("username"):
-      access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels = get_auth_token()
-#      access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels = get_auth_web()
+#      access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels = get_auth_token()
+      access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels = get_auth_web()
+
     else:
       access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels = get_auth_password() 
     auth_data = json.dumps({ "access_token" : access_token, "subscription" : subscription, "isp" : isp, "locality" : locality, "offers" : offers, "tariff" : tariff, "sdata" : sdata, "encodedChannels" : encodedChannels, "valid_to" : int(time.time()) + 60*60*24})

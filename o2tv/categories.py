@@ -265,7 +265,7 @@ def list_series(epgId, season, label):
         epgId = event["epgId"]
         list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + decode(utils.day_translation_short[start.strftime("%w")]) + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
         list_item.setInfo("video", {"mediatype":"movie"})
-        list_item = get_listitem_epg_details(list_item, str(event["epgId"]), channels_data[channels_key_mapping[event["channelKey"]]]["logo"])
+        list_item = get_listitem_epg_details(list_item, str(event["epgId"]), "")
         list_item.setProperty("IsPlayable", "true")
         list_item.setContentLookup(False)          
         url = get_url(action='play_archiv', channelKey = encode(event["channelKey"]), start = startts, end = endts, epgId = epgId)
@@ -290,7 +290,7 @@ def list_related(epgId, label):
         epgId = event["epgId"]
         list_item = xbmcgui.ListItem(label = event["name"] + " (" + channels_key_mapping[event["channelKey"]] + " | " + decode(utils.day_translation_short[start.strftime("%w")]) + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
         list_item.setInfo("video", {"mediatype":"movie"})
-        list_item = get_listitem_epg_details(list_item, str(event["epgId"]), channels_data[channels_key_mapping[event["channelKey"]]]["logo"])
+        list_item = get_listitem_epg_details(list_item, str(event["epgId"]), "")
         list_item.setProperty("IsPlayable", "true")
         list_item.setContentLookup(False)  
         if addon.getSetting("download_streams") == "true": 
@@ -322,7 +322,7 @@ def list_same(epgId, label):
           epgId = event["program"]["epgId"]
           list_item = xbmcgui.ListItem(label = event["program"]["name"] + " (" + channels_key_mapping[event["channel"]["channelKey"]] + " | " + decode(utils.day_translation_short[start.strftime("%w")]) + " " + start.strftime("%d.%m %H:%M") + " - " + end.strftime("%H:%M") + ")")
           list_item.setInfo("video", {"mediatype":"movie"})
-          list_item = get_listitem_epg_details(list_item, event["program"]["epgId"], channels_data[channels_key_mapping[event["channel"]["channelKey"]]]["logo"])
+          list_item = get_listitem_epg_details(list_item, event["program"]["epgId"], "")
           list_item.setProperty("IsPlayable", "true")
           list_item.setContentLookup(False)      
           if addon.getSetting("download_streams") == "true": 
