@@ -25,11 +25,14 @@ from o2tv.search import list_search, program_search, delete_search
 from o2tv.channels import list_channels_list, list_channels_edit, get_o2_channels_lists, load_o2_channel_list, reset_channel_list, edit_channel, delete_channel, list_channels_add, add_channel
 from o2tv.channels import list_channels_groups, add_channel_group, delete_channel_group, select_channel_group, edit_channel_group, edit_channel_group_list_channels, edit_channel_group_add_channel, edit_channel_group_delete_channel
 from o2tv.iptvsc import generate_playlist, generate_epg, iptv_sc_play, iptv_sc_rec, iptv_sc_download
-from o2tv.downloader import list_downloads, add_to_queue, remove_from_queue
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+
+if addon.getSetting("download_streams") == "true":  
+  from o2tv.downloader import list_downloads, add_to_queue, remove_from_queue
+
 
 def list_menu():
     icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
@@ -177,7 +180,7 @@ def router(paramstring):
         elif params['action'] == 'generate_epg':
             generate_epg()
         elif params['action'] == 'get_stream_url':
-            if addon.getSetting("switch_channel_archiv") == "true" and len(xbmc.getInfoLabel('ListItem.ChannelName')) > 0:
+            if addon.getSetting("switch_channel_archiv") == "true" and len(xbmc.getInfoLabel('ListItem.ChannelName')) > 0 and len(xbmc.getInfoLabel('ListItem.Date')) > 0:
                 iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), parsedatetime(xbmc.getInfoLabel('ListItem.Date'), xbmc.getInfoLabel('ListItem.StartDate')), 0)            
             else:
                 play_video(type = "live_iptv", channelKey = params["channelKey"], start = None, end = None, epgId = None, title = None)

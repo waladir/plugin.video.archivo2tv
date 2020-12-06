@@ -37,23 +37,24 @@ addon_userdata_dir = translatePath(addon.getAddonInfo('profile'))
 current_version = 7
 
 
-def open_db():
+def open_db(check = 0):
     global db, version
     db = sqlite3.connect(addon_userdata_dir + "epg.db", timeout = 20)
-    db.execute('CREATE TABLE IF NOT EXISTS version (version INTEGER PRIMARY KEY)')
-    db.execute('CREATE TABLE IF NOT EXISTS epg (epgId INTEGER PRIMARY KEY, startTime INTEGER, endTime INTEGER, channel VARCHAR(255), title VARCHAR(255), availableTo INTEGER)')
-    db.execute('CREATE TABLE IF NOT EXISTS epg_details (epgId INTEGER PRIMARY KEY, cover VARCHAR(255), description VARCHAR(255), ratings VARCHAR(255), cast VARCHAR(255), directors VARCHAR(255), year VARCHAR(255), country VARCHAR(255), original VARCHAR(255), genres VARCHAR(255), imdb VARCHAR(255), episodeNumber INTEGER, episodeName VARCHAR(255), seasonNumber INTEGER, episodesInSeason INTEGER, seasonName VARCHAR(255), seriesName VARCHAR(255), contentType VARCHAR(255))')
-    
-    row = None
-    for row in db.execute('SELECT version FROM version'):
-      version = row[0]
-    if not row:
-        db.execute('INSERT INTO version VALUES (?)', [current_version])
-        db.commit()     
-        version = current_version
-    if version != current_version:
-      version = migrate_db(version)
-    db.commit()     
+    if check == 1:
+      db.execute('CREATE TABLE IF NOT EXISTS version (version INTEGER PRIMARY KEY)')
+      db.execute('CREATE TABLE IF NOT EXISTS epg (epgId INTEGER PRIMARY KEY, startTime INTEGER, endTime INTEGER, channel VARCHAR(255), title VARCHAR(255), availableTo INTEGER)')
+      db.execute('CREATE TABLE IF NOT EXISTS epg_details (epgId INTEGER PRIMARY KEY, cover VARCHAR(255), description VARCHAR(255), ratings VARCHAR(255), cast VARCHAR(255), directors VARCHAR(255), year VARCHAR(255), country VARCHAR(255), original VARCHAR(255), genres VARCHAR(255), imdb VARCHAR(255), episodeNumber INTEGER, episodeName VARCHAR(255), seasonNumber INTEGER, episodesInSeason INTEGER, seasonName VARCHAR(255), seriesName VARCHAR(255), contentType VARCHAR(255))')
+      
+      row = None
+      for row in db.execute('SELECT version FROM version'):
+        version = row[0]
+      if not row:
+          db.execute('INSERT INTO version VALUES (?)', [current_version])
+          db.commit()     
+          version = current_version
+      if version != current_version:
+        version = migrate_db(version)
+      db.commit()     
 
 def close_db():
     global db
@@ -124,6 +125,8 @@ def migrate_db(version):
 
 def load_cached_epg():
     global db
+    open_db(check = 1)
+    close_db()
     try:
       cached_epg_db_url = "http://176.114.248.168:1080/epg_dump.db.gz"
       cached_epg_db = urlopen(cached_epg_db_url, timeout = 10)
@@ -149,17 +152,22 @@ def load_cached_epg():
         cdb_version = row[0]
 
       if db_version == cdb_version:
+        xbmc.log("Odstraňování pořadů s odlišnými daty")  
         db.execute("DELETE FROM epg WHERE epgId in (SELECT a.epgId FROM epg a, cdb.epg b WHERE (a.startTime<>b.startTime OR a.endTime<>b.endTime OR a.channel<>b.channel OR a.title<>b.title OR a.availableTo<>b.availableTo) AND a.epgId=b.epgId)")
         db.commit()
+        xbmc.log("Synchronizace nových pořadů")  
         db.execute("INSERT INTO epg SELECT * FROM cdb.epg WHERE epgId NOT IN (SELECT epgId FROM epg)")
         db.commit()
+        xbmc.log("Synchronizace nových detailů pořadů")  
         db.execute("INSERT INTO epg_details SELECT * FROM cdb.epg_details WHERE epgId NOT IN (SELECT epgId FROM epg_details)")
         db.commit()
+        xbmc.log("Synchronizace dokončená")  
         close_db()  
         os.remove(addon_userdata_dir + "cached_epg.db")  
         return 1 
       return 0
     except Exception as e:
+      close_db()
       xbmc.log("Chyba importu cachovaného EPG: " + e.__class__.__name__)
       return 0
 
@@ -283,6 +291,8 @@ def load_epg_details_inc():
 
 def load_epg_ts(channelKeys, from_ts, to_ts):
     global db
+    open_db(check = 1)
+    close_db()
     events_data = {}
     params = ""
     for channelKey in channelKeys:
