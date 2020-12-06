@@ -5,7 +5,6 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 import xbmc
-import subprocess
 
 try:
     from urllib2 import urlopen, Request
@@ -22,12 +21,15 @@ from o2tv import o2api
 from o2tv.epg import get_listitem_epg_details, get_epg_live, get_epg_details
 from o2tv.channels import load_channels 
 from o2tv.utils import remove_diacritics, decode
-from o2tv.downloader import add_to_queue
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+
+if addon.getSetting("download_streams") == "true":  
+  from o2tv.downloader import add_to_queue
+
 
 def play_video(type, channelKey, start, end, epgId, title):
     if addon.getSetting("select_resolution") == "true" and addon.getSetting("stream_type") == "HLS" and addon.getSetting("only_sd") != "true":

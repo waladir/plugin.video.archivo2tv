@@ -1,3 +1,9 @@
+v2.1.2 (2020-12-06)
+- omezení zamykání DB EPG
+- doplněné logování průběhu synchronizace dat (debug)
+- nenačítání kódu pro stahovaní pokud je vypnuté v nastavení
+- ošetření spouštění živého vysílání v IPTV Simple Clientovi bez EPG
+
 v2.1.1 (2020-11-29)
 - použití kešovaných EPG dat (lze vypnout v nastavení)
 

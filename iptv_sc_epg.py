@@ -26,8 +26,6 @@ from datetime import date, datetime, timedelta
 import time
 import string, random 
 
-import downloader
-
 from o2tv.o2api import login
 from o2tv import o2api
 from o2tv.channels import load_channels 
@@ -124,8 +122,10 @@ else:
   interval = int(addon.getSetting("epg_interval"))*60*60
 next = time.time()
 
-dt = DownloaderThreadClass()
-dt.start()
+if addon.getSetting("download_streams") == "true":
+  import downloader
+  dt = DownloaderThreadClass()
+  dt.start()
 
 while not xbmc.Monitor().abortRequested():
   if(next < time.time()):
@@ -142,4 +142,5 @@ while not xbmc.Monitor().abortRequested():
       interval = int(addon.getSetting("epg_interval"))*60*60      
     next = time.time() + float(interval)
   time.sleep(1)
-downloader.check_process()  
+if addon.getSetting("download_streams") == "true":  
+  downloader.check_process()  

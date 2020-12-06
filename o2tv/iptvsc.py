@@ -26,10 +26,13 @@ from o2tv.utils import encode, decode
 from o2tv.stream import play_video
 from o2tv.recordings import add_recording
 from o2tv.channels import load_channels 
-from o2tv.downloader import add_to_queue
 from o2tv.epg import load_epg_all, get_epg_all, get_epgId_iptvsc, get_epg_details
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+
+if addon.getSetting("download_streams") == "true":  
+  from o2tv.downloader import add_to_queue
+
 
 addon_userdata_dir = translatePath( addon.getAddonInfo('profile') ) 
 header_unity = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type":"application/json"}
