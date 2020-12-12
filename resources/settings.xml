@@ -18,7 +18,8 @@
                 <setting label="Řadit pořady v kategoriích podle" type="select" id="categories_sorting" values="názvu|ratingu" default="názvu"/>
                 <setting label="Počet položek na stránku v kategoriích (0=stránkování vypnuto)" type="slider" id="category_pagesize" range="0,5,100" default="0" option="int"/>
                 <setting label="Vypnout procesy na pozadí (stahování EPG, streamů, EPG pro IPTV simple clienta)" type="bool" id="disabled_scheduler" default="false"/>
-	<category label="EPG">
+	</category>
+    <category label="EPG">
                 <setting label="Zobrazovat informace o stahování/generování EPG" type="bool" id="info_enabled" default="true"/>
                 <setting label="Interval pro generování EPG (hod.)" type="slider" id="epg_interval" range="1,1,24" default="12" option="int"/>
                 <setting label="Použít kešované EPG (bez dotazů na O2 servery)" type="bool" id="cached_epg" default="true"/>
