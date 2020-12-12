@@ -128,19 +128,28 @@ def load_cached_epg():
     open_db(check = 1)
     close_db()
     try:
-      cached_epg_db_url = "http://176.114.248.168:1080/epg_dump.db.gz"
-      cached_epg_db = urlopen(cached_epg_db_url, timeout = 10)
-      content = cached_epg_db.read()
-      with open(addon_userdata_dir + "cached_epg.db.gz", "wb") as f:
-        f.write(content)
-        f.close() 
-      with gzip.open(addon_userdata_dir + "cached_epg.db.gz", "rb") as f:
-        content = f.read()
-        f.close()
-      os.remove(addon_userdata_dir + "cached_epg.db.gz")  
-      with open(addon_userdata_dir + "cached_epg.db", "wb") as f_out:
-        f_out.write(content)
-        f_out.close()
+      if addon.getSetting("uncompressed_cached_epg") == "true":
+        cached_epg_db_url = "http://176.114.248.168:1080/epg_dump.db"
+        cached_epg_db = urlopen(cached_epg_db_url, timeout = 10)
+        content = cached_epg_db.read()
+        with open(addon_userdata_dir + "cached_epg.db", "wb") as f:
+          f.write(content)
+          f.close() 
+      else:
+        cached_epg_db_url = "http://176.114.248.168:1080/epg_dump.db.gz"
+        cached_epg_db = urlopen(cached_epg_db_url, timeout = 10)
+        content = cached_epg_db.read()
+        with open(addon_userdata_dir + "cached_epg.db.gz", "wb") as f:
+          f.write(content)
+          f.close() 
+        with gzip.open(addon_userdata_dir + "cached_epg.db.gz", "rb") as f:
+          content = f.read()
+          f.close()
+        os.remove(addon_userdata_dir + "cached_epg.db.gz")  
+        with open(addon_userdata_dir + "cached_epg.db", "wb") as f_out:
+          f_out.write(content)
+          f_out.close()
+        
       open_db()
       row = None
       for row in db.execute('SELECT version FROM version'):
@@ -170,6 +179,50 @@ def load_cached_epg():
       close_db()
       xbmc.log("Chyba importu cachovaného EPG: " + e.__class__.__name__)
       return 0
+
+def load_cached_epg_x():
+    global db
+    open_db(check = 1)
+    close_db()
+
+    cached_epg_db_url = "http://176.114.248.168:1080/epg_dump.db"
+    cached_epg_db = urlopen(cached_epg_db_url, timeout = 10)
+    content = cached_epg_db.read()
+    with open(addon_userdata_dir + "cached_epg.db", "wb") as f:
+      f.write(content)
+      f.close() 
+#    with gzip.open(addon_userdata_dir + "cached_epg.db.gz", "rb") as f:
+#      content = f.read()
+#      f.close()
+#    os.remove(addon_userdata_dir + "cached_epg.db.gz")  
+    with open(addon_userdata_dir + "cached_epg.db", "wb") as f_out:
+      f_out.write(content)
+      f_out.close()
+    open_db()
+    row = None
+    for row in db.execute('SELECT version FROM version'):
+      db_version = row[0]
+
+    db.execute("ATTACH DATABASE '" + addon_userdata_dir + "cached_epg.db" + "' AS cdb")  
+    row = None
+    for row in db.execute('SELECT version FROM cdb.version'):
+      cdb_version = row[0]
+
+    if db_version == cdb_version:
+      xbmc.log("Odstraňování pořadů s odlišnými daty")  
+      db.execute("DELETE FROM epg WHERE epgId in (SELECT a.epgId FROM epg a, cdb.epg b WHERE (a.startTime<>b.startTime OR a.endTime<>b.endTime OR a.channel<>b.channel OR a.title<>b.title OR a.availableTo<>b.availableTo) AND a.epgId=b.epgId)")
+      db.commit()
+      xbmc.log("Synchronizace nových pořadů")  
+      db.execute("INSERT INTO epg SELECT * FROM cdb.epg WHERE epgId NOT IN (SELECT epgId FROM epg)")
+      db.commit()
+      xbmc.log("Synchronizace nových detailů pořadů")  
+      db.execute("INSERT INTO epg_details SELECT * FROM cdb.epg_details WHERE epgId NOT IN (SELECT epgId FROM epg_details)")
+      db.commit()
+      xbmc.log("Synchronizace dokončená")  
+      close_db()  
+      os.remove(addon_userdata_dir + "cached_epg.db")  
+      return 1 
+    return 0
 
 def load_epg_details():
     global db
