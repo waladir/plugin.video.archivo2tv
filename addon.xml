@@ -51,6 +51,11 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+
+v2.1.3 (2020-12-13)
+- úprava položek v nastavení
+- přidání možnosti stahovat nekomprimovanou EPG DB (řeší možné problémy s rozbalením na některých Androidech)
+
 v2.1.2 (2020-12-06)
 - omezení zamykání DB EPG
 - doplněné logování průběhu synchronizace dat (debug)
