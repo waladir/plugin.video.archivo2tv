@@ -21,7 +21,7 @@ import time
 
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
-from o2tv.utils import get_url, get_color, decode, encode
+from o2tv.utils import get_url, get_color, decode, encode, PY3
 from o2tv import utils
 from o2tv.channels import load_channels 
 from o2tv.epg import get_listitem_epg_details
@@ -31,6 +31,10 @@ _handle = int(sys.argv[1])
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
+
+
+def openfile(fname, mode):
+  return open(fname, mode, encoding = 'utf-8') if PY3 else open(fname, mode)
 
 def test_epg():
   from  o2tv.epg import load_epg_all
@@ -104,7 +108,7 @@ def save_search_history(query):
     filename = addon_userdata_dir + "search_history.txt"
     
     try:
-      with open(filename, "r") as file:
+      with openfile(filename, "r") as file:
         for line in file:
           item = line[:-1]
           history.append(item)
@@ -113,7 +117,7 @@ def save_search_history(query):
       
     history.insert(0,query)
 
-    with open(filename, "w") as file:
+    with openfile(filename, "w") as file:
       for item  in history:
         cnt = cnt + 1
         if cnt <= max_history:
@@ -123,7 +127,7 @@ def load_search_history():
     history = []
     filename = addon_userdata_dir + "search_history.txt"
     try:
-      with open(filename, "r") as file:
+      with openfile(filename, "r") as file:
         for line in file:
           item = line[:-1]
           history.append(item)
@@ -139,7 +143,7 @@ def delete_search(query):
         if item == query:
             history.remove(item)
     try:
-        with open(filename, "w") as file:
+        with openfile(filename, "w") as file:
             for item in history:
                 file.write('%s\n' % item)
     except IOError:
