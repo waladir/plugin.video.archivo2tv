@@ -9,7 +9,8 @@ Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (ste
 
 v2.1.4 (2020-12-19)<br>
 - kontrola EPG DB při startu Kodi<br>
-- odflitrování nestandardtních kategorií, které způsobují pády (Vánoce)<br><br>
+- odflitrování nestandardtních kategorií, které způsobují pády (Vánoce)<br>
+- upravené ukládání historie vyhledávání (by Listener)<br><br>
 
 v2.1.3 (2020-12-13)<br>
 - úprava položek v nastavení<br>
