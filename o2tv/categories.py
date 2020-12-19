@@ -45,6 +45,7 @@ def load_categories():
 
     if not_found == 1 or (data and "valid_to" in data and data["valid_to"] < int(time.time())):
       slugs = []
+      invalid_slugs = []
       categories = {}
       subcategories = {}
       data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/?name=catalogue", data = None, header = o2api.header_unity)
@@ -55,14 +56,18 @@ def load_categories():
         for category in data["result"]:
           if "slug" in category and len(category["slug"]) > 0:
             slugs.append(category["slug"])
+
       for slug in slugs:
         data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/slug/?slug=" + slug, data = None, header = o2api.header_unity)
         if "err" in data:
-          xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorií", xbmcgui.NOTIFICATION_ERROR, 4000)
-          sys.exit()  
-        if "name" in data and len(data["name"]) > 0:
-          categories.update({ slug : { "name" : data["name"], "type" : data["type"], "filter" : data["filter"], "dataSource" : data["dataSource"] }})
+          invalid_slugs.append(slug)
+        else:   
+          if "name" in data and len(data["name"]) > 0:
+            categories.update({ slug : { "name" : data["name"], "type" : data["type"], "filter" : data["filter"], "dataSource" : data["dataSource"] }})
       
+      for slug in invalid_slugs:
+        slugs.remove(slug)
+
       for slug in slugs:
         if categories[slug]["type"] == "list":
           data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/?name=" + encode(categories[slug]["filter"]["name"]), data = None, header = o2api.header_unity)  

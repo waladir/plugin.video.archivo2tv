@@ -30,8 +30,7 @@ from o2tv.o2api import login
 from o2tv import o2api
 from o2tv.channels import load_channels 
 from o2tv.utils import check_settings
-
-from o2tv.epg import load_epg_all, get_epg_all, load_epg_details_inc
+from o2tv.epg import load_epg_all, get_epg_all, load_epg_details_inc, open_db, close_db
 
 addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
 addon_userdata_dir = translatePath( addon.getAddonInfo('profile') ) 
@@ -111,6 +110,9 @@ def load_epg_db():
     else:
       xbmcgui.Dialog().notification("Sledování O2TV","Nevráceny žádná data!", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()
+
+open_db(check = 1)
+close_db()
 
 if addon.getSetting("disabled_scheduler") == "true":
   sys.exit()
