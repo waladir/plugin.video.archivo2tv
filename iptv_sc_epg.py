@@ -8,6 +8,7 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 import xbmc
+import xbmcvfs
 
 try:
     from xbmcvfs import translatePath
@@ -43,6 +44,27 @@ class DownloaderThreadClass(threading.Thread):
     def run(self):
       downloader.read_queue()
 
+def save_file_test():
+    try:
+      content = ""
+      test_file = addon.getSetting("output_dir") + "test.fil"
+      file = xbmcvfs.File(test_file, "w")
+      file.write(bytearray(("test").encode('utf-8')))
+      file.close()
+      file = xbmcvfs.File(test_file, "r")
+      content = file.read()
+      if len(content) > 0 and content == "test":
+        file.close()
+        xbmcvfs.delete(test_file)
+        return 1  
+      file.close()
+      xbmcvfs.delete(test_file)
+      return 0
+    except Exception:
+      file.close()
+      xbmcvfs.delete(test_file)
+      return 0 
+
 def load_epg_db():
     check_settings() 
     login()
@@ -54,61 +76,78 @@ def load_epg_db():
     channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
    
     if len(channels_data) > 0:
+      if save_file_test() == 0:
+        xbmcgui.Dialog().notification("Sledování O2TV","Chyba při uložení EPG", xbmcgui.NOTIFICATION_ERROR, 4000)
+        return
+
       try:
-        with codecs.open(addon.getSetting("output_dir") + "o2_epg.xml", "w", encoding="utf-8") as file:
-          file.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-          file.write('<tv generator-info-name="EPG grabber">\n')
+        file = xbmcvfs.File(addon.getSetting("output_dir") + "o2_epg.xml", "w")
+        if file == None:
+          xbmcgui.Dialog().notification("Sledování O2TV","Chyba při uložení EPG", xbmcgui.NOTIFICATION_ERROR, 4000)
+        else:
+          file.write(bytearray(('<?xml version="1.0" encoding="UTF-8"?>\n').encode('utf-8')))
+          file.write(bytearray(('<tv generator-info-name="EPG grabber">\n').encode('utf-8')))
+          content = ""
           for num in sorted(channels_nums.keys()):
             channel = channels_nums[num]
             if channel in channels_data:
-              file.write('    <channel id="' + channel.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '">\n')
-              file.write('            <display-name lang="cs">' + channel.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</display-name>\n')
-              file.write('            <icon src="' + channels_data[channel]['logo'] + '" />\n')
-              file.write('    </channel>\n')
+              content = content + '    <channel id="' + channel.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '">\n'
+              content = content + '            <display-name lang="cs">' + channel.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</display-name>\n'
+              content = content + '            <icon src="' + channels_data[channel]['logo'] + '" />\n'
+              content = content + '    </channel>\n'
+          file.write(bytearray((content).encode('utf-8')))
           for num in sorted(channels_nums.keys()):
             channel = channels_nums[num]
+            cnt = 0
+            content = ""
             if channel in events_data:
               for event in sorted(events_data[channel].keys()):
                 starttime = datetime.fromtimestamp(events_data[channel][event]["startTime"]).strftime("%Y%m%d%H%M%S")
                 endtime = datetime.fromtimestamp(events_data[channel][event]["endTime"]).strftime("%Y%m%d%H%M%S")
-                file.write('    <programme start="' + starttime + ' +0' + str(tz_offset) + '00" stop="' + endtime + ' +0' + str(tz_offset) + '00" channel="' + events_data[channel][event]["channel"] + '">\n')
-                file.write('       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</title>\n')
+                content = content + '    <programme start="' + starttime + ' +0' + str(tz_offset) + '00" stop="' + endtime + ' +0' + str(tz_offset) + '00" channel="' + events_data[channel][event]["channel"] + '">\n'
+                content = content + '       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</title>\n'
                 if events_data[channel][event]["epgId"] in events_detailed_data:
-                  file.write('       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</desc>\n')
+                  content = content + '       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</desc>\n'
                   if events_detailed_data[events_data[channel][event]["epgId"]]["episodeName"] != None and len(events_detailed_data[events_data[channel][event]["epgId"]]["episodeName"]) > 0:
-                    file.write('       <sub-title lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["episodeName"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</sub-title>\n')
+                    content = content + '       <sub-title lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["episodeName"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</sub-title>\n'
                   if events_detailed_data[events_data[channel][event]["epgId"]]["episodeNumber"] != None and events_detailed_data[events_data[channel][event]["epgId"]]["seasonNumber"] != None and events_detailed_data[events_data[channel][event]["epgId"]]["episodeNumber"] > 0 and events_detailed_data[events_data[channel][event]["epgId"]]["seasonNumber"] > 0:
                     if events_detailed_data[events_data[channel][event]["epgId"]]["episodesInSeason"] != None and events_detailed_data[events_data[channel][event]["epgId"]]["episodesInSeason"] > 0:
-                      file.write('       <episode-num system="xmltv_ns">' + str(events_detailed_data[events_data[channel][event]["epgId"]]["seasonNumber"]-1) + "." + str(events_detailed_data[events_data[channel][event]["epgId"]]["episodeNumber"]-1) + "/" + str(events_detailed_data[events_data[channel][event]["epgId"]]["episodesInSeason"]) + '.0/0"</episode-num>\n')
+                      content = content + '       <episode-num system="xmltv_ns">' + str(events_detailed_data[events_data[channel][event]["epgId"]]["seasonNumber"]-1) + "." + str(events_detailed_data[events_data[channel][event]["epgId"]]["episodeNumber"]-1) + "/" + str(events_detailed_data[events_data[channel][event]["epgId"]]["episodesInSeason"]) + '.0/0"</episode-num>\n'
                     else:
-                      file.write('       <episode-num system="xmltv_ns">' + str(events_detailed_data[events_data[channel][event]["epgId"]]["seasonNumber"]-1) + "." + str(events_detailed_data[events_data[channel][event]["epgId"]]["episodeNumber"]-1) + '.0/0"</episode-num>\n')
-                  file.write('       <icon src="' + events_detailed_data[events_data[channel][event]["epgId"]]["icon"] + '"/>\n')
-                  file.write('       <credits>\n')
+                      content = content + '       <episode-num system="xmltv_ns">' + str(events_detailed_data[events_data[channel][event]["epgId"]]["seasonNumber"]-1) + "." + str(events_detailed_data[events_data[channel][event]["epgId"]]["episodeNumber"]-1) + '.0/0"</episode-num>\n'
+                  content = content + '       <icon src="' + events_detailed_data[events_data[channel][event]["epgId"]]["icon"] + '"/>\n'
+                  content = content + '       <credits>\n'
                   for cast in events_detailed_data[events_data[channel][event]["epgId"]]["cast"]: 
-                    file.write('         <actor>' + cast.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</actor>\n')
+                    content = content + '         <actor>' + cast.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</actor>\n'
                   for director in events_detailed_data[events_data[channel][event]["epgId"]]["directors"]: 
-                    file.write('         <director>' + director.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</director>\n')
-                  file.write('       </credits>\n')
+                    content = content + '         <director>' + director.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</director>\n'
+                  content = content + '       </credits>\n'
                   for category in events_detailed_data[events_data[channel][event]["epgId"]]["genres"]:
-                    file.write('       <category>' + category.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</category>\n')
+                    content = content + '       <category>' + category.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</category>\n'
                   if len(str(events_detailed_data[events_data[channel][event]["epgId"]]["year"])) > 0 and int(events_detailed_data[events_data[channel][event]["epgId"]]["year"]) > 0:
-                    file.write('       <date>' + str(events_detailed_data[events_data[channel][event]["epgId"]]["year"]) + '</date>\n')
+                    content = content + '       <date>' + str(events_detailed_data[events_data[channel][event]["epgId"]]["year"]) + '</date>\n'
                   if len(events_detailed_data[events_data[channel][event]["epgId"]]["country"]) > 0:
-                    file.write('       <country>' + events_detailed_data[events_data[channel][event]["epgId"]]["country"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</country>\n')
+                    content = content + '       <country>' + events_detailed_data[events_data[channel][event]["epgId"]]["country"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</country>\n'
                   for rating_name,rating in events_detailed_data[events_data[channel][event]["epgId"]]["ratings"].items(): 
-                    file.write('       <rating system="' + rating_name.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '"><value>' + str(rating) + '/10</value></rating>\n')
+                    content = content + '       <rating system="' + rating_name.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '"><value>' + str(rating) + '/10</value></rating>\n'
                 else:
-                  file.write('       <desc lang="cs"></desc>\n')
-                file.write('    </programme>\n')
-          file.write('</tv>\n')
-          if addon.getSetting("info_enabled") == "true":
-            xbmcgui.Dialog().notification("Sledování O2TV","EPG bylo uložené", xbmcgui.NOTIFICATION_INFO, 3000)    
-          
-      except IOError:
+                  content = content + '       <desc lang="cs"></desc>\n'
+                content = content + '    </programme>\n'
+                cnt = cnt + 1
+                if cnt > 20:
+                  file.write(bytearray((content).encode('utf-8')))
+                  content = ""
+                  cnt = 0
+              file.write(bytearray((content).encode('utf-8')))                          
+          file.write(bytearray(('</tv>\n').encode('utf-8')))
+          file.close()
+          xbmcgui.Dialog().notification("Sledování O2TV","EPG bylo uložené", xbmcgui.NOTIFICATION_INFO, 3000)    
+      except Exception:
+        file.close()
         xbmcgui.Dialog().notification("Sledování O2TV","Nemohu zapsat do " + addon.getSetting("output_dir") + "o2_epg.xml" + "!", xbmcgui.NOTIFICATION_ERROR, 6000)
         sys.exit()
     else:
-      xbmcgui.Dialog().notification("Sledování O2TV","Nevráceny žádná data!", xbmcgui.NOTIFICATION_ERROR, 4000)
+      xbmcgui.Dialog().notification("Sledování O2TV","Nevrácena žádná data!", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()
 
 open_db(check = 1)
