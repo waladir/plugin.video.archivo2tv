@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.1.5 (2020-12-21)<br>
+- ukládání EPG a playlistu pro IPTV Simple Clienta přes xbmcvfs (umožnuje ukládání na síťové disky připojené přes Kodi)<br><br>
+
 v2.1.4 (2020-12-19)<br>
 - kontrola EPG DB při startu Kodi<br>
 - odflitrování nestandardtních kategorií, které způsobují pády (Vánoce)<br>

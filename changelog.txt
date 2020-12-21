@@ -1,3 +1,6 @@
+v2.1.5 (2020-12-21)
+- ukládání EPG a playlistu pro IPTV Simple Clienta přes xbmcvfs (umožnuje ukládání na síťové disky připojené přes Kodi) 
+
 v2.1.4 (2020-12-19)
 - kontrola EPG DB při startu Kodi
 - odflitrování nestandardtních kategorií, které způsobují pády (Vánoce)
