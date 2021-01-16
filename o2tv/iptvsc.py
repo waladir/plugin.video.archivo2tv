@@ -134,7 +134,8 @@ def load_epg_db():
               file.write(bytearray((content).encode('utf-8')))                          
           file.write(bytearray(('</tv>\n').encode('utf-8')))
           file.close()
-          xbmcgui.Dialog().notification("Sledování O2TV","EPG bylo uložené", xbmcgui.NOTIFICATION_INFO, 3000)    
+          if addon.getSetting("info_enabled") == "true":
+            xbmcgui.Dialog().notification("Sledování O2TV","EPG bylo uložené", xbmcgui.NOTIFICATION_INFO, 3000)    
       except Exception:
         file.close()
         xbmcgui.Dialog().notification("Sledování O2TV","Nemohu zapsat do " + addon.getSetting("output_dir") + "o2_epg.xml" + "!", xbmcgui.NOTIFICATION_ERROR, 6000)

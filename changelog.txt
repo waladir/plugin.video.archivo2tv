@@ -1,3 +1,6 @@
+v2.1.6 (2021-01-16)
+- opraveno zobrazení hlášky u uložení EPG při vypnutí v nastavení
+
 v2.1.5 (2020-12-21)
 - ukládání EPG a playlistu pro IPTV Simple Clienta přes xbmcvfs (umožnuje ukládání na síťové disky připojené přes Kodi) 
 
