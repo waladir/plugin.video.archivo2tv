@@ -7,7 +7,7 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
-v2.1.6 (2021-01-16)<br>
+v2.1.6/7 (2021-01-16)<br>
 - opraveno zobrazení hlášky u uložení EPG při vypnutí v nastavení<br><br>
 
 v2.1.5 (2020-12-21)<br>
