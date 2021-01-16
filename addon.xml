@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.1.6">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.1.7">
   <requires>
     <import addon="xbmc.python" version="2.24.0"/>
   </requires>
@@ -52,7 +52,7 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
 
-v2.1.6 (2021-01-16)
+v2.1.6/7 (2021-01-16)
 - opraveno zobrazení hlášky u uložení EPG při vypnutí v nastavení
 
 v2.1.5 (2020-12-21)
