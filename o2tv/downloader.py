@@ -19,10 +19,10 @@ from datetime import datetime
 from sqlite3 import OperationalError
 import sqlite3
 
-from o2tv.utils import get_url, encode
+from o2tv.utils import plugin_id, get_url, encode
 from o2tv.epg import get_epg_details
 
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 current_version = 2
 
@@ -137,7 +137,7 @@ def list_downloads(label):
       list_item = xbmcgui.ListItem(label=title)
       list_item.setProperty("IsPlayable", "false")
       list_item.setContentLookup(False)   
-      list_item.addContextMenuItems([("Smazat z fronty", "RunPlugin(plugin://plugin.video.archivo2tv?action=remove_from_queue&epgId=" + str(epgId) + ")")])  
+      list_item.addContextMenuItems([("Smazat z fronty", "RunPlugin(plugin://" + plugin_id + "?action=remove_from_queue&epgId=" + str(epgId) + ")")])  
       url = get_url(action='list_downloads', label=label)
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)

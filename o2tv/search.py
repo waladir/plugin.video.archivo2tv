@@ -21,7 +21,7 @@ import time
 
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
-from o2tv.utils import get_url, get_color, decode, encode, PY3
+from o2tv.utils import plugin_id, get_url, get_color, decode, encode, PY3
 from o2tv import utils
 from o2tv.channels import load_channels 
 from o2tv.epg import get_listitem_epg_details
@@ -29,7 +29,7 @@ from o2tv.epg import get_listitem_epg_details
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 
 
@@ -50,7 +50,7 @@ def list_search(label):
     for item in history:
       list_item = xbmcgui.ListItem(label=item)
       url = get_url(action='program_search', query = item, label = label + " / " + item)  
-      list_item.addContextMenuItems([("Smazat", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_search&query=" + quote(item) + ")")])
+      list_item.addContextMenuItems([("Smazat", "RunPlugin(plugin://" + plugin_id + "?action=delete_search&query=" + quote(item) + ")")])
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 
@@ -90,11 +90,11 @@ def program_search(query, label):
           list_item.setProperty("IsPlayable", "true")
           list_item.setContentLookup(False)          
           url = get_url(action='play_archiv', channelKey = encode(programs["channelKey"]), start = startts, end = endts, epgId = epgId)
-          menus = [("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(epgId) + ")"), 
-                ("Související pořady", "Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(epgId) + "&label=Související / " + encode(programs["name"]) + ")"), 
-                ("Vysílání pořadu", "Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(epgId) + "&label=" + encode(programs["name"]) + ")")]
+          menus = [("Přidat nahrávku", "RunPlugin(plugin://" + plugin_id + "?action=add_recording&epgId=" + str(epgId) + ")"), 
+                ("Související pořady", "Container.Update(plugin://" + plugin_id + "?action=list_related&epgId=" + str(epgId) + "&label=Související / " + encode(programs["name"]) + ")"), 
+                ("Vysílání pořadu", "Container.Update(plugin://" + plugin_id + "?action=list_same&epgId=" + str(epgId) + "&label=" + encode(programs["name"]) + ")")]
           if addon.getSetting("download_streams") == "true": 
-            menus.append(("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(epgId) + ")"))
+            menus.append(("Stáhnout", "RunPlugin(plugin://" + plugin_id + "?action=add_to_queue&epgId=" + str(epgId) + ")"))
           list_item.addContextMenuItems(menus)       
           xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
       xbmcplugin.endOfDirectory(_handle)

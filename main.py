@@ -14,7 +14,7 @@ except ImportError:
 
 from o2tv.o2api import login
 from o2tv import o2api
-from o2tv.utils import check_settings, get_url, parsedatetime
+from o2tv.utils import plugin_id, check_settings, get_url, parsedatetime
 
 from o2tv.live import list_live
 from o2tv.archive import list_archiv, list_arch_days, list_program
@@ -25,10 +25,11 @@ from o2tv.search import list_search, program_search, delete_search
 from o2tv.channels import list_channels_list, list_channels_edit, get_o2_channels_lists, load_o2_channel_list, reset_channel_list, edit_channel, delete_channel, list_channels_add, add_channel
 from o2tv.channels import list_channels_groups, add_channel_group, delete_channel_group, select_channel_group, edit_channel_group, edit_channel_group_list_channels, edit_channel_group_add_channel, edit_channel_group_delete_channel
 from o2tv.iptvsc import generate_playlist, generate_epg, iptv_sc_play, iptv_sc_rec, iptv_sc_download
+from o2tv.settings import list_settings, list_devices, unpair_device
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 
 if addon.getSetting("download_streams") == "true":  
   from o2tv.downloader import list_downloads, add_to_queue, remove_from_queue
@@ -69,11 +70,14 @@ def list_menu():
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
     if addon.getSetting("hide_channel_list_edit") != "true":
-        list_item = xbmcgui.ListItem(label="Seznam kanálů")
-        url = get_url(action='list_channels_list', label = "Seznam kanálů")  
+        list_item = xbmcgui.ListItem(label="Nastavení O2TV")
+        url = get_url(action='list_settings', label = "Nastavení O2TV")  
         list_item.setArt({ "thumb" : os.path.join(icons_dir , 'settings.png'), "icon" : os.path.join(icons_dir , 'settings.png') })
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
+
     xbmcplugin.endOfDirectory(_handle)
+
 
 def router(paramstring):
     params = dict(parse_qsl(paramstring))
@@ -111,7 +115,6 @@ def router(paramstring):
         elif params["action"] == "list_same":
             list_same(params["epgId"], params["label"])            
 
-
         elif params['action'] == 'list_planning_recordings':
             list_planning_recordings(params["label"])
         elif params["action"] == "list_rec_days":
@@ -136,8 +139,13 @@ def router(paramstring):
         elif params['action'] == 'delete_search':
             delete_search(params["query"])              
 
-        elif params['action'] == 'list_channels_list':
-            list_channels_list(params["label"])
+        elif params['action'] == 'list_settings':
+            list_settings(params["label"])
+        elif params['action'] == 'list_devices':
+            list_devices(params["label"])            
+        elif params['action'] == 'unpair_device':
+            unpair_device(params["deviceId"], params["deviceName"])            
+
         elif params['action'] == 'list_channels_list':
             list_channels_list(params["label"])
         elif params['action'] == 'get_o2_channels_lists':

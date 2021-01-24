@@ -23,13 +23,13 @@ import codecs
 
 from o2tv import o2api
 from o2tv import utils
-from o2tv.utils import encode, decode
+from o2tv.utils import plugin_id, encode, decode
 from o2tv.stream import play_video
 from o2tv.recordings import add_recording
 from o2tv.channels import load_channels 
 from o2tv.epg import load_epg_all, get_epg_all, get_epgId_iptvsc, get_epg_details
 
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 
 if addon.getSetting("download_streams") == "true":  
   from o2tv.downloader import add_to_queue
@@ -172,7 +172,7 @@ def generate_playlist():
           else:
             line = "#EXTINF:-1 tvh-epg=\"0\" tvg-logo=\"" + logo + "\"," + channels_nums[num]
           file.write(bytearray((line + '\n').encode('utf-8')))
-          line = "plugin://plugin.video.archivo2tv/?action=get_stream_url&channelKey=" + quote(encode(channels_data[channels_nums[num]]["channelKey"]))
+          line = "plugin://" + plugin_id + "/?action=get_stream_url&channelKey=" + quote(encode(channels_data[channels_nums[num]]["channelKey"]))
           file.write(bytearray((line + '\n').encode('utf-8')))
         file.close()
         xbmcgui.Dialog().notification("Sledování O2TV","Playlist byl uložený", xbmcgui.NOTIFICATION_INFO, 4000)    

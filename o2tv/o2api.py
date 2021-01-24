@@ -24,9 +24,9 @@ except ImportError:
 import json
 import time
 
-from o2tv.utils import encode
+from o2tv.utils import plugin_id, encode
 
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 
 header_unity = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type":"application/json"}
@@ -195,7 +195,7 @@ def get_auth_web():
 def login():
   global access_token, subscription, isp, locality, offers, tariff, sdata, encodedChannels
   global header_unity
-  
+  data = {}
   filename = addon_userdata_dir + "session.txt"
   try:
     with open(filename, "r") as file:
