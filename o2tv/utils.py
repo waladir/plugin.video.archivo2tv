@@ -17,9 +17,10 @@ import unicodedata
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
 
+plugin_id = 'plugin.video.archivo2tv'
+
 _url = sys.argv[0]
-#_handle = int(sys.argv[1])
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 
 def get_url(**kwargs):
     return '{0}?{1}'.format(_url, urlencode(kwargs))

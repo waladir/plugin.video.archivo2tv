@@ -27,18 +27,22 @@ import os
 from datetime import date, datetime, timedelta
 import time
 
-from o2tv.utils import get_url, encode
+from o2tv.utils import plugin_id, get_url, encode
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
 from o2tv.channels import load_channels 
 
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 current_version = 7
 
 
 def open_db(check = 0):
     global db, version
+
+    if not os.path.isdir(addon_userdata_dir):
+      os.mkdir(addon_userdata_dir)
+
     db = sqlite3.connect(addon_userdata_dir + "epg.db", timeout = 20)
     if check == 1:
       db.execute('CREATE TABLE IF NOT EXISTS version (version INTEGER PRIMARY KEY)')

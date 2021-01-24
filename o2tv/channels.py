@@ -22,13 +22,13 @@ import codecs
 
 from o2tv.o2api import call_o2_api
 from o2tv import o2api
-from o2tv.utils import get_url, decode, encode
+from o2tv.utils import plugin_id, get_url, decode, encode
 
 _url = sys.argv[0]
 if len(sys.argv) > 1:
     _handle = int(sys.argv[1])
 
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 
 def list_channels_list(label):
@@ -126,7 +126,7 @@ def list_channels_edit(label):
       for num in sorted(channels_nums.keys()):
         list_item = xbmcgui.ListItem(label=str(num) + " " + channels_nums[num])
         url = get_url(action='edit_channel', channelName = encode(channels_nums[num]), channelNum = num)  
-        list_item.addContextMenuItems([("Smazat kanál", encode("RunPlugin(plugin://plugin.video.archivo2tv?action=delete_channel&channelName=" + channels_nums[num] + "&channelNum=" + str(num) + ")"),)])       
+        list_item.addContextMenuItems([("Smazat kanál", encode("RunPlugin(plugin://" + plugin_id + "?action=delete_channel&channelName=" + channels_nums[num] + "&channelNum=" + str(num) + ")"),)])       
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
       xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 
@@ -383,7 +383,7 @@ def list_channels_groups(label):
     else:  
       list_item = xbmcgui.ListItem(label="Všechny kanály")
     url = get_url(action='list_channels_groups', label = "Seznam kanálů / Skupiny kanálů")  
-    list_item.addContextMenuItems([("Vybrat skupinu", "RunPlugin(plugin://plugin.video.archivo2tv?action=select_channel_group&group=all)" ,)])       
+    list_item.addContextMenuItems([("Vybrat skupinu", "RunPlugin(plugin://" + plugin_id + "?action=select_channel_group&group=all)" ,)])       
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)    
     for channel_group in channels_groups:
       if selected == channel_group:
@@ -391,8 +391,8 @@ def list_channels_groups(label):
       else:
         list_item = xbmcgui.ListItem(label=channel_group)
       url = get_url(action='edit_channel_group', group = encode(channel_group), label = "Skupiny kanálů / " + encode(channel_group)) 
-      list_item.addContextMenuItems([("Vybrat skupinu", "RunPlugin(plugin://plugin.video.archivo2tv?action=select_channel_group&group=" + quote(encode(channel_group)) + ")"), 
-                                     ("Smazat skupinu", "RunPlugin(plugin://plugin.video.archivo2tv?action=delete_channel_group&group=" + quote(encode(channel_group)) + ")")])       
+      list_item.addContextMenuItems([("Vybrat skupinu", "RunPlugin(plugin://" + plugin_id + "?action=select_channel_group&group=" + quote(encode(channel_group)) + ")"), 
+                                     ("Smazat skupinu", "RunPlugin(plugin://" + plugin_id + "?action=delete_channel_group&group=" + quote(encode(channel_group)) + ")")])       
       xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 
@@ -446,7 +446,7 @@ def edit_channel_group(group, label):
       for channel in channels_groups_channels[group]:
         list_item = xbmcgui.ListItem(label=channel)
         url = get_url(action='edit_channel_group', group = encode(group), label = label)  
-        list_item.addContextMenuItems([("Smazat kanál", "RunPlugin(plugin://plugin.video.archivo2tv?action=edit_channel_group_delete_channel&group=" + quote(encode(group)) + "&channel="  + quote(encode(channel)) + ")",)])       
+        list_item.addContextMenuItems([("Smazat kanál", "RunPlugin(plugin://" + plugin_id + "?action=edit_channel_group_delete_channel&group=" + quote(encode(group)) + "&channel="  + quote(encode(channel)) + ")",)])       
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 

@@ -14,7 +14,7 @@ except ImportError:
 from datetime import date, datetime, timedelta
 import time
 
-from o2tv.utils import get_url, get_color, decode, encode
+from o2tv.utils import plugin_id, get_url, get_color, decode, encode
 from o2tv import utils
 from o2tv.epg import get_epg_ts, get_listitem_epg_details
 from o2tv.channels import load_channels 
@@ -22,7 +22,7 @@ from o2tv.channels import load_channels
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 
 def list_archiv(label):
     xbmcplugin.setPluginCategory(_handle, label)
@@ -77,11 +77,11 @@ def list_program(channelKey, day_min, label):
         list_item = get_listitem_epg_details(list_item, str(events[key]["epgId"]), channels_data[channels_key_mapping[decode(channelKey)]]["logo"])
         list_item.setProperty("IsPlayable", "true")
         list_item.setContentLookup(False)          
-        menus = [("Přidat nahrávku", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_recording&epgId=" + str(events[key]["epgId"]) + ")"), 
-                ("Související pořady", "Container.Update(plugin://plugin.video.archivo2tv?action=list_related&epgId=" + str(events[key]["epgId"]) + "&label=Související / " + encode(events[key]["title"]) + ")"), 
-                ("Vysílání pořadu", "Container.Update(plugin://plugin.video.archivo2tv?action=list_same&epgId=" + str(events[key]["epgId"]) + "&label=" + encode(events[key]["title"]) + ")")]
+        menus = [("Přidat nahrávku", "RunPlugin(plugin://" + plugin_id + "?action=add_recording&epgId=" + str(events[key]["epgId"]) + ")"), 
+                ("Související pořady", "Container.Update(plugin://" + plugin_id + "?action=list_related&epgId=" + str(events[key]["epgId"]) + "&label=Související / " + encode(events[key]["title"]) + ")"), 
+                ("Vysílání pořadu", "Container.Update(plugin://" + plugin_id + "?action=list_same&epgId=" + str(events[key]["epgId"]) + "&label=" + encode(events[key]["title"]) + ")")]
         if addon.getSetting("download_streams") == "true": 
-          menus.append(("Stáhnout", "RunPlugin(plugin://plugin.video.archivo2tv?action=add_to_queue&epgId=" + str(events[key]["epgId"]) + ")"))
+          menus.append(("Stáhnout", "RunPlugin(plugin://" + plugin_id + "?action=add_to_queue&epgId=" + str(events[key]["epgId"]) + ")"))
         list_item.addContextMenuItems(menus)       
         url = get_url(action='play_archiv', channelKey = channelKey, start = events[key]["startts"], end = events[key]["endts"], epgId = events[key]["epgId"])
         xbmcplugin.addDirectoryItem(_handle, url, list_item, False)

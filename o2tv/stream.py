@@ -20,12 +20,12 @@ from o2tv.o2api import call_o2_api
 from o2tv import o2api
 from o2tv.epg import get_listitem_epg_details, get_epg_live, get_epg_details
 from o2tv.channels import load_channels 
-from o2tv.utils import remove_diacritics, decode
+from o2tv.utils import plugin_id, remove_diacritics, decode
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 
 if addon.getSetting("download_streams") == "true":  
   from o2tv.downloader import add_to_queue

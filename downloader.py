@@ -22,13 +22,13 @@ except ImportError:
 from sqlite3 import OperationalError
 import sqlite3
 
-from o2tv.utils import check_settings, encode
+from o2tv.utils import plugin_id, check_settings, encode 
 from o2tv.epg import get_epg_details
 from o2tv.o2api import call_o2_api, login
 from o2tv import o2api
 from o2tv.channels import load_channels
 
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
 
 current_version = 2

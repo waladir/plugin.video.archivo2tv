@@ -30,10 +30,10 @@ import string, random
 from o2tv.o2api import login
 from o2tv import o2api
 from o2tv.channels import load_channels 
-from o2tv.utils import check_settings
+from o2tv.utils import plugin_id, check_settings
 from o2tv.epg import load_epg_all, get_epg_all, load_epg_details_inc, open_db, close_db
 
-addon = xbmcaddon.Addon(id='plugin.video.archivo2tv')
+addon = xbmcaddon.Addon(id = plugin_id)
 addon_userdata_dir = translatePath( addon.getAddonInfo('profile') ) 
 
 header_unity = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0", "Content-Type":"application/json"}
