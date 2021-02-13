@@ -12,7 +12,7 @@ try:
 except ImportError:
     from urllib.parse import parse_qsl
 
-from o2tv.o2api import login
+from o2tv.o2api import login, test_session
 from o2tv import o2api
 from o2tv.utils import plugin_id, check_settings, get_url, parsedatetime
 
@@ -74,6 +74,11 @@ def list_menu():
         url = get_url(action='list_settings', label = "Nastavení O2TV")  
         list_item.setArt({ "thumb" : os.path.join(icons_dir , 'settings.png'), "icon" : os.path.join(icons_dir , 'settings.png') })
         xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
+    # list_item = xbmcgui.ListItem(label="Test session")
+    # url = get_url(action='test_session')  
+    # list_item.setArt({ "thumb" : os.path.join(icons_dir , 'settings.png'), "icon" : os.path.join(icons_dir , 'settings.png') })
+    # xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
 
     xbmcplugin.endOfDirectory(_handle)
@@ -211,6 +216,8 @@ def router(paramstring):
             remove_from_queue(epgId = params["epgId"])            
         elif params['action'] == 'list_downloads':
             list_downloads(params["label"])
+        elif params['action'] == 'test_session':
+            test_session()
         else:
             raise ValueError('Neznámý parametr: {0}!'.format(paramstring))
     else:

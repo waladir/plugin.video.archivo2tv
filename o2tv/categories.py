@@ -48,7 +48,7 @@ def load_categories():
       invalid_slugs = []
       categories = {}
       subcategories = {}
-      data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/?name=catalogue", data = None, header = o2api.header_unity)
+      data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/lists/?name=catalogue", data = None, header = o2api.header_unity)
       if "err" in data:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorií", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()  
@@ -58,7 +58,7 @@ def load_categories():
             slugs.append(category["slug"])
 
       for slug in slugs:
-        data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/slug/?slug=" + slug, data = None, header = o2api.header_unity)
+        data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/lists/slug/?slug=" + slug, data = None, header = o2api.header_unity)
         if "err" in data:
           invalid_slugs.append(slug)
         else:   
@@ -70,7 +70,7 @@ def load_categories():
 
       for slug in slugs:
         if categories[slug]["type"] == "list":
-          data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/lists/?name=" + encode(categories[slug]["filter"]["name"]), data = None, header = o2api.header_unity)  
+          data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/lists/?name=" + encode(categories[slug]["filter"]["name"]), data = None, header = o2api.header_unity)  
           if "err" in data:
             xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorií", xbmcgui.NOTIFICATION_ERROR, 4000)
             sys.exit()  
@@ -142,7 +142,7 @@ def list_category(category, dataSource, filtr, page, label):
   
   channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter=1) # pylint: disable=unused-variable 
   events = {}
-  data = call_o2_api(url = "https://www.o2tv.cz" + dataSource + "?containsAllGenres=" + str(filtr["containsAllGenres"]).lower() + "&contentType=" + contentType + params + "&encodedChannels=" + o2api.encodedChannels + "&sort=-o2rating&grouped=true&isFuture=false&limit=500&offset=0", data = None, header = o2api.header_unity)
+  data = call_o2_api(url = "https://api.o2tv.cz" + dataSource + "?containsAllGenres=" + str(filtr["containsAllGenres"]).lower() + "&contentType=" + contentType + params + "&encodedChannels=" + o2api.encodedChannels + "&sort=-o2rating&grouped=true&isFuture=false&limit=500&offset=0", data = None, header = o2api.header_unity)
   if "err" in data:
     xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
     sys.exit()        
@@ -195,7 +195,7 @@ def list_category(category, dataSource, filtr, page, label):
           genres = []
           list_item.setInfo("video", {"mediatype":"movie"})
           if "images" in event and len(event["images"]) > 0:
-            list_item.setArt({'poster': "https://www.o2tv.cz/" + event["images"][0]["cover"],'thumb': "https://www.o2tv.cz/" + event["images"][0]["cover"], 'icon': "https://www.o2tv.cz/" + event["images"][0]["cover"]})
+            list_item.setArt({'poster': "https://img1.o2tv.cz/" + event["images"][0]["cover"],'thumb': "https://img1.o2tv.cz/" + event["images"][0]["cover"], 'icon': "https://img1.o2tv.cz/" + event["images"][0]["cover"]})
           if "longDescription" in event and len(event["longDescription"]) > 0:
             list_item.setInfo("video", {"plot": event["longDescription"]})
           if "ratings" in event and len(event["ratings"]) > 0:
@@ -255,7 +255,7 @@ def list_series(epgId, season, label):
   params = ""
   if int(season) > 0:
     params = params + "&seasonNumber=" + str(season)
-  data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/episodes/?containsAllGenres=false&isFuture=false" + params, data = None, header = o2api.header_unity)
+  data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/episodes/?containsAllGenres=false&isFuture=false" + params, data = None, header = o2api.header_unity)
   if "err" in data:
     xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
     sys.exit()        
@@ -280,7 +280,7 @@ def list_series(epgId, season, label):
 def list_related(epgId, label):
   xbmcplugin.setPluginCategory(_handle, label)
   o2api.login()
-  data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/related/?encodedChannels=" + o2api.encodedChannels + "&isFuture=false", data = None, header = o2api.header_unity)
+  data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/related/?encodedChannels=" + o2api.encodedChannels + "&isFuture=false", data = None, header = o2api.header_unity)
   if "err" in data:
     xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
     sys.exit()        
@@ -308,7 +308,7 @@ def list_related(epgId, label):
 
 def list_same(epgId, label):
   xbmcplugin.setPluginCategory(_handle, label)
-  data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/grouped/", data = None, header = o2api.header_unity)
+  data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/grouped/", data = None, header = o2api.header_unity)
   if "err" in data:
     xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kategorie", xbmcgui.NOTIFICATION_ERROR, 4000)
     sys.exit()

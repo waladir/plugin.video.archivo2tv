@@ -7,6 +7,11 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.1.9 (2021-02-13)<br>
+- přidaná možnost generovat EPG pro všechny kanály<br>
+- funkce pro id pluginu<br>
+- úprava O2 adres (díky Kaacz)<br><br>
+
 v2.1.8 (2021-01-24)<br>
 - přidaná správa spárovaných zařízení<br>
 - oprava chyby při prázdném session.txt<br>
@@ -23,8 +28,4 @@ v2.1.4 (2020-12-19)<br>
 - kontrola EPG DB při startu Kodi<br>
 - odflitrování nestandardtních kategorií, které způsobují pády (Vánoce)<br>
 - upravené ukládání historie vyhledávání (by Listener)<br><br>
-
-v2.1.3 (2020-12-13)<br>
-- úprava položek v nastavení<br>
-- přidání možnosti stahovat nekomprimovanou EPG DB (řeší možné problémy s rozbalením na některých Androidech)<br><br>
 </p>

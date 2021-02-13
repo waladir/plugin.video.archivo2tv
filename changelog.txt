@@ -1,3 +1,8 @@
+v2.1.9 (2021-02-13)
+- přidaná možnost generovat EPG pro všechny kanály
+- funkce pro id pluginu
+- úprava O2 adres (díky Kaacz)
+
 v2.1.8 (2021-01-24)
 - přidaná správa spárovaných zařízení
 - oprava chyby při prázdném session.txt
@@ -14,7 +19,3 @@ v2.1.4 (2020-12-19)
 - kontrola EPG DB při startu Kodi
 - odflitrování nestandardtních kategorií, které způsobují pády (Vánoce)
 - upravené ukládání historie vyhledávání (by Listener)
-
-v2.1.3 (2020-12-13)
-- úprava položek v nastavení
-- přidání možnosti stahovat nekomprimovanou EPG DB (řeší možné problémy s rozbalením na některých Androidech)
