@@ -61,12 +61,32 @@ def save_file_test():
       xbmcvfs.delete(test_file)
       return 0 
 
+def get_all_channels():
+    channels_nums = {}
+    channels_data = {}
+    channels_key_mapping = {}
+
+    data = o2api.call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/channels/", data = None, header = o2api.header_unity)                                                               
+    if "err" in data:
+      xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
+      sys.exit()  
+    if "result" in data and len(data["result"]) > 0:
+      for channel in data["result"]:
+        if "live" in channel:
+          channels_data.update({ channel["channel"]["name"] : {"channelKey" : channel["channel"]["channelKey"], "logo" : "https://img2.o2tv.cz/" + channel["channel"]["images"]["color"]["url"] }})
+          channels_key_mapping.update({ channel["channel"]["channelKey"] : channel["channel"]["name"]})
+          channels_nums.update({int(channel["channel"]["weight"]) : channel["channel"]["name"]})
+    return channels_nums, channels_data, channels_key_mapping   
+      
 def load_epg_db():
     events_data = {}
     events_detailed_data = {}
     events_data, events_detailed_data = get_epg_all()
 
-    channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
+    if addon.getSetting("epg_for_all_channels") == "true":
+      channels_nums, channels_data, channels_key_mapping = get_all_channels() # pylint: disable=unused-variable
+    else:
+      channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
    
     if len(channels_data) > 0:
       if save_file_test() == 0:
@@ -100,6 +120,9 @@ def load_epg_db():
                 content = content + '    <programme start="' + starttime + ' +0' + str(tz_offset) + '00" stop="' + endtime + ' +0' + str(tz_offset) + '00" channel="' + events_data[channel][event]["channel"] + '">\n'
                 content = content + '       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</title>\n'
                 if events_data[channel][event]["epgId"] in events_detailed_data:
+                  print(events_detailed_data[events_data[channel][event]["epgId"]]["original"].encode('utf-8'))
+                  if events_detailed_data[events_data[channel][event]["epgId"]]["original"] != None and len(events_detailed_data[events_data[channel][event]["epgId"]]["original"]) > 0:
+                    content = content + '       <title>' + events_detailed_data[events_data[channel][event]["epgId"]]["original"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</title>\n'
                   content = content + '       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</desc>\n'
                   if events_detailed_data[events_data[channel][event]["epgId"]]["episodeName"] != None and len(events_detailed_data[events_data[channel][event]["epgId"]]["episodeName"]) > 0:
                     content = content + '       <sub-title lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["episodeName"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</sub-title>\n'

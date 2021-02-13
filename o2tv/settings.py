@@ -37,7 +37,7 @@ def list_settings(label):
 def list_devices(label):
     xbmcplugin.setPluginCategory(_handle, label)   
 
-    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/devices/", data = None, header = o2api.header_unity)
+    data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/devices/", data = None, header = o2api.header_unity)
     if "err" in data:
         xbmcgui.Dialog().notification("Sledování O2TV","Problém při zjištování spárovaných zařízení", xbmcgui.NOTIFICATION_ERROR, 4000)
         sys.exit()     

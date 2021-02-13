@@ -69,7 +69,7 @@ def program_search(query, label):
         save_search_history(query)
         
     max_ts = int(time.mktime(datetime.now().timetuple()))
-    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/search/tv/depr/?groupLimit=1&maxEnd=" + str(max_ts*1000) + "&q=" + quote(query), data = None, header = o2api.header_unity)
+    data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/search/tv/depr/?groupLimit=1&maxEnd=" + str(max_ts*1000) + "&q=" + quote(query), data = None, header = o2api.header_unity)
     if "err" in data:
       xbmcgui.Dialog().notification("Sledování O2TV","Problém při hledání", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  

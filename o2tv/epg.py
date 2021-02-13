@@ -188,7 +188,7 @@ def load_epg_details():
     global db
     events_detailed_data = {}
     try:
-      url = "https://www.o2tv.cz/unity/api/v1/epg/"
+      url = "https://api.o2tv.cz/unity/api/v1/epg/"
       data = o2api.call_o2_api(url = url, data = None, header = o2api.header_unity)
       if "err" in data:
         xbmc.log("Chyba API O2 při načítání detailních dat pro EPG!")
@@ -198,7 +198,7 @@ def load_epg_details():
         step = 50
         cnt = data["count"]
         for offset in range(0, cnt + step, step):
-          url = "https://www.o2tv.cz/unity/api/v1/epg/?offset=" + str(offset)
+          url = "https://api.o2tv.cz/unity/api/v1/epg/?offset=" + str(offset)
           data = o2api.call_o2_api(url = url, data = None, header = o2api.header_unity)
           if "err" in data:
             xbmc.log("Chyba API O2 při načítání detailních dat pro EPG!")
@@ -311,7 +311,7 @@ def load_epg_ts(channelKeys, from_ts, to_ts):
     for channelKey in channelKeys:
       params = params + ("&channelKey=" + quote(encode(channelKey)))
     try: 
-      url = "https://www.o2tv.cz/unity/api/v1/epg/depr/?forceLimit=true&limit=500" + params + "&from=" + str(from_ts*1000) + "&to=" + str(to_ts*1000) 
+      url = "https://api.o2tv.cz/unity/api/v1/epg/depr/?forceLimit=true&limit=500" + params + "&from=" + str(from_ts*1000) + "&to=" + str(to_ts*1000) 
       data = o2api.call_o2_api(url = url, data = None, header = o2api.header_unity)
       if "err" in data:
         xbmcgui.Dialog().notification("Sledování O2TV","Chyba API O2 při načítání EPG!", xbmcgui.NOTIFICATION_ERROR, 4000)
@@ -461,7 +461,7 @@ def get_epg_details(epgIds, update_from_api = 0):
         contentType = ""
 
         if update_from_api == 1:
-          data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = o2api.header_unity)
+          data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/programs/" + str(epgId) + "/", data = None, header = o2api.header_unity)
           if not "err" in data:
             if epg == 0:
               channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
@@ -533,7 +533,7 @@ def get_listitem_epg_details(list_item, epgId, img, update_from_api = 0):
     genres = []
     list_item.setInfo("video", {"mediatype":"movie"})
     if "cover" in event and len(event["cover"]) > 0:
-      list_item.setArt({'poster': "https://www.o2tv.cz/" + event["cover"],'thumb': "https://www.o2tv.cz/" + event["cover"], 'icon': "https://www.o2tv.cz/" + event["cover"]})
+      list_item.setArt({'poster': "https://img1.o2tv.cz/" + event["cover"],'thumb': "https://img1.o2tv.cz/" + event["cover"], 'icon': "https://img1.o2tv.cz/" + event["cover"]})
     else:
       list_item.setArt({'thumb': img, 'icon': img})    
     if "description" in event and len(event["description"]) > 0:
@@ -613,7 +613,7 @@ def get_epg_all():
       seasonName = row[15]
       seriesName = row[16]     
       contentType = row[17]  
-      events_detailed_data.update({ epgId : {"name" : title, "desc" : description, "icon" : "https://www.o2tv.cz" + cover, "cast" : cast, "directors" : directors, "year" : year, "country" : country, "genres" : genres, "ratings" : ratings, "imdb" : imdb, "original" : original, "episodeNumber" : episodeNumber, "episodeName" : episodeName, "seasonNumber" : seasonNumber, "episodesInSeason" : episodesInSeason, "seasonName" : seasonName, "seriesName" : seriesName, "contentType" : contentType }})
+      events_detailed_data.update({ epgId : {"name" : title, "desc" : description, "icon" : "https://img1.o2tv.cz" + cover, "cast" : cast, "directors" : directors, "year" : year, "country" : country, "genres" : genres, "ratings" : ratings, "imdb" : imdb, "original" : original, "episodeNumber" : episodeNumber, "episodeName" : episodeName, "seasonNumber" : seasonNumber, "episodesInSeason" : episodesInSeason, "seasonName" : seasonName, "seriesName" : seriesName, "contentType" : contentType }})
     close_db()
     return events_data, events_detailed_data
 
@@ -682,7 +682,7 @@ def get_epgId_iptvsc(channel, starttime):
 def get_recordings_epgIds():
     epgIds = []
     o2api.login()
-    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/recordings/", data = None, header = o2api.header_unity)
+    data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/recordings/", data = None, header = o2api.header_unity)
     if "err" in data:
       return ["err"]
     if "result" in data and len(data["result"]) > 0:

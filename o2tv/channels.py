@@ -136,14 +136,14 @@ def get_channels_data():
     channels_data = {}
     channels_key_mapping = {}
 
-    data = call_o2_api(url = "https://www.o2tv.cz/unity/api/v1/channels/", data = None, header = o2api.header_unity)                                                               
+    data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/channels/", data = None, header = o2api.header_unity)                                                               
     if "err" in data:
       xbmcgui.Dialog().notification("Sledování O2TV","Problém s načtením kanálů", xbmcgui.NOTIFICATION_ERROR, 4000)
       sys.exit()  
     if "result" in data and len(data["result"]) > 0:
       for channel in data["result"]:
         if "live" in channel:
-          channels_logos.update({channel["channel"]["name"] : "https://www.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]})
+          channels_logos.update({channel["channel"]["name"] : "https://img1.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]})
 
     for offer in o2api.offers:
       post = {"locality" : o2api.locality, "tariff" : o2api.tariff, "isp" : o2api.isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
