@@ -143,7 +143,7 @@ def get_channels_data():
     if "result" in data and len(data["result"]) > 0:
       for channel in data["result"]:
         if "live" in channel:
-          channels_logos.update({channel["channel"]["name"] : "https://img1.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]})
+          channels_logos.update({channel["channel"]["name"] : "https://assets.o2tv.cz/" + channel["channel"]["images"]["color"]["url"]})
 
     for offer in o2api.offers:
       post = {"locality" : o2api.locality, "tariff" : o2api.tariff, "isp" : o2api.isp, "language" : "ces", "deviceType" : addon.getSetting("devicetype"), "liveTvStreamingProtocol" : "HLS", "offer" : offer}
@@ -186,7 +186,8 @@ def load_channels(channels_groups_filter = 0):
       with codecs.open(filename_data, "r", encoding="utf-8") as file:
         for line in file:
           item = line[:-1]
-          data = json.loads(item)
+          data = json.loads(item.replace('www.o2tv.cz','assets.o2tv.cz').replace('img1.o2tv.cz','assets.o2tv.cz'))
+          print(data["channels_data"])
           channels_data = data["channels_data"]
           channels_key_mapping = data["channels_key_mapping"]
     except IOError:
