@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.1.10">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.2.0">
   <requires>
     <import addon="xbmc.python" version="2.24.0"/>
   </requires>
@@ -51,7 +51,7 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
-v2.1.10 (2021-02-25)
+v2.2.0 (2021-02-25)
 - oprava zobrazení loga kanálu
 
 v2.1.9 (2021-02-13)
