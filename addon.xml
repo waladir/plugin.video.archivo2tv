@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.1.9">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.2.0">
   <requires>
     <import addon="xbmc.python" version="2.24.0"/>
   </requires>
@@ -51,6 +51,9 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v2.2.0 (2021-02-25)
+- oprava zobrazení loga kanálu
+
 v2.1.9 (2021-02-13)
 - přidaná možnost generovat EPG pro všechny kanály
 - funkce pro id pluginu
@@ -67,11 +70,6 @@ v2.1.6/7 (2021-01-16)
 
 v2.1.5 (2020-12-21)
 - ukládání EPG a playlistu pro IPTV Simple Clienta přes xbmcvfs (umožnuje ukládání na síťové disky připojené přes Kodi) 
-
-v2.1.4 (2020-12-19)
-- kontrola EPG DB při startu Kodi
-- odflitrování nestandardtních kategorií, které způsobují pády (Vánoce)
-- upravené ukládání historie vyhledávání (by Listener)
     </news>
     <assets>
         <icon>icon.png</icon>
