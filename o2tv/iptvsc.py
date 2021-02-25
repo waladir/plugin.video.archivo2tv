@@ -73,7 +73,7 @@ def get_all_channels():
     if "result" in data and len(data["result"]) > 0:
       for channel in data["result"]:
         if "live" in channel:
-          channels_data.update({ channel["channel"]["name"] : {"channelKey" : channel["channel"]["channelKey"], "logo" : "https://img2.o2tv.cz/" + channel["channel"]["images"]["color"]["url"] }})
+          channels_data.update({ channel["channel"]["name"] : {"channelKey" : channel["channel"]["channelKey"], "logo" : "https://assets.o2tv.cz/" + channel["channel"]["images"]["color"]["url"] }})
           channels_key_mapping.update({ channel["channel"]["channelKey"] : channel["channel"]["name"]})
           channels_nums.update({int(channel["channel"]["weight"]) : channel["channel"]["name"]})
     return channels_nums, channels_data, channels_key_mapping   
