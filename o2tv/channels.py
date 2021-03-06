@@ -187,7 +187,6 @@ def load_channels(channels_groups_filter = 0):
         for line in file:
           item = line[:-1]
           data = json.loads(item.replace('www.o2tv.cz','assets.o2tv.cz').replace('img1.o2tv.cz','assets.o2tv.cz'))
-          print(data["channels_data"])
           channels_data = data["channels_data"]
           channels_key_mapping = data["channels_key_mapping"]
     except IOError:

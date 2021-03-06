@@ -7,6 +7,10 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.2.1 (2021-03-06)<br>
+- do Nastavení O2TV přidaná možnost spustit nastavení doplňku<br>
+- rozšíření playlistu o položky pro catchup v IPTV Simple Clientovi (Kodi 19). Je nutné vygenerovat nový playlist.<br><br>
+
 v2.2.0 (2021-02-25)<br>
 - oprava zobrazení loga kanálu<br><br>
 

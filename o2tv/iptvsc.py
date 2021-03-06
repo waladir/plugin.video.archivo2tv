@@ -120,7 +120,6 @@ def load_epg_db():
                 content = content + '    <programme start="' + starttime + ' +0' + str(tz_offset) + '00" stop="' + endtime + ' +0' + str(tz_offset) + '00" channel="' + events_data[channel][event]["channel"] + '">\n'
                 content = content + '       <title lang="cs">' + events_data[channel][event]["title"].replace("&","&amp;").replace("<","&lt;").replace(">","&gt;") + '</title>\n'
                 if events_data[channel][event]["epgId"] in events_detailed_data:
-                  print(events_detailed_data[events_data[channel][event]["epgId"]]["original"].encode('utf-8'))
                   if events_detailed_data[events_data[channel][event]["epgId"]]["original"] != None and len(events_detailed_data[events_data[channel][event]["epgId"]]["original"]) > 0:
                     content = content + '       <title>' + events_detailed_data[events_data[channel][event]["epgId"]]["original"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</title>\n'
                   content = content + '       <desc lang="cs">' + events_detailed_data[events_data[channel][event]["epgId"]]["desc"].replace("&","&amp;").replace("<","&lt;").replace("<","&gt;") + '</desc>\n'
@@ -191,11 +190,14 @@ def generate_playlist():
           else:
             logo = ""  
           if addon.getSetting("add_channel_numbers") == "true":
-            line = "#EXTINF:-1 tvg-chno=\"" + str(num) + "\" tvh-epg=\"0\" tvg-logo=\"" + logo + "\"," + channels_nums[num]
+            line = "#EXTINF:-1 catchup=\"append\" catchup-days=\"7\" catchup-source=\"&catchup_start_ts={utc}&catchup_end_ts={utcend}\" tvg-chno=\"" + str(num) + "\" tvh-epg=\"0\" tvg-logo=\"" + logo + "\"," + channels_nums[num]
           else:
-            line = "#EXTINF:-1 tvh-epg=\"0\" tvg-logo=\"" + logo + "\"," + channels_nums[num]
+            line = "#EXTINF:-1 catchup=\"append\" catchup-days=\"7\" catchup-source=\"&catchup_start_ts={utc}&catchup_end_ts={utcend}\" tvh-epg=\"0\" tvg-logo=\"" + logo + "\"," + channels_nums[num]
           file.write(bytearray((line + '\n').encode('utf-8')))
           line = "plugin://" + plugin_id + "/?action=get_stream_url&channelKey=" + quote(encode(channels_data[channels_nums[num]]["channelKey"]))
+          file.write(bytearray(('#KODIPROP:inputstream=inputstream.ffmpegdirect\n').encode('utf-8')))
+          file.write(bytearray(('#KODIPROP:inputstream.ffmpegdirect.stream_mode=timeshift\n').encode('utf-8')))
+          file.write(bytearray(('#KODIPROP:inputstream.ffmpegdirect.is_realtime_stream=true\n').encode('utf-8')))
           file.write(bytearray((line + '\n').encode('utf-8')))
         file.close()
         xbmcgui.Dialog().notification("Sledování O2TV","Playlist byl uložený", xbmcgui.NOTIFICATION_INFO, 4000)    
