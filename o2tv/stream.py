@@ -30,6 +30,8 @@ addon = xbmcaddon.Addon(id = plugin_id)
 if addon.getSetting("download_streams") == "true":  
   from o2tv.downloader import add_to_queue
 
+def play_catchup(channelKey, start_ts, end_ts):
+    play_video(type = "archiv", channelKey = channelKey, start = start_ts, end = end_ts, epgId = None, title = None)
 
 def play_video(type, channelKey, start, end, epgId, title):
     if addon.getSetting("select_resolution") == "true" and addon.getSetting("stream_type") == "HLS" and addon.getSetting("only_sd") != "true":

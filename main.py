@@ -6,7 +6,6 @@ import xbmcplugin
 import xbmcaddon
 import xbmc
 
-
 try:
     from urlparse import parse_qsl
 except ImportError:
@@ -15,12 +14,11 @@ except ImportError:
 from o2tv.o2api import login, test_session
 from o2tv import o2api
 from o2tv.utils import plugin_id, check_settings, get_url, parsedatetime
-
 from o2tv.live import list_live
 from o2tv.archive import list_archiv, list_arch_days, list_program
 from o2tv.categories import list_categories, list_subcategories, list_category, list_series, list_related, list_same
 from o2tv.recordings import list_planning_recordings, list_rec_days, future_program, list_recordings, list_future_recordings, delete_recording, add_recording
-from o2tv.stream import play_video
+from o2tv.stream import play_video, play_catchup
 from o2tv.search import list_search, program_search, delete_search
 from o2tv.channels import list_channels_list, list_channels_edit, get_o2_channels_lists, load_o2_channel_list, reset_channel_list, edit_channel, delete_channel, list_channels_add, add_channel
 from o2tv.channels import list_channels_groups, add_channel_group, delete_channel_group, select_channel_group, edit_channel_group, edit_channel_group_list_channels, edit_channel_group_add_channel, edit_channel_group_delete_channel
@@ -33,7 +31,6 @@ addon = xbmcaddon.Addon(id = plugin_id)
 
 if addon.getSetting("download_streams") == "true":  
   from o2tv.downloader import list_downloads, add_to_queue, remove_from_queue
-
 
 def list_menu():
     icons_dir = os.path.join(addon.getAddonInfo('path'), 'resources','images')
@@ -80,16 +77,12 @@ def list_menu():
     # list_item.setArt({ "thumb" : os.path.join(icons_dir , 'settings.png'), "icon" : os.path.join(icons_dir , 'settings.png') })
     # xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
-
     xbmcplugin.endOfDirectory(_handle)
-
 
 def router(paramstring):
     params = dict(parse_qsl(paramstring))
-
     check_settings() 
     login()
-  
     if params:
         if params["action"] == "list_live":
             list_live(params["page"], params["label"])
@@ -187,16 +180,22 @@ def router(paramstring):
             edit_channel_group_add_channel(params["group"], params["channel"])
         elif params['action'] == 'edit_channel_group_delete_channel':
             edit_channel_group_delete_channel(params["group"], params["channel"])
-            
+
+        elif params['action'] == 'addon_settings':
+            xbmcaddon.Addon().openSettings()
+
         elif params['action'] == 'generate_playlist':
             generate_playlist()
         elif params['action'] == 'generate_epg':
             generate_epg()
         elif params['action'] == 'get_stream_url':
-            if addon.getSetting("switch_channel_archiv") == "true" and len(xbmc.getInfoLabel('ListItem.ChannelName')) > 0 and len(xbmc.getInfoLabel('ListItem.Date')) > 0:
-                iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), parsedatetime(xbmc.getInfoLabel('ListItem.Date'), xbmc.getInfoLabel('ListItem.StartDate')), 0)            
+            if "catchup_start_ts" in params and "catchup_end_ts" in params:
+                play_catchup(channelKey = params["channelKey"], start_ts = params["catchup_start_ts"], end_ts = params["catchup_end_ts"])
             else:
-                play_video(type = "live_iptv", channelKey = params["channelKey"], start = None, end = None, epgId = None, title = None)
+                if addon.getSetting("switch_channel_archiv") == "true" and len(xbmc.getInfoLabel('ListItem.ChannelName')) > 0 and len(xbmc.getInfoLabel('ListItem.Date')) > 0:
+                    iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), parsedatetime(xbmc.getInfoLabel('ListItem.Date'), xbmc.getInfoLabel('ListItem.StartDate')), 0)            
+                else:
+                    play_video(type = "live_iptv", channelKey = params["channelKey"], start = None, end = None, epgId = None, title = None)
         elif params['action'] == 'iptv_sc_play':
             iptv_sc_play(params["channel"], params["startdatetime"], 1)
         elif params['action'] == 'iptv_sc_rec':
