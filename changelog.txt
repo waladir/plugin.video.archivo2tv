@@ -1,3 +1,7 @@
+v2.2.1 (2021-03-06)
+- do Nastavení O2TV přidaná možnost spustit nastavení doplňku
+- rozšíření playlistu o položky pro catchup v IPTV Simple Clientovi (Kodi 19). Je nutné vygenerovat nový playlist.
+
 v2.2.0 (2021-02-25)
 - oprava zobrazení loga kanálu
 
