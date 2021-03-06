@@ -32,6 +32,10 @@ def list_settings(label):
     url = get_url(action='list_devices', label = "Zařízení")  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
+    list_item = xbmcgui.ListItem(label="Nastavení doplňku")
+    url = get_url(action='addon_settings', label = "Nastavení doplňku")  
+    xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
     xbmcplugin.endOfDirectory(_handle)
 
 def list_devices(label):
@@ -69,7 +73,6 @@ def list_devices(label):
 
  #   post = {"deviceId" : "71ac1c50-b622-4243-84ac-e66603c4935e", "deviceName" : "Prohlížeč Firefox"}
  #   data = call_o2_api(url = "https://app.o2tv.cz/sws/subscription/settings/set-device-name.json", data = urlencode(post), header = o2api.header)        
-
 
 def unpair_device(deviceId, deviceName):
     if deviceId == "None":

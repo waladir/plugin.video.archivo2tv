@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.2.0">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.2.1">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
   </requires>
@@ -27,7 +27,7 @@
           </visible>
       </item>
     </menu>         
-  </extension>   
+  </extension>  
   <extension point="xbmc.addon.metadata">
     <summary lang="en_GB">Sledování O2TV</summary>
     <summary lang="cs_CZ">Sledování O2TV</summary>
@@ -51,6 +51,10 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v2.2.1 (2021-03-06)
+- do Nastavení O2TV přidaná možnost spustit nastavení doplňku
+- rozšíření playlistu o položky pro catchup v IPTV Simple Clientovi (Kodi 19). Je nutné vygenerovat nový playlist.
+
 v2.2.0 (2021-02-25)
 - oprava zobrazení loga kanálu
 
