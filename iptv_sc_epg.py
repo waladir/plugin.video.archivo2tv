@@ -44,10 +44,14 @@ class DownloaderThreadClass(threading.Thread):
     def run(self):
       downloader.read_queue()
 
-def save_file_test():
+def save_file_test(epg = 0):
     try:
       content = ""
-      test_file = addon.getSetting("output_dir") + "test.fil"
+      if len(addon.getSetting("output_epg_dir")) > 0 and epg == 1:
+        output_dir = addon.getSetting("output_epg_dir")
+      else:
+        output_dir = addon.getSetting("output_dir")
+      test_file = output_dir + "test.fil"
       file = xbmcvfs.File(test_file, "w")
       file.write(bytearray(("test").encode('utf-8')))
       file.close()
@@ -96,12 +100,17 @@ def load_epg_db():
       channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
    
     if len(channels_data) > 0:
-      if save_file_test() == 0:
+      if save_file_test(epg = 1) == 0:
         xbmcgui.Dialog().notification("Sledování O2TV","Chyba při uložení EPG", xbmcgui.NOTIFICATION_ERROR, 4000)
         return
 
+      if len(addon.getSetting("output_epg_dir")) > 0:
+        output_dir = addon.getSetting("output_epg_dir")
+      else:
+        output_dir = addon.getSetting("output_dir") 
+
       try:
-        file = xbmcvfs.File(addon.getSetting("output_dir") + "o2_epg.xml", "w")
+        file = xbmcvfs.File(output_dir + "o2_epg.xml", "w")
         if file == None:
           xbmcgui.Dialog().notification("Sledování O2TV","Chyba při uložení EPG", xbmcgui.NOTIFICATION_ERROR, 4000)
         else:
@@ -167,7 +176,7 @@ def load_epg_db():
             xbmcgui.Dialog().notification("Sledování O2TV","EPG bylo uložené", xbmcgui.NOTIFICATION_INFO, 3000)    
       except Exception:
         file.close()
-        xbmcgui.Dialog().notification("Sledování O2TV","Nemohu zapsat do " + addon.getSetting("output_dir") + "o2_epg.xml" + "!", xbmcgui.NOTIFICATION_ERROR, 6000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Nemohu zapsat do " + output_dir + "o2_epg.xml" + "!", xbmcgui.NOTIFICATION_ERROR, 6000)
         sys.exit()
     else:
       xbmcgui.Dialog().notification("Sledování O2TV","Nevrácena žádná data!", xbmcgui.NOTIFICATION_ERROR, 4000)

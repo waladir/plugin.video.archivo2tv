@@ -7,6 +7,11 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.2.2 (2021-03-09)<br>
+- možnost nastavit jiný adresář pro EPG (pokud není nastavený, ukládá se do stejného adresáře jako playlist)<br>
+- přidána možnost do playlistu přidávat informaci pro timeshift v IPTV Simple Clientovi (standardně zapnutu)<br>
+- přidaná mimetype do playlistu<br><br>
+
 v2.2.1 (2021-03-06)<br>
 - do Nastavení O2TV přidaná možnost spustit nastavení doplňku<br>
 - rozšíření playlistu o položky pro catchup v IPTV Simple Clientovi (Kodi 19). Je nutné vygenerovat nový playlist.<br><br>
@@ -24,11 +29,5 @@ v2.1.8 (2021-01-24)<br>
 - oprava chyby při prázdném session.txt<br>
 - oprava chyby pří prvním spuštění doplňku<br>
 - redukce changelogu<br><br>
-
-v2.1.6/7 (2021-01-16)<br>
-- opraveno zobrazení hlášky u uložení EPG při vypnutí v nastavení<br><br>
-
-v2.1.5 (2020-12-21)<br>
-- ukládání EPG a playlistu pro IPTV Simple Clienta přes xbmcvfs (umožnuje ukládání na síťové disky připojené přes Kodi)<br><br>
 
 </p>

@@ -40,10 +40,14 @@ header_unity = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0)
 header = {"X-NanguTv-App-Version" : "Android#6.4.1", "User-Agent" : "Dalvik/2.1.0", "Accept-Encoding" : "gzip", "Connection" : "Keep-Alive", "Content-Type" : "application/x-www-form-urlencoded;charset=UTF-8", "X-NanguTv-Device-Id" : addon.getSetting("deviceid"), "X-NanguTv-Device-Name" : addon.getSetting("devicename")}
 tz_offset = int((time.mktime(datetime.now().timetuple())-time.mktime(datetime.utcnow().timetuple()))/3600)
 
-def save_file_test():
+def save_file_test(epg = 0):
     try:
       content = ""
-      test_file = addon.getSetting("output_dir") + "test.fil"
+      if len(addon.getSetting("output_epg_dir")) > 0 and epg == 1:
+        output_dir = addon.getSetting("output_epg_dir")
+      else:
+        output_dir = addon.getSetting("output_dir")      
+      test_file = output_dir + "test.fil"
       file = xbmcvfs.File(test_file, "w")
       file.write(bytearray(("test").encode('utf-8')))
       file.close()
@@ -89,12 +93,17 @@ def load_epg_db():
       channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable
    
     if len(channels_data) > 0:
-      if save_file_test() == 0:
+      if save_file_test(epg = 1) == 0:
         xbmcgui.Dialog().notification("Sledování O2TV","Chyba při uložení EPG", xbmcgui.NOTIFICATION_ERROR, 4000)
         return
 
+      if len(addon.getSetting("output_epg_dir")) > 0:
+        output_dir = addon.getSetting("output_epg_dir")
+      else:
+        output_dir = addon.getSetting("output_dir") 
+
       try:
-        file = xbmcvfs.File(addon.getSetting("output_dir") + "o2_epg.xml", "w")
+        file = xbmcvfs.File(output_dir + "o2_epg.xml", "w")
         if file == None:
           xbmcgui.Dialog().notification("Sledování O2TV","Chyba při uložení EPG", xbmcgui.NOTIFICATION_ERROR, 4000)
         else:
@@ -160,7 +169,7 @@ def load_epg_db():
             xbmcgui.Dialog().notification("Sledování O2TV","EPG bylo uložené", xbmcgui.NOTIFICATION_INFO, 3000)    
       except Exception:
         file.close()
-        xbmcgui.Dialog().notification("Sledování O2TV","Nemohu zapsat do " + addon.getSetting("output_dir") + "o2_epg.xml" + "!", xbmcgui.NOTIFICATION_ERROR, 6000)
+        xbmcgui.Dialog().notification("Sledování O2TV","Nemohu zapsat do " + output_dir + "o2_epg.xml" + "!", xbmcgui.NOTIFICATION_ERROR, 6000)
         sys.exit()
     else:
       xbmcgui.Dialog().notification("Sledování O2TV","Nevrácena žádná data!", xbmcgui.NOTIFICATION_ERROR, 4000)
@@ -174,7 +183,7 @@ def generate_playlist():
     channels_nums, channels_data, channels_key_mapping = load_channels() # pylint: disable=unused-variable 
     filename = addon.getSetting("output_dir") + "playlist.m3u"
 
-    if save_file_test() == 0:
+    if save_file_test(epg = 0) == 0:
       xbmcgui.Dialog().notification("Sledování O2TV","Chyba při uložení playlistu", xbmcgui.NOTIFICATION_ERROR, 4000)
       return
 
@@ -195,9 +204,11 @@ def generate_playlist():
             line = "#EXTINF:-1 catchup=\"append\" catchup-days=\"7\" catchup-source=\"&catchup_start_ts={utc}&catchup_end_ts={utcend}\" tvh-epg=\"0\" tvg-logo=\"" + logo + "\"," + channels_nums[num]
           file.write(bytearray((line + '\n').encode('utf-8')))
           line = "plugin://" + plugin_id + "/?action=get_stream_url&channelKey=" + quote(encode(channels_data[channels_nums[num]]["channelKey"]))
-          file.write(bytearray(('#KODIPROP:inputstream=inputstream.ffmpegdirect\n').encode('utf-8')))
-          file.write(bytearray(('#KODIPROP:inputstream.ffmpegdirect.stream_mode=timeshift\n').encode('utf-8')))
-          file.write(bytearray(('#KODIPROP:inputstream.ffmpegdirect.is_realtime_stream=true\n').encode('utf-8')))
+          if addon.getSetting("iptvsc_timeshift") == "true":
+            file.write(bytearray(('#KODIPROP:inputstream=inputstream.ffmpegdirect\n').encode('utf-8')))
+            file.write(bytearray(('#KODIPROP:inputstream.ffmpegdirect.stream_mode=timeshift\n').encode('utf-8')))
+            file.write(bytearray(('#KODIPROP:inputstream.ffmpegdirect.is_realtime_stream=true\n').encode('utf-8')))
+            file.write(bytearray(('#KODIPROP:mimetype=video/mp2t\n').encode('utf-8')))
           file.write(bytearray((line + '\n').encode('utf-8')))
         file.close()
         xbmcgui.Dialog().notification("Sledování O2TV","Playlist byl uložený", xbmcgui.NOTIFICATION_INFO, 4000)    
