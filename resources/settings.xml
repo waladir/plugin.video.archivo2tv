@@ -37,8 +37,10 @@
                 <setting label="Adresář pro stahování" type="folder" id="downloads_dir" default=""/>
 	</category>
 	<category label="IPTV Simple Client">
-                <setting label="Adresář pro playlist/epg" type="folder" id="output_dir" default=""/>
+                <setting label="Adresář pro playlist" type="folder" id="output_dir" default=""/>
+                <setting label="Adresář pro EPG (pokud se liší)" type="folder" id="output_epg_dir" default=""/>
                 <setting label="Odstraňovat HD ze jmen kanálů" type="bool" id="remove_hd" default="false"/>
+                <setting label="Přidávat informace pro timeshift do playlistu" type="bool" id="iptvsc_timeshift" default="true"/>
                 <setting label="Spouštění archivu přepnutím na kanál" type="bool" id="switch_channel_archiv" default="true"/>
                 <setting label="Automaticky generovat EPG" type="bool" id="autogen" default="false"/>
                 <setting label="Generovat EPG pro všechny kanály" type="bool" id="epg_for_all_channels" default="false"/>
