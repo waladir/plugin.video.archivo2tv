@@ -7,6 +7,12 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.3.0 (2021-03-22)<br>
+- podpora pro IPTV Merge<br>
+- přepracovaná správa session a kanálů<br>
+- podpora více služeb s kanály<br>
+- možnost opačného řazení pořadů v archivu<br><br>
+
 v2.2.2 (2021-03-09)<br>
 - možnost nastavit jiný adresář pro EPG (pokud není nastavený, ukládá se do stejného adresáře jako playlist)<br>
 - přidána možnost do playlistu přidávat informaci pro timeshift v IPTV Simple Clientovi (standardně zapnutu)<br>

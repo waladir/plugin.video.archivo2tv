@@ -1,3 +1,9 @@
+v2.3.0 (2021-03-22)
+- podpora pro IPTV Merge
+- přepracovaná správa session a kanálů
+- podpora více služeb s kanály
+- možnost opačného řazení pořadů v archivu
+
 v2.2.2 (2021-03-09)
 - možnost nastavit jiný adresář pro EPG (pokud není nastavený, ukládá se do stejného adresáře jako playlist)
 - přidána možnost do playlistu přidávat informaci pro timeshift v IPTV Simple Clientovi (standardně zapnutu)
