@@ -16,131 +16,137 @@ except ImportError:
 from datetime import datetime 
 import time
 
-from o2tv.o2api import call_o2_api
+from o2tv.o2api import call_o2_api, get_header, get_header_unity
 from o2tv import o2api
+from o2tv.session import Session
 from o2tv.epg import get_listitem_epg_details, get_epg_live, get_epg_details
-from o2tv.channels import load_channels 
-from o2tv.utils import plugin_id, remove_diacritics, decode
+from o2tv.channels import Channels 
+from o2tv.utils import remove_diacritics, decode, encode
 
 _url = sys.argv[0]
-_handle = int(sys.argv[1])
-
-addon = xbmcaddon.Addon(id = plugin_id)
-
-if addon.getSetting("download_streams") == "true":  
-  from o2tv.downloader import add_to_queue
+if len(sys.argv) > 1:
+    _handle = int(sys.argv[1])
 
 def play_catchup(channelKey, start_ts, end_ts):
-    play_video(type = "archiv", channelKey = channelKey, start = start_ts, end = end_ts, epgId = None, title = None)
+    play_video(type = 'archiv', channelKey = channelKey, start = start_ts, end = end_ts, epgId = None, title = None)
 
 def play_video(type, channelKey, start, end, epgId, title):
-    if addon.getSetting("select_resolution") == "true" and addon.getSetting("stream_type") == "HLS" and addon.getSetting("only_sd") != "true":
-      resolution = xbmcgui.Dialog().select('Rozlišení', ['HD', 'SD' ], preselect = 0)
+    addon = xbmcaddon.Addon()
+    session = Session()
+    channelKey = decode(channelKey)
+    channels = Channels()
+    channels_list = channels.get_channels_list(visible_filter = False)
+    header_unity = get_header_unity(session.get_service(channels_list[channelKey]['serviceid']))
+    header = get_header(session.get_service(channels_list[channelKey]['serviceid']))
+
+    subscription = session.get_service(channels_list[channelKey]['serviceid'])['subscription']
+
+    if addon.getSetting('select_resolution') == 'true' and addon.getSetting('stream_type') == 'HLS' and addon.getSetting('only_sd') != 'true':
+        resolution = xbmcgui.Dialog().select('Rozlišení', ['HD', 'SD' ], preselect = 0)
     else:
-      resolution = -1  
+        resolution = -1  
 
-    if addon.getSetting("stream_type") == "MPEG-DASH":
-      stream_type = "DASH"
+    if addon.getSetting('stream_type') == 'MPEG-DASH':
+        stream_type = 'DASH'
     else:
-      stream_type = "HLS"
+        stream_type = 'HLS'
 
-    if type == "live" or type == "live_iptv" or type == "live_iptv_epg":
-      startts = 0
-      channels_nums, channels_data, channels_key_mapping = load_channels(channels_groups_filter = 0) # pylint: disable=unused-variable 
-      channels_details = get_epg_live(len(channels_nums.keys()))      
-      if channels_key_mapping[decode(channelKey)] in channels_details:
-        without_details = 0
-      else:
-        without_details = 1  
-
-      if decode(channelKey) in channels_key_mapping and without_details == 0:
-        data = channels_details[channels_key_mapping[decode(channelKey)]]
-        start = data["start"]
-        startts = int(time.mktime(start.timetuple()))
-        end = data["end"]
-        epgId = str(data["epgId"])
-
-    if addon.getSetting("stream_type") == "MPEG-DASH-web":
-      if type == "archiv" or type == "archiv_iptv":
-        data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/programs/" + str(epgId) +"/playlist/", data = None, header = o2api.header_unity)
-      if type == "live" or type == "live_iptv" or type == "live_iptv_epg":
-        data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/channels/playlist/?channelKey=" + quote(channelKey), data = None, header = o2api.header_unity)
-      if type == "recording":
-        data = call_o2_api(url = "https://api.o2tv.cz/unity/api/v1/recordings/" + str(epgId) +"/playlist/", data = None, header = o2api.header_unity)
-      if "err" in data:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
-      if "playlist" in data and len(data["playlist"]) > 0 and "streamUrls" in data["playlist"][0] and "main" in data["playlist"][0]["streamUrls"] and len(data["playlist"][0]["streamUrls"]["main"]) > 0:
-        if "timeshift" in data["playlist"][0]["streamUrls"]:
-          url = data["playlist"][0]["streamUrls"]["timeshift"]
+    if type == 'live' or type == 'live_iptv' or type == 'live_iptv_epg':
+        startts = 0
+        channels_details = get_epg_live(len(channels_list.keys()))      
+        if channels_list[channelKey]['name'] in channels_details:
+            without_details = 0
         else:
-          url = data["playlist"][0]["streamUrls"]["main"]
-        request = Request(url = url , data = None, headers = o2api.header)
-        response = urlopen(request)
-        url = response.geturl()
-      else:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
+            without_details = 1  
+
+        if channelKey in channels_list and without_details == 0:
+            data = channels_details[channels_list[channelKey]['name']]
+            start = data['start']
+            startts = int(time.mktime(start.timetuple()))
+            end = data['end']
+            epgId = str(data['epgId'])
+
+    if addon.getSetting('stream_type') == 'MPEG-DASH-web':
+        if type == 'archiv' or type == 'archiv_iptv':
+            data = call_o2_api(url = 'https://api.o2tv.cz/unity/api/v1/programs/' + str(epgId) +'/playlist/', data = None, header = header_unity)
+        if type == 'live' or type == 'live_iptv' or type == 'live_iptv_epg':
+            data = call_o2_api(url = 'https://api.o2tv.cz/unity/api/v1/channels/playlist/?channelKey=' + quote(channelKey), data = None, header = header_unity)
+        if type == 'recording':
+            data = call_o2_api(url = 'https://api.o2tv.cz/unity/api/v1/recordings/' + str(epgId) +'/playlist/', data = None, header = header_unity)
+        if 'err' in data:
+            xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s přehráním streamu', xbmcgui.NOTIFICATION_ERROR, 5000)
+            sys.exit()  
+        if 'playlist' in data and len(data['playlist']) > 0 and 'streamUrls' in data['playlist'][0] and 'main' in data['playlist'][0]['streamUrls'] and len(data['playlist'][0]['streamUrls']['main']) > 0:
+            if 'timeshift' in data['playlist'][0]['streamUrls']:
+                url = data['playlist'][0]['streamUrls']['timeshift']
+            else:
+                url = data['playlist'][0]['streamUrls']['main']
+            request = Request(url = url , data = None, headers = header)
+            response = urlopen(request)
+            url = response.geturl()
+        else:
+            xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s přehráním streamu', xbmcgui.NOTIFICATION_ERROR, 5000)
+            sys.exit()  
     else:
-      if type == "archiv" or type == "archiv_iptv":
-        start = int(float(start) * 1000)
-        end = int(float(end) * 1000)
-        post = {"serviceType" : "TIMESHIFT_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type,  "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "fromTimestamp" : str(start), "toTimestamp" : str(end + (int(addon.getSetting("offset"))*60*1000)), "id" : epgId, "encryptionType" : "NONE"}
-      if type == "live" or type == "live_iptv" or type == "live_iptv_epg":
-         if addon.getSetting("stream_type") == "MPEG-DASH"  and startts > 0 and addon.getSetting("startover") == "true":
-           startts = int(float(startts) * 1000 - 300000)
-           post = {"serviceType" : "STARTOVER_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "fromTimestamp" : startts, "encryptionType" : "NONE"}
-         else:
-           post = {"serviceType" : "LIVE_TV", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "channelKey" : channelKey, "encryptionType" : "NONE"}
-      if type == "recording":
-        post = {"serviceType" : "NPVR", "deviceType" : addon.getSetting("devicetype"), "streamingProtocol" : stream_type, "subscriptionCode" : o2api.subscription, "contentId" : epgId, "encryptionType" : "NONE"}
-      if addon.getSetting("stream_type") != "MPEG-DASH" and (addon.getSetting("only_sd") == "true" or resolution == 1):
-        post.update({"resolution" : "SD"})
-      data = call_o2_api(url = "https://app.o2tv.cz/sws/server/streaming/uris.json", data = urlencode(post), header = o2api.header)
-      if "err" in data:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()  
-      url = ""
-      if "uris" in data and len(data["uris"]) > 0 and "uri" in data["uris"][0] and len(data["uris"][0]["uri"]) > 0 :
-        for uris in data["uris"]:
-          if addon.getSetting("only_sd") != "true" and resolution != 1 and uris["resolution"] == "HD":
-            url = uris["uri"]
-          if (addon.getSetting("only_sd") == "true" or resolution == 1) and uris["resolution"] == "SD": 
-            url = uris["uri"]
-        if url == "":
-          url = data["uris"][0]["uri"]
-        if addon.getSetting("stream_type") == "MPEG-DASH":
-          request = Request(url = url , data = None, headers = o2api.header)
-          response = urlopen(request)
-          url = response.geturl().replace("http:","https:").replace(":80/",":443/")
-      else:
-        xbmcgui.Dialog().notification("Sledování O2TV","Problém s přehráním streamu", xbmcgui.NOTIFICATION_ERROR, 4000)
-        sys.exit()
+        if type == 'archiv' or type == 'archiv_iptv':
+            start = int(float(start) * 1000)
+            end = int(float(end) * 1000)
+            post = {'serviceType' : 'TIMESHIFT_TV', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type,  'subscriptionCode' : subscription, 'channelKey' : encode(channelKey), 'fromTimestamp' : str(start), 'toTimestamp' : str(end + (int(addon.getSetting('offset'))*60*1000)), 'id' : epgId, 'encryptionType' : 'NONE'}
+        if type == 'live' or type == 'live_iptv' or type == 'live_iptv_epg':
+            if addon.getSetting('stream_type') == 'MPEG-DASH'  and startts > 0 and addon.getSetting('startover') == 'true':
+                startts = int(float(startts) * 1000 - 300000)
+                post = {'serviceType' : 'STARTOVER_TV', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type, 'subscriptionCode' : subscription, 'channelKey' : encode(channelKey), 'fromTimestamp' : startts, 'encryptionType' : 'NONE'}
+            else:
+                post = {'serviceType' : 'LIVE_TV', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type, 'subscriptionCode' : subscription, 'channelKey' : encode(channelKey), 'encryptionType' : 'NONE'}
+        if type == 'recording':
+            post = {'serviceType' : 'NPVR', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type, 'subscriptionCode' : subscription, 'contentId' : epgId, 'encryptionType' : 'NONE'}
+        if addon.getSetting('stream_type') != 'MPEG-DASH' and (addon.getSetting('only_sd') == 'true' or resolution == 1):
+            post.update({'resolution' : 'SD'})
+        data = call_o2_api(url = 'https://app.o2tv.cz/sws/server/streaming/uris.json', data = post, header = header)
+        if 'err' in data:
+            xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s přehráním streamu', xbmcgui.NOTIFICATION_ERROR, 5000)
+            sys.exit()  
+        url = ''
+        if 'uris' in data and len(data['uris']) > 0 and 'uri' in data['uris'][0] and len(data['uris'][0]['uri']) > 0 :
+            for uris in data['uris']:
+                if addon.getSetting('only_sd') != 'true' and resolution != 1 and uris['resolution'] == 'HD':
+                    url = uris['uri']
+                if (addon.getSetting('only_sd') == 'true' or resolution == 1) and uris['resolution'] == 'SD': 
+                    url = uris['uri']
+            if url == '':
+                url = data['uris'][0]['uri']
+            if addon.getSetting('stream_type') == 'MPEG-DASH':
+                request = Request(url = url , data = None, headers = header)
+                response = urlopen(request)
+                url = response.geturl().replace('http:','https:').replace(':80/',':443/')
+        else:
+            xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s přehráním streamu', xbmcgui.NOTIFICATION_ERROR, 5000)
+            sys.exit()
                                                     
-    if type == "live_iptv" or type == "live_iptv_epg":
-      list_item = xbmcgui.ListItem(path = url)
-      list_item = get_listitem_epg_details(list_item, str(epgId), "", update_from_api = 1)
-    elif type == "archiv_iptv":
-      list_item = xbmcgui.ListItem(title)
-      list_item = get_listitem_epg_details(list_item, str(epgId), "", update_from_api = 1)
+    if type == 'live_iptv' or type == 'live_iptv_epg':
+        list_item = xbmcgui.ListItem(path = url)
+        list_item = get_listitem_epg_details(list_item, str(epgId), '', update_from_api = 1)
+    elif type == 'archiv_iptv':
+        list_item = xbmcgui.ListItem(title)
+        list_item = get_listitem_epg_details(list_item, str(epgId), '', update_from_api = 1)
     else:
-      list_item = xbmcgui.ListItem(path = url)
+        list_item = xbmcgui.ListItem(path = url)
 
-    if addon.getSetting("stream_type") == "MPEG-DASH" or addon.getSetting("stream_type") == "MPEG-DASH-web":
-      list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
-      list_item.setProperty('inputstream', 'inputstream.adaptive')
-      list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-      list_item.setMimeType('application/dash+xml')
+    if addon.getSetting('stream_type') == 'MPEG-DASH' or addon.getSetting('stream_type') == 'MPEG-DASH-web':
+        list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
+        list_item.setProperty('inputstream', 'inputstream.adaptive')
+        list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+        list_item.setMimeType('application/dash+xml')
 
-    if type == "archiv_iptv" or (type == "live_iptv" and addon.getSetting("stream_type") != "HLS" and addon.getSetting("startover") == "true") or type == "live_iptv_epg":
-      playlist=xbmc.PlayList(1)
-      playlist.clear()
-      event = get_epg_details([str(epgId)], update_from_api = 1)
-      list_item.setInfo("video", {"title" : event["title"]}) 
-      xbmc.PlayList(1).add(url, list_item)
-      xbmc.Player().play(playlist)
+    if type == 'archiv_iptv' or (type == 'live_iptv' and addon.getSetting('stream_type') != 'HLS' and addon.getSetting('startover') == 'true') or type == 'live_iptv_epg':
+        playlist=xbmc.PlayList(1)
+        playlist.clear()
+        event = get_epg_details([str(epgId)], update_from_api = 1)
+        list_item.setInfo('video', {'title' : event['title']}) 
+        xbmc.PlayList(1).add(url, list_item)
+        xbmc.Player().play(playlist)
     else:
-      list_item.setContentLookup(False)       
-      xbmcplugin.setResolvedUrl(_handle, True, list_item)
+        list_item.setContentLookup(False)       
+        xbmcplugin.setResolvedUrl(_handle, True, list_item)
 
  
