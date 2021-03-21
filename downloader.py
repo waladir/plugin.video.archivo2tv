@@ -101,11 +101,11 @@ def get_event(epgId, pvrProgramId, title):
         if event['startTime'] < current_ts:
             if event['endTime'] < current_ts:
                 if pvrProgramId == None:
-                    channelKey = encode(channels_list[event['channel']]['channelKey'])
+                    channelKey = channels_list[event['channel']]['channelKey']
                     session = Session()
                     header = get_header(session.get_service(channels_list[channelKey]['serviceid']))
                     subscription = session.get_service(channels_list[channelKey]['serviceid'])['subscription']
-                    post = {'serviceType' : 'TIMESHIFT_TV', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type,  'subscriptionCode' : subscription, 'channelKey' : channelKey, 'fromTimestamp' : str(event['startTime']*1000), 'toTimestamp' : str(event['endTime']*1000 + (int(addon.getSetting('offset'))*60*1000)), 'id' : epgId, 'encryptionType' : 'NONE'}
+                    post = {'serviceType' : 'TIMESHIFT_TV', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type,  'subscriptionCode' : subscription, 'channelKey' : encode(channelKey), 'fromTimestamp' : str(event['startTime']*1000), 'toTimestamp' : str(event['endTime']*1000 + (int(addon.getSetting('offset'))*60*1000)), 'id' : epgId, 'encryptionType' : 'NONE'}
                 else:
                     session = Session()                    
                     for serviceid in session.services:
@@ -118,10 +118,6 @@ def get_event(epgId, pvrProgramId, title):
                                     channelKey = program['program']['channelKey']
                     if len(channelKey) > 0:
                         channels_list = channels.get_channels_list(visible_filter = False)
-                        print(channelKey)
-                        print(channels_list.keys())
-                        print(channels_list[channelKey]['serviceid'])
-                    
                         header = get_header(session.get_service(channels_list[channelKey]['serviceid']))
                         subscription = session.get_service(channels_list[channelKey]['serviceid'])['subscription']
                         post = {'serviceType' : 'NPVR', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type, 'subscriptionCode' : subscription, 'contentId' : pvrProgramId, 'encryptionType' : 'NONE'}                        
