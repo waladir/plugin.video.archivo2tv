@@ -103,6 +103,7 @@ def get_event(epgId, pvrProgramId, title):
                 if pvrProgramId == None:
                     channelKey = channels_list[event['channel']]['channelKey']
                     session = Session()
+                    channels_list = channels.get_channels_list(visible_filter = False)
                     header = get_header(session.get_service(channels_list[channelKey]['serviceid']))
                     subscription = session.get_service(channels_list[channelKey]['serviceid'])['subscription']
                     post = {'serviceType' : 'TIMESHIFT_TV', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type,  'subscriptionCode' : subscription, 'channelKey' : encode(channelKey), 'fromTimestamp' : str(event['startTime']*1000), 'toTimestamp' : str(event['endTime']*1000 + (int(addon.getSetting('offset'))*60*1000)), 'id' : epgId, 'encryptionType' : 'NONE'}
@@ -168,7 +169,7 @@ def download_stream(epgId, url, event):
     db.execute('UPDATE queue SET downloadts = ? WHERE epgId = ?', [current_ts, epgId])
     db.commit()
     close_db()
-    ffmpeg_params = '-re -y -i ' + url + ' -f mpegts -mpegts_service_type digital_tv -metadata service_provider=SledovaniO2TV -c:v copy -c:a copy -loglevel error ' + downloads_dir + filename
+    ffmpeg_params = '-re -y -i ' + str(url) + ' -f mpegts -mpegts_service_type digital_tv -metadata service_provider=SledovaniO2TV -c:v copy -c:a copy -loglevel error ' + downloads_dir + filename
     cmd = ffmpeg_bin + ' ' + ffmpeg_params
     osname = platform.system()
     xbmc.log(cmd)
