@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.3.1 (2021-03-23)<br>
+- oprava přehrávání v IPTV Simple Clientovi u kanálů s diakritikou (Kodi 18)<br><br>
+
 v2.3.0 (2021-03-22)<br>
 - podpora pro IPTV Merge<br>
 - přepracovaná správa session a kanálů<br>
@@ -24,16 +27,5 @@ v2.2.1 (2021-03-06)<br>
 
 v2.2.0 (2021-02-25)<br>
 - oprava zobrazení loga kanálu<br><br>
-
-v2.1.9 (2021-02-13)<br>
-- přidaná možnost generovat EPG pro všechny kanály<br>
-- funkce pro id pluginu<br>
-- úprava O2 adres (díky Kaacz)<br><br>
-
-v2.1.8 (2021-01-24)<br>
-- přidaná správa spárovaných zařízení<br>
-- oprava chyby při prázdném session.txt<br>
-- oprava chyby pří prvním spuštění doplňku<br>
-- redukce changelogu<br><br>
 
 </p>

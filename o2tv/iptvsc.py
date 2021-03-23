@@ -206,9 +206,9 @@ def generate_epg(output_file = ''):
     load_epg_db(output_file)      
     
 def iptv_sc_play(channelName, startdatetime, epg):
-    print(channelName)
     epgId = -1
     addon = xbmcaddon.Addon()
+    channelName = decode(channelName)
     if addon.getSetting('remove_hd') == 'true':
         channelName = channelName.replace(' HD','').replace('O2 ','')
     if len(startdatetime) > 0:
@@ -218,14 +218,13 @@ def iptv_sc_play(channelName, startdatetime, epg):
 
     channels = Channels()
     channels_list = channels.get_channels_list('name')
-    channelName = decode(channelName)
     channelKey = channels_list[channelName]['channelKey']
  
     if from_ts > int(time.mktime(datetime.now().timetuple())):
         xbmcgui.Dialog().notification('Sledování O2TV', 'Nelze přehrát budoucí pořad!', xbmcgui.NOTIFICATION_ERROR, 5000)
         sys.exit()  
     else:
-        event = get_epgId_iptvsc(decode(channelName), from_ts)
+        event = get_epgId_iptvsc(channelName, from_ts)
         epgId = event['epgId']
         if epgId > 0:
             startts = event['start']

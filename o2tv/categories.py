@@ -267,7 +267,6 @@ def list_series(epgId, season, label):
         sys.exit()        
     if 'result' in data and len(data['result']) > 0:
         for event in data['result']:
-            print(event['channelKey'])
             if event['channelKey'] in channels_list:
                 startts = event['start']/1000
                 start = datetime.fromtimestamp(event['start']/1000)
