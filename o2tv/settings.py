@@ -76,7 +76,6 @@ def list_devices(label):
  #   data = call_o2_api(url = 'https://app.o2tv.cz/sws/subscription/settings/set-device-name.json', data = urlencode(post), header = o2api.header)        
 
 def unpair_device(deviceId, deviceName, serviceid):
-    print(serviceid)
     session = Session()
     if deviceId == 'None':
         deviceId = ''

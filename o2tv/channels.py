@@ -378,7 +378,6 @@ class Channels:
             max_number = self.channels[max(self.channels, key = lambda channel: self.channels[channel]['number'])]['number']
         for channel in sorted(o2channels, key = lambda channel: o2channels[channel]['number']):
             if channel in self.channels:
-                print(o2channels[channel])
                 if self.channels[channel]['name'] != o2channels[channel]['name']:
                     self.channels[channel].update({'name' : o2channels[channel]['name']})
                 if self.channels[channel]['o2number'] != o2channels[channel]['number']:
