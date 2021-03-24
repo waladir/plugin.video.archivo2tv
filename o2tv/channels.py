@@ -45,9 +45,10 @@ def list_channels_list(label):
     xbmcplugin.endOfDirectory(_handle)
 
 def edit_channel(channelKey):
+    channelKey = decode(channelKey)
     channels = Channels()
     channels_list = channels.get_channels_list(visible_filter = False)
-    new_num = xbmcgui.Dialog().numeric(0, 'Číslo kanálu', str(channels_list[decode(channelKey)]['number']))
+    new_num = xbmcgui.Dialog().numeric(0, 'Číslo kanálu', str(channels_list[channelKey]['number']))
     if len(new_num) > 0 and int(new_num) > 0:
         channels_nums = channels.get_channels_list('number', visible_filter = False)
         if int(new_num) in channels_nums:
@@ -169,6 +170,7 @@ def add_channel_group(label):
     if len(group) == 0:
         xbmcgui.Dialog().notification('Sledování O2TV', 'Je nutné zadat název skupiny', xbmcgui.NOTIFICATION_ERROR, 5000)
         sys.exit()          
+    group = decode(group)
     channels_groups = Channels_groups()
     if group in channels_groups.groups:
         xbmcgui.Dialog().notification('Sledování O2TV', 'Název skupiny je už použitý', xbmcgui.NOTIFICATION_ERROR, 5000)

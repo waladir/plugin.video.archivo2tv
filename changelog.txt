@@ -1,3 +1,6 @@
+v2.3.3 (2021-03-24)
+- oprava změna čísel kanálů a vytváření skupin s diakritikou (Kodi 18)
+
 v2.3.1/2 (2021-03-24)
 - oprava přehrávání v IPTV Simple Clientovi u kanálů s diakritikou (Kodi 18)
 
@@ -16,6 +19,4 @@ v2.2.1 (2021-03-06)
 - do Nastavení O2TV přidaná možnost spustit nastavení doplňku
 - rozšíření playlistu o položky pro catchup v IPTV Simple Clientovi (Kodi 19). Je nutné vygenerovat nový playlist.
 
-v2.2.0 (2021-02-25)
-- oprava zobrazení loga kanálu
 
