@@ -236,15 +236,15 @@ def iptv_sc_play(channelName, startdatetime, epg):
 
         if int(epgId) > 0:
             if int(endts) < int(time.mktime(datetime.now().timetuple())):
-              play_video(type = 'archiv_iptv', channelKey = channelKey, start = startts, end = endts, epgId = epgId, title = title)
+              play_video(type = 'archiv_iptv', channelKey = encode(channelKey), start = startts, end = endts, epgId = epgId, title = title)
             else:
                 if epg == 1:
-                    play_video(type = 'live_iptv_epg', channelKey = channelKey, start = None, end = None, epgId = None, title = None)
+                    play_video(type = 'live_iptv_epg', channelKey = encode(channelKey), start = None, end = None, epgId = None, title = None)
                 else:
-                    play_video(type = 'live_iptv', channelKey = channelKey, start = None, end = None, epgId = None, title = None)
+                    play_video(type = 'live_iptv', channelKey = encode(channelKey), start = None, end = None, epgId = None, title = None)
         else:
             if len(startdatetime) == 0:
-                play_video(type = 'live_iptv', channelKey = channelKey, start = None, end = None, epgId = None, title = None)
+                play_video(type = 'live_iptv', channelKey = encode(channelKey), start = None, end = None, epgId = None, title = None)
             else:
                 xbmcgui.Dialog().notification('Sledování O2TV', 'Pořad u O2 nenalezen! Používáte EPG z doplňku Sledování O2TV?', xbmcgui.NOTIFICATION_ERROR, 10000)
             sys.exit()  
