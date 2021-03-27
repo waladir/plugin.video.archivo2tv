@@ -1,3 +1,10 @@
+v2.3.4 (2021-03-28)
+- řešení preference stejných kanálů ve více službach
+- oprava mazání poslední skupiny kanálů
+- zobrazení spárovaných zařízení pro všechny služby
+- odstranění nastavení Odstranit HD ze jména kanálu v nastavení
+- ošetření nenalezeného kanálu v doplňku při přehrávání z IPTV Simple Clienta
+
 v2.3.3 (2021-03-24)
 - oprava změna čísel kanálů a vytváření skupin s diakritikou (Kodi 18)
 
@@ -14,9 +21,4 @@ v2.2.2 (2021-03-09)
 - možnost nastavit jiný adresář pro EPG (pokud není nastavený, ukládá se do stejného adresáře jako playlist)
 - přidána možnost do playlistu přidávat informaci pro timeshift v IPTV Simple Clientovi (standardně zapnutu)
 - přidaná mimetype do playlistu
-
-v2.2.1 (2021-03-06)
-- do Nastavení O2TV přidaná možnost spustit nastavení doplňku
-- rozšíření playlistu o položky pro catchup v IPTV Simple Clientovi (Kodi 19). Je nutné vygenerovat nový playlist.
-
 

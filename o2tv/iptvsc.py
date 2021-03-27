@@ -209,8 +209,6 @@ def iptv_sc_play(channelName, startdatetime, epg):
     epgId = -1
     addon = xbmcaddon.Addon()
     channelName = decode(channelName)
-    if addon.getSetting('remove_hd') == 'true':
-        channelName = channelName.replace(' HD','').replace('O2 ','')
     if len(startdatetime) > 0:
         from_ts = int(time.mktime(time.strptime(startdatetime, '%d.%m.%Y %H:%M')))
     else:
@@ -218,6 +216,9 @@ def iptv_sc_play(channelName, startdatetime, epg):
 
     channels = Channels()
     channels_list = channels.get_channels_list('name')
+    if channelName not in  channels_list:
+        xbmcgui.Dialog().notification('Sledování O2TV', 'Kanál přehrávaný z IPTV SC nebyl nalezený!', xbmcgui.NOTIFICATION_ERROR, 5000)
+        sys.exit()          
     channelKey = channels_list[channelName]['channelKey']
  
     if from_ts > int(time.mktime(datetime.now().timetuple())):
