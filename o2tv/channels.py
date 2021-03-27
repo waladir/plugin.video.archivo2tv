@@ -367,7 +367,9 @@ class Channels:
                         if data['channels'][channel]['channelType'] == 'TV' and data['channels'][channel]['channelKey'] not in channels:
                             channels.update({data['channels'][channel]['channelKey'] : { 'name' : data['channels'][channel]['channelName'], 'number' : int(data['channels'][channel]['channelNumber']), 'key' : '', 'logo' : ''}})
                         if data['channels'][channel]['channelKey'] in channels:
-                            channels[data['channels'][channel]['channelKey']].update({'available' : True, 'serviceid' : serviceid})
+                            channels[data['channels'][channel]['channelKey']].update({'available' : True})                        
+                            if 'serviceid' not in channels[data['channels'][channel]['channelKey']] or len(channels[data['channels'][channel]['channelKey']]['serviceid']) == 0 or (channels[data['channels'][channel]['channelKey']]['serviceid'] != serviceid and len(session.services[serviceid]['offers']) > len(session.services[channels[data['channels'][channel]['channelKey']]['serviceid']]['offers'])):
+                                channels[data['channels'][channel]['channelKey']].update({'serviceid' : serviceid})
         return channels
 
     def merge_channels(self, o2channels, channels_nums = {}):
@@ -390,8 +392,8 @@ class Channels:
                     self.channels[channel].update({'key' : o2channels[channel]['key']})
                 if self.channels[channel]['available'] != o2channels[channel]['available']:
                     self.channels[channel].update({'available' : o2channels[channel]['available']})
-                if self.channels[channel]['serviceid'] != o2channels[channel]['serviceid']:
-                    self.channels[channel].update({'serviceid' : o2channels[channel]['serviceid']})
+                # if self.channels[channel]['serviceid'] != o2channels[channel]['serviceid']:
+                #     self.channels[channel].update({'serviceid' : o2channels[channel]['serviceid']})
             else:
                 channelKey = channel
                 name = o2channels[channel]['name']
@@ -554,3 +556,6 @@ class Channels_groups:
                                 file.write('%s\n' % line)
             except IOError:
                 xbmc.log('Chyba uložení skupiny')   
+        else:
+            if os.path.exists(filename):
+                os.remove(filename) 
