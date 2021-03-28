@@ -1,3 +1,6 @@
+v2.3.5 (2021-03-28)
+- oprava reloadu kanálů
+
 v2.3.4 (2021-03-28)
 - řešení preference stejných kanálů ve více službach
 - oprava mazání poslední skupiny kanálů
