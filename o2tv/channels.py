@@ -315,7 +315,8 @@ class Channels:
                 self.channels = data['channels']
             else:
                 self.valid_to = -1
-                self.channels = data['channels']
+                if 'channel' in data:
+                    self.channels = data['channels']
                 self.merge_channels(self.get_o2_channels())
                 self.save_channels()
         else:
