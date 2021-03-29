@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.3.5">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.3.6">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
   </requires>
@@ -51,6 +51,9 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v2.3.6 (2021-03-29)
+- ošetření nevalidního seznamu kanálů 
+
 v2.3.5 (2021-03-28)
 - oprava reloadu kanálů
 
@@ -66,13 +69,6 @@ v2.3.3 (2021-03-24)
 
 v2.3.1/2 (2021-03-24)
 - oprava přehrávání v IPTV Simple Clientovi u kanálů s diakritikou (Kodi 18)
-
-v2.3.0 (2021-03-22)
-- podpora pro IPTV Merge
-- přepracovaná správa session a kanálů
-- podpora více služeb s kanály
-- možnost opačného řazení pořadů v archivu
-
     </news>
     <assets>
         <icon>icon.png</icon>
