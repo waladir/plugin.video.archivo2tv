@@ -115,25 +115,25 @@ class Session:
                 post = {'service_id' : service_id, 'remote_access_token' : remote_access_token}
                 data = call_o2_api(url = 'https://ottmediator.o2tv.cz/ottmediator-war/loginChoiceService', data = post, header = get_header())
                 if 'err' in data:
-                    xbmcgui.Dialog().notification('Sledování O2TV','Problém při přihlášení', xbmcgui.NOTIFICATION_ERROR, 5000)
-                    sys.exit()  
-
-                post = {'grant_type' : 'remote_access_token', 'client_id' : 'tef-web-portal-etnetera', 'client_secret' : '2b16ac9984cd60dd0154f779ef200679', 'platform_id' : '231a7d6678d00c65f6f3b2aaa699a0d0', 'language' : 'cs', 'remote_access_token' : str(remote_access_token), 'authority' :  'tef-sso', 'isp_id' : '1'}
-                data = call_o2_api(url = 'https://oauth.o2tv.cz/oauth/token', data = post, header = get_header())
-                if 'err' in data:
-                    xbmcgui.Dialog().notification('Sledování O2TV','Problém při přihlášení - token', xbmcgui.NOTIFICATION_ERROR, 5000)
-                    sys.exit()  
-
-                if 'access_token' in data and len(data['access_token']) > 0:
-                    access_token = data['access_token']
-                    self.get_subscription(access_token, service_id)
+                    pass
+                    # xbmcgui.Dialog().notification('Sledování O2TV','Problém při přihlášení', xbmcgui.NOTIFICATION_ERROR, 5000)
                 else:
-                    xbmcgui.Dialog().notification('Sledování O2TV','Problém s příhlášením -token', xbmcgui.NOTIFICATION_ERROR, 5000)
-                    sys.exit()
+                    post = {'grant_type' : 'remote_access_token', 'client_id' : 'tef-web-portal-etnetera', 'client_secret' : '2b16ac9984cd60dd0154f779ef200679', 'platform_id' : '231a7d6678d00c65f6f3b2aaa699a0d0', 'language' : 'cs', 'remote_access_token' : str(remote_access_token), 'authority' :  'tef-sso', 'isp_id' : '1'}
+                    data = call_o2_api(url = 'https://oauth.o2tv.cz/oauth/token', data = post, header = get_header())
+                    if 'err' in data:
+                        xbmcgui.Dialog().notification('Sledování O2TV','Problém při přihlášení - token', xbmcgui.NOTIFICATION_ERROR, 5000)
+                    else:
+                        if 'access_token' in data and len(data['access_token']) > 0:
+                            access_token = data['access_token']
+                            self.get_subscription(access_token, service_id)
+                        else:
+                            xbmcgui.Dialog().notification('Sledování O2TV','Problém s příhlášením - token', xbmcgui.NOTIFICATION_ERROR, 5000)
         else:
             xbmcgui.Dialog().notification('Sledování O2TV','Problém s příhlášením', xbmcgui.NOTIFICATION_ERROR, 5000)
             sys.exit()
-        
+        if len(self.services) < 1:
+            xbmcgui.Dialog().notification('Sledování O2TV','Problém s příhlášením - služby', xbmcgui.NOTIFICATION_ERROR, 5000)
+
     def get_auth_password(self):
         addon = xbmcaddon.Addon()
         self.services = {}        

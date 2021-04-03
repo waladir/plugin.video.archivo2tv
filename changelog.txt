@@ -1,3 +1,6 @@
+v2.3.7 (2021-04-04)
+- ošetření chyb při načtení služeb O2 
+
 v2.3.6 (2021-03-29)
 - ošetření nevalidního seznamu kanálů 
 
@@ -13,9 +16,5 @@ v2.3.4 (2021-03-28)
 
 v2.3.3 (2021-03-24)
 - oprava změna čísel kanálů a vytváření skupin s diakritikou (Kodi 18)
-
-v2.3.1/2 (2021-03-24)
-- oprava přehrávání v IPTV Simple Clientovi u kanálů s diakritikou (Kodi 18)
-
 
 
