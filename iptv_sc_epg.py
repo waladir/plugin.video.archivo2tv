@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import threading
 import xbmcaddon
 import xbmc
 
@@ -13,11 +12,14 @@ from o2tv.iptvsc import load_epg_db
 
 tz_offset = int((time.mktime(datetime.now().timetuple())-time.mktime(datetime.utcnow().timetuple()))/3600)
 
-class DownloaderThreadClass(threading.Thread):
-    def run(self):
-        downloader.read_queue()
-
 addon = xbmcaddon.Addon()
+
+if addon.getSetting('download_streams') == 'true':
+    import threading
+    class DownloaderThreadClass(threading.Thread):
+        def run(self):
+            downloader.read_queue()
+
 open_db(check = 1)
 close_db()
 
