@@ -1,3 +1,6 @@
+v2.3.8 (2021-04-04)
+- oprava reloadu kanálů 
+
 v2.3.7 (2021-04-04)
 - ošetření chyb při načtení služeb O2 
 
@@ -13,8 +16,4 @@ v2.3.4 (2021-03-28)
 - zobrazení spárovaných zařízení pro všechny služby
 - odstranění nastavení Odstranit HD ze jména kanálu v nastavení
 - ošetření nenalezeného kanálu v doplňku při přehrávání z IPTV Simple Clienta
-
-v2.3.3 (2021-03-24)
-- oprava změna čísel kanálů a vytváření skupin s diakritikou (Kodi 18)
-
 

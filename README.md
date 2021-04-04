@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.3.8 (2021-04-04)<br>
+- oprava reloadu kanálů<br><br>
+
 v2.3.7 (2021-04-04)<br>
 - ošetření chyb při načtení služeb O2<br><br>
 
@@ -22,7 +25,4 @@ v2.3.4 (2021-03-28)<br>
 - zobrazení spárovaných zařízení pro všechny služby<br>
 - odstranění nastavení Odstranit HD ze jména kanálu v nastavení<br>
 - ošetření nenalezeného kanálu v doplňku při přehrávání z IPTV Simple Clienta<br><br>
-
-v2.3.3 (2021-03-24)<br>
-- oprava změna čísel kanálů a vytváření skupin s diakritikou (Kodi 18)<br><br>
 </p>
