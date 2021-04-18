@@ -85,6 +85,7 @@ def program_search(query, label):
                 epgId = programs['epgId']
                 list_item = xbmcgui.ListItem(label = programs['name'] + ' (' + channels_list[programs['channelKey']]['name'] + ' | ' + decode(utils.day_translation_short[start.strftime('%w')]) + ' ' + start.strftime('%d.%m %H:%M') + ' - ' + end.strftime('%H:%M') + ')')
                 list_item = get_listitem_epg_details(list_item, str(epgId), channels_list[programs['channelKey']]['logo'])
+                list_item.setInfo('video', {'mediatype':'movie', 'title': programs['name'] + ' (' + channels_list[programs['channelKey']]['name']}) 
                 list_item.setProperty('IsPlayable', 'true')
                 list_item.setContentLookup(False)          
                 url = get_url(action='play_archiv', channelKey = encode(programs['channelKey']), start = startts, end = endts, epgId = epgId)
