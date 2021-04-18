@@ -1,3 +1,7 @@
+v2.3.9 (2021-04-18)
+- doplnění popisků k pořadům a jejich úprava u živého vysílání
+- oprava generování EPG pro všechny kanály
+
 v2.3.8 (2021-04-04)
 - oprava reloadu kanálů 
 
@@ -9,11 +13,3 @@ v2.3.6 (2021-03-29)
 
 v2.3.5 (2021-03-28)
 - oprava reloadu kanálů
-
-v2.3.4 (2021-03-28)
-- řešení preference stejných kanálů ve více službach
-- oprava mazání poslední skupiny kanálů
-- zobrazení spárovaných zařízení pro všechny služby
-- odstranění nastavení Odstranit HD ze jména kanálu v nastavení
-- ošetření nenalezeného kanálu v doplňku při přehrávání z IPTV Simple Clienta
-

@@ -169,7 +169,7 @@ def download_stream(epgId, url, event):
     db.execute('UPDATE queue SET downloadts = ? WHERE epgId = ?', [current_ts, epgId])
     db.commit()
     close_db()
-    ffmpeg_params = '-re -y -i ' + str(url) + ' -f mpegts -mpegts_service_type digital_tv -metadata service_provider=SledovaniO2TV -c:v copy -c:a copy -loglevel error ' + downloads_dir + filename
+    ffmpeg_params = '-y -i ' + str(url) + ' -f mpegts -mpegts_service_type digital_tv -metadata service_provider=SledovaniO2TV -c:v copy -c:a copy -loglevel error ' + downloads_dir + filename
     cmd = ffmpeg_bin + ' ' + ffmpeg_params
     osname = platform.system()
     xbmc.log(cmd)

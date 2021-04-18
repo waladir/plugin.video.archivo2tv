@@ -44,7 +44,7 @@ def list_live(page, label):
                 live = '[COLOR ' + str(color) + '] | ' + title + ' | ' + start.strftime('%H:%M') + ' - ' + end.strftime('%H:%M') + '[/COLOR]'
                 live_noncolor = ' | ' + title + ' | ' + start.strftime('%H:%M') + ' - ' + end.strftime('%H:%M')
                 list_item = xbmcgui.ListItem(label=encode(channelName) + encode(live))
-                list_item.setInfo('video', {'mediatype':'movie', 'title': encode(channelName) + encode(live_noncolor)}) 
+                list_item.setInfo('video', {'mediatype':'movie', 'title': encode(channelName) + ' | ' + encode(title)}) 
                 list_item = get_listitem_epg_details(list_item, str(channels_details[channelName]['epgId']), channels_list[num]['logo'])
             else: 
                 live = ''

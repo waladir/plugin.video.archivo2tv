@@ -81,6 +81,7 @@ def future_program(channelKey, day, label):
         end = events[key]['end']
         list_item = xbmcgui.ListItem(label= decode(utils.day_translation_short[start.strftime('%w')]) + ' ' + start.strftime('%d.%m %H:%M') + ' - ' + end.strftime('%H:%M') + ' | ' + events[key]['title'])
         list_item = get_listitem_epg_details(list_item, str(epgId), channels_list[channelKey]['logo'])
+        list_item.setInfo('video', {'mediatype':'movie', 'title': events[key]['title']}) 
         list_item.setProperty('IsPlayable', 'false')
         list_item.addContextMenuItems([('Přidat nahrávku', 'RunPlugin(plugin://' + plugin_id + '?action=add_recording&channelKey=' + channelKey + '&epgId=' + str(epgId) + ')',)])       
         url = get_url(action='add_recording', channelKey = encode(channelKey), epgId = epgId)
@@ -115,6 +116,7 @@ def list_recordings(label):
     for recording in sorted(recordings.keys(), reverse = True):
         list_item = xbmcgui.ListItem(label = recordings[recording]['name'] + ' (' + recordings[recording]['channelKey'] + ' | ' + recordings[recording]['start'] + ' - ' + recordings[recording]['end'] + ')')
         list_item.setProperty('IsPlayable', 'true')
+        list_item.setInfo('video', {'mediatype':'movie', 'title': recordings[recording]['name'] + ' (' + recordings[recording]['channelKey'] + ')'}) 
         list_item = get_listitem_epg_details(list_item, recordings[recording]['epgId'], channels_list[recordings[recording]['channelKey']]['logo'])
         list_item.setContentLookup(False) 
         menus = [('Smazat nahrávku', 'RunPlugin(plugin://' + plugin_id + '?action=delete_recording&channelKey=' + recordings[recording]['channelKey'] + '&pvrProgramId=' + str(recordings[recording]['pvrProgramId']) + ')')]
@@ -144,6 +146,7 @@ def list_future_recordings(label):
         if len(recordings) > 0:
             for recording in sorted(recordings.keys(), reverse = True):
                 list_item = xbmcgui.ListItem(label = recordings[recording]['name'] + ' (' + recordings[recording]['channelKey'] + ' | ' + recordings[recording]['start'] + ' - ' + recordings[recording]['end'] + ')')
+                list_item.setInfo('video', {'mediatype':'movie', 'title': recordings[recording]['name'] + ' (' + recordings[recording]['channelKey'] + ')'}) 
                 list_item.setProperty('IsPlayable', 'true')
                 list_item = get_listitem_epg_details(list_item, recordings[recording]['epgId'], channels_list[recordings[recording]['channelKey']]['logo'])
                 list_item.addContextMenuItems([('Smazat nahrávku', 'RunPlugin(plugin://' + plugin_id + '?action=delete_recording&channelKey=' + recordings[recording]['channelKey'] + '&pvrProgramId=' + str(recordings[recording]['pvrProgramId']) + ')',)])       

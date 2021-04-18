@@ -197,7 +197,7 @@ def list_category(category, dataSource, filtr, page, label):
                         cast = []
                         directors = []
                         genres = []
-                        list_item.setInfo('video', {'mediatype':'movie'})
+                        list_item.setInfo('video', {'mediatype' : 'movie', 'title' : event['name'] + ' (' + channels_list[event['channelKey']]['name'] + ')'})
                         if 'images' in event and len(event['images']) > 0:
                             list_item.setArt({'poster': 'https://img1.o2tv.cz/' + event['images'][0]['cover'],'thumb': 'https://img1.o2tv.cz/' + event['images'][0]['cover'], 'icon': 'https://img1.o2tv.cz/' + event['images'][0]['cover']})
                         if 'longDescription' in event and len(event['longDescription']) > 0:
@@ -274,7 +274,7 @@ def list_series(epgId, season, label):
                 end = datetime.fromtimestamp(event['end']/1000)
                 epgId = event['epgId']
                 list_item = xbmcgui.ListItem(label = event['name'] + ' (' + channels_list[event['channelKey']]['name'] + ' | ' + decode(utils.day_translation_short[start.strftime('%w')]) + ' ' + start.strftime('%d.%m %H:%M') + ' - ' + end.strftime('%H:%M') + ')')
-                list_item.setInfo('video', {'mediatype':'movie'})
+                list_item.setInfo('video', {'mediatype' : 'movie', 'title' :  event['name'] + ' (' + channels_list[event['channelKey']]['name'] + ')'})
                 list_item = get_listitem_epg_details(list_item, str(event['epgId']), channels_list[event['channelKey']]['logo'])
                 list_item.setProperty('IsPlayable', 'true')
                 list_item.setContentLookup(False)          
@@ -302,7 +302,7 @@ def list_related(epgId, label):
                 end = datetime.fromtimestamp(event['end']/1000)
                 epgId = event['epgId']
                 list_item = xbmcgui.ListItem(label = event['name'] + ' (' + channels_list[event['channelKey']]['name'] + ' | ' + decode(utils.day_translation_short[start.strftime('%w')]) + ' ' + start.strftime('%d.%m %H:%M') + ' - ' + end.strftime('%H:%M') + ')')
-                list_item.setInfo('video', {'mediatype':'movie'})
+                list_item.setInfo('video', {'mediatype' : 'movie', 'title' :  event['name'] + ' (' + channels_list[event['channelKey']]['name'] + ')'})
                 list_item = get_listitem_epg_details(list_item, str(event['epgId']), channels_list[event['channelKey']]['logo'])
                 list_item.setProperty('IsPlayable', 'true')
                 list_item.setContentLookup(False)  
@@ -337,7 +337,7 @@ def list_same(epgId, label):
                     cnt = cnt + 1
                     epgId = event['program']['epgId']
                     list_item = xbmcgui.ListItem(label = event['program']['name'] + ' (' + channels_list[event['channel']['channelKey']]['name'] + ' | ' + decode(utils.day_translation_short[start.strftime('%w')]) + ' ' + start.strftime('%d.%m %H:%M') + ' - ' + end.strftime('%H:%M') + ')')
-                    list_item.setInfo('video', {'mediatype':'movie'})
+                    list_item.setInfo('video', {'mediatype' : 'movie', 'title' :  event['program']['name'] + ' (' + channels_list[event['channel']['channelKey']]['name'] + ')'})
                     list_item = get_listitem_epg_details(list_item, event['program']['epgId'], channels_list[event['channel']['channelKey']]['logo'])
                     list_item.setProperty('IsPlayable', 'true')
                     list_item.setContentLookup(False)      

@@ -80,6 +80,7 @@ def list_program(channelKey, day_min, label):
     for key in sorted(events.keys(), reverse = archive_reverse):
         if int(events[key]['endts']) > int(time.mktime(datetime.now().timetuple()))-60*60*24*7:
             list_item = xbmcgui.ListItem(label = decode(utils.day_translation_short[events[key]['start'].strftime('%w')]) + ' ' + events[key]['start'].strftime('%d.%m %H:%M') + ' - ' + events[key]['end'].strftime('%H:%M') + ' | ' + events[key]['title'])
+            list_item.setInfo('video', {'mediatype':'movie', 'title': events[key]['title']}) 
             list_item = get_listitem_epg_details(list_item, str(events[key]['epgId']), channels_list[channelKey]['logo'])
             list_item.setProperty('IsPlayable', 'true')
             list_item.setContentLookup(False)          
