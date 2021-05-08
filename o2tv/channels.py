@@ -95,7 +95,7 @@ def change_channels_numbers(from_number, direction):
 def get_o2_channels_lists(label):
     xbmcplugin.setPluginCategory(_handle, label)
     session = Session()
-    for serviceid in session.services:
+    for serviceid in session.get_services():
         data = call_o2_api(url = 'https://app.o2tv.cz/sws/subscription/settings/get-user-pref.json?name=nangu.channelListUserChannelNumbers', data = None, header = get_header(session.services[serviceid]))
         if 'err' in data:
             xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s načtením seznamu kanálů', xbmcgui.NOTIFICATION_ERROR, 5000)
@@ -357,7 +357,7 @@ class Channels:
                 channels.update({channel['channel']['channelKey'] : { 'name' : channel['channel']['name'], 'number' : int(channel['channel']['weight']), 'logo' : 'https://assets.o2tv.cz' + channel['channel']['images']['color']['url'], 'key' : channel['channel']['keyForCache'], 'available' : False, 'serviceid' : ''}})
 
         session = Session()
-        for serviceid in session.services:
+        for serviceid in session.get_services():
             for offer in session.services[serviceid]['offers']:
                 post = {'locality' : session.services[serviceid]['locality'], 'tariff' : session.services[serviceid]['tariff'], 'isp' : session.services[serviceid]['isp'], 'language' : 'ces', 'deviceType' : addon.getSetting('devicetype'), 'liveTvStreamingProtocol' : 'HLS', 'offer' : offer}
                 data = call_o2_api(url = 'https://app.o2tv.cz/sws/server/tv/channels.json', data = post, header = get_header(session.services[serviceid]))
@@ -370,7 +370,7 @@ class Channels:
                             channels.update({data['channels'][channel]['channelKey'] : { 'name' : data['channels'][channel]['channelName'], 'number' : int(data['channels'][channel]['channelNumber']), 'key' : '', 'logo' : ''}})
                         if data['channels'][channel]['channelKey'] in channels:
                             channels[data['channels'][channel]['channelKey']].update({'available' : True})                        
-                            if 'serviceid' not in channels[data['channels'][channel]['channelKey']] or len(channels[data['channels'][channel]['channelKey']]['serviceid']) == 0 or (channels[data['channels'][channel]['channelKey']]['serviceid'] != serviceid and len(session.services[serviceid]['offers']) > len(session.services[channels[data['channels'][channel]['channelKey']]['serviceid']]['offers'])):
+                            if 'serviceid' not in channels[data['channels'][channel]['channelKey']] or len(channels[data['channels'][channel]['channelKey']]['serviceid']) == 0:
                                 channels[data['channels'][channel]['channelKey']].update({'serviceid' : serviceid})
         return channels
 

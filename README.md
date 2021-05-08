@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.4.0 (2021-05-08)<br>
+- přidány správa služeb<br><br>
+
 v2.3.9 (2021-04-18)<br>
 - doplnění popisků k pořadům a jejich úprava u živého vysílání<br>
 - oprava generování EPG pro všechny kanály<br><br>
@@ -19,8 +22,5 @@ v2.3.7 (2021-04-04)<br>
 
 v2.3.6 (2021-03-29)<br>
 - ošetření nevalidního seznamu kanálů<br><br>
-
-v2.3.5 (2021-03-28)<br>
-- oprava reloadu kanálů<br><br>
 
 </p>

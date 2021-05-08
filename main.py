@@ -23,7 +23,7 @@ from o2tv.channels import Channels
 from o2tv.channels import list_channels_groups, add_channel_group, delete_channel_group, select_channel_group, edit_channel_group, edit_channel_group_list_channels, edit_channel_group_add_channel, edit_channel_group_add_all_channels, edit_channel_group_delete_channel, change_channels_numbers
 from o2tv.channels import list_channels_list, list_channels_edit, edit_channel, get_o2_channels_lists, load_o2_channels_list
 from o2tv.iptvsc import generate_playlist, generate_epg, iptv_sc_play, iptv_sc_rec, iptv_sc_download
-from o2tv.settings import list_settings, list_devices, unpair_device
+from o2tv.settings import list_settings, list_devices, unpair_device, list_services, enable_service, disable_service, move_service
 
 _url = sys.argv[0]
 if len(sys.argv) > 1:
@@ -143,7 +143,15 @@ def router(paramstring):
         elif params['action'] == 'list_devices':
             list_devices(params['label'])            
         elif params['action'] == 'unpair_device':
-            unpair_device(params['deviceId'], params['deviceName'], params['serviceid'])            
+            unpair_device(params['deviceId'], params['deviceName'], params['serviceid'])      
+        elif params['action'] == 'list_services':
+            list_services(params['label'])                   
+        elif params['action'] == 'enable_service':
+            enable_service(params['serviceid'])                
+        elif params['action'] == 'disable_service':
+            disable_service(params['serviceid'])                   
+        elif params['action'] == 'move_service':
+            move_service(params['serviceid'])     
 
         elif params['action'] == 'list_channels_list':
             list_channels_list(params['label'])
