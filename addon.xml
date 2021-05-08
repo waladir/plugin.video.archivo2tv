@@ -1,6 +1,6 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.4.0">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.4.1">
   <requires>
-    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="xbmc.python" version="2.24.0"/>
   </requires>
   <extension library="main.py" point="xbmc.python.pluginsource">
     <provides>video</provides>
@@ -55,7 +55,7 @@ v2.4.1 (2021-05-08)
 - automatické rozšíření session.txt
 
 v2.4.0 (2021-05-08)
-- přidány správa služeb
+- přidána správa služeb
 
 v2.3.9 (2021-04-18)
 - doplnění popisků k pořadům a jejich úprava u živého vysílání
