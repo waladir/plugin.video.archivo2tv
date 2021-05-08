@@ -51,6 +51,9 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v2.4.1 (2021-05-08)
+- automatické rozšíření session.txt
+
 v2.4.0 (2021-05-08)
 - přidány správa služeb
 
@@ -64,8 +67,6 @@ v2.3.8 (2021-04-04)
 v2.3.7 (2021-04-04)
 - ošetření chyb při načtení služeb O2 
 
-v2.3.6 (2021-03-29)
-- ošetření nevalidního seznamu kanálů 
     </news>
     <assets>
         <icon>icon.png</icon>
