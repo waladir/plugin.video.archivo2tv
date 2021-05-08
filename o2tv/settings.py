@@ -50,7 +50,7 @@ def list_services(label):
         for offer in session.services[serviceid]['offers']:
             offers = offers + offer + ' '
         offers = '(' + offers + ')'        
-         
+        
         if session.services[serviceid]['enabled'] == 1:
             list_item = xbmcgui.ListItem(label=session.services[serviceid]['description'] + ' ' + offers )
         else:

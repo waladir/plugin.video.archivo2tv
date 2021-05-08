@@ -28,9 +28,11 @@ class Session:
     def get_services(self, filtered = 1):
         services_order = {}
         services = []
+        order = 1
         for serviceid in self.services:
             if self.services[serviceid]['enabled'] == 1 or filtered == 0:
                 services_order.update({ self.services[serviceid]['order'] : serviceid})
+            
         for order in sorted(services_order.keys()):
             services.append(services_order[order])
         return services
@@ -112,15 +114,24 @@ class Session:
         if data is not None:
             data = json.loads(data)
             self.valid_to = int(data['valid_to'])
+            reset = 0
             if 'services' in data and self.valid_to and self.valid_to > 0 and self.valid_to > int(time.time()):
                 self.services = data['services']
+                for serviceid in self.services:
+                    if 'enabled' not in self.services[serviceid]:
+                        reset = 1
+                if reset == 1:
+                    self.valid_to = -1
+                    if 'services' in data:
+                        self.create_session(data)
+                    else:
+                        self.create_session()                    
             else:
                 self.valid_to = -1
                 if 'services' in data:
                     self.create_session(data)
                 else:
                     self.create_session()
-
         else:
             self.valid_to = -1
             self.create_session()
