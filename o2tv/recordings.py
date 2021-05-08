@@ -104,7 +104,7 @@ def list_recordings(label):
     url = get_url(action='list_future_recordings', label = label + ' / ' + 'Naplánované nahrávky')  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
-    for serviceid in session.services:
+    for serviceid in session.get_services():
         data = call_o2_api(url = 'https://api.o2tv.cz/unity/api/v1/recordings/', data = None, header = get_header_unity(session.services[serviceid]))
         if 'err' in data:
             xbmcgui.Dialog().notification('Sledování O2TV','Problém s načtením nahrávek, zkuste to znovu', xbmcgui.NOTIFICATION_ERROR, 6000)
@@ -134,7 +134,7 @@ def list_future_recordings(label):
     session = Session()
     recordings = {}
 
-    for serviceid in session.services:
+    for serviceid in session.get_services():
         data = call_o2_api(url = 'https://api.o2tv.cz/unity/api/v1/recordings/', data = None, header = get_header_unity(session.services[serviceid]))
         if 'err' in data:
             xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s načtením nahrávek', xbmcgui.NOTIFICATION_ERROR, 5000)

@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.3.9">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.4.0">
   <requires>
     <import addon="xbmc.python" version="2.24.0"/>
   </requires>
@@ -51,6 +51,9 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v2.4.0 (2021-05-08)
+- přidány správa služeb
+
 v2.3.9 (2021-04-18)
 - doplnění popisků k pořadům a jejich úprava u živého vysílání
 - oprava generování EPG pro všechny kanály
@@ -63,9 +66,6 @@ v2.3.7 (2021-04-04)
 
 v2.3.6 (2021-03-29)
 - ošetření nevalidního seznamu kanálů 
-
-v2.3.5 (2021-03-28)
-- oprava reloadu kanálů
     </news>
     <assets>
         <icon>icon.png</icon>

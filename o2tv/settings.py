@@ -26,6 +26,10 @@ def list_settings(label):
     url = get_url(action='list_channels_list', label = 'Kanály')  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
+    list_item = xbmcgui.ListItem(label='Služby')
+    url = get_url(action='list_services', label = 'Služby')  
+    xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
     list_item = xbmcgui.ListItem(label='Zařízení')
     url = get_url(action='list_devices', label = 'Zařízení')  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
@@ -36,11 +40,65 @@ def list_settings(label):
 
     xbmcplugin.endOfDirectory(_handle)
 
+def list_services(label):
+    xbmcplugin.setPluginCategory(_handle, label)   
+    session = Session()
+    first = 1
+    for serviceid in session.get_services(filtered = 0):
+        offers = ''
+        menuitems = []
+        for offer in session.services[serviceid]['offers']:
+            offers = offers + offer + ' '
+        offers = '(' + offers + ')'        
+         
+        if session.services[serviceid]['enabled'] == 1:
+            list_item = xbmcgui.ListItem(label=session.services[serviceid]['description'] + ' ' + offers )
+        else:
+            list_item = xbmcgui.ListItem(label='[COLOR=gray]' + session.services[serviceid]['description'] + ' ' + offers + '[/COLOR]')
+
+        if session.services[serviceid]['enabled'] == 1:
+            if len(session.get_services()) > 1:
+                menuitems.append(('Zakázat službu', 'RunPlugin(plugin://' + plugin_id + '?action=disable_service&serviceid=' + serviceid + ')',))
+        else:
+            menuitems.append(('Povolit službu', 'RunPlugin(plugin://' + plugin_id + '?action=enable_service&serviceid=' + serviceid + ')',))
+        if first == 0:
+            menuitems.append(('Posunout nahoru', 'RunPlugin(plugin://' + plugin_id + '?action=move_service&serviceid=' + serviceid + ')',))
+        if len(menuitems) > 0:
+            list_item.addContextMenuItems(menuitems)
+
+        xbmcplugin.addDirectoryItem(_handle, None , list_item, False)  
+        first = 0
+    xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)
+
+def enable_service(serviceid):
+    session = Session()
+    if serviceid in session.get_services(filtered = 0):
+        session.enable_service(serviceid)
+    xbmc.executebuiltin('Container.Refresh')   
+
+def disable_service(serviceid):
+    session = Session()
+    if serviceid in session.get_services():
+        session.disable_service(serviceid)
+    xbmc.executebuiltin('Container.Refresh')  
+
+def move_service(serviceid):
+    session = Session()
+    if serviceid in session.get_services(filtered = 0):
+        service = session.get_service(serviceid)
+        old_order = service['order']
+        new_order = old_order - 1
+        for replaced_serviceid in session.get_services(filtered = 0):
+            replaced_service = session.get_service(replaced_serviceid)
+            if replaced_service['order'] == new_order:
+                session.set_service_order(replaced_serviceid, old_order)
+        session.set_service_order(serviceid, new_order)
+    xbmc.executebuiltin('Container.Refresh')  
+
 def list_devices(label):
     xbmcplugin.setPluginCategory(_handle, label)   
     session = Session()
-    first = 0
-    for serviceid in session.services:
+    for serviceid in session.get_services():
         data = call_o2_api(url = 'https://api.o2tv.cz/unity/api/v1/devices/', data = None, header = get_header_unity(session.services[serviceid]))
         if 'err' in data:
             xbmcgui.Dialog().notification('Sledování O2TV','Problém při zjištování spárovaných zařízení', xbmcgui.NOTIFICATION_ERROR, 4000)

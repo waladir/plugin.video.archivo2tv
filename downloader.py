@@ -109,7 +109,7 @@ def get_event(epgId, pvrProgramId, title):
                     post = {'serviceType' : 'TIMESHIFT_TV', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type,  'subscriptionCode' : subscription, 'channelKey' : encode(channelKey), 'fromTimestamp' : str(event['startTime']*1000), 'toTimestamp' : str(event['endTime']*1000 + (int(addon.getSetting('offset'))*60*1000)), 'id' : epgId, 'encryptionType' : 'NONE'}
                 else:
                     session = Session()                    
-                    for serviceid in session.services:
+                    for serviceid in session.get_services():
                         data = call_o2_api(url = 'https://api.o2tv.cz/unity/api/v1/recordings/', data = None, header = get_header_unity(session.services[serviceid]))
                         if 'err' in data:
                             xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s načtením nahrávek, zkuste to znovu', xbmcgui.NOTIFICATION_ERROR, 6000)

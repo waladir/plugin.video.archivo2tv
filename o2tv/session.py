@@ -25,8 +25,34 @@ class Session:
         self.valid_to = -1
         self.load_session()
 
+    def get_services(self, filtered = 1):
+        services_order = {}
+        services = []
+        for serviceid in self.services:
+            if self.services[serviceid]['enabled'] == 1 or filtered == 0:
+                services_order.update({ self.services[serviceid]['order'] : serviceid})
+        for order in sorted(services_order.keys()):
+            services.append(services_order[order])
+        return services
+
+    def enable_service(self, serviceid):
+        if serviceid in self.services:
+            self.services[serviceid]['enabled'] = 1
+            self.save_session()
+
+    def disable_service(self, serviceid):
+        if serviceid in self.services:
+            self.services[serviceid]['enabled'] = 0
+            self.save_session()
+
+    def set_service_order(self, serviceid, order):
+        if serviceid in self.services:
+            self.services[serviceid]['order'] = order
+            self.save_session()
+
     def get_service(self, serviceid):
         if serviceid in self.services:
+            description = self.services[serviceid]['description']
             access_token = self.services[serviceid]['access_token']
             subscription = self.services[serviceid]['subscription']
             isp = self.services[serviceid]['isp']
@@ -34,17 +60,38 @@ class Session:
             offers = self.services[serviceid]['offers']
             tariff = self.services[serviceid]['tariff']
             sdata = self.services[serviceid]['sdata']
-            encodedChannels = self.services[serviceid]['encodedChannels']            
-            return { 'access_token' : access_token, 'subscription' : subscription, 'isp' : isp, 'locality' : locality, 'offers' : offers, 'tariff' : tariff, 'sdata' : sdata, 'encodedChannels' : encodedChannels}
+            encodedChannels = self.services[serviceid]['encodedChannels']   
+            enabled = self.services[serviceid]['enabled']         
+            order = self.services[serviceid]['order']
+            return { 'description' : description, 'access_token' : access_token, 'subscription' : subscription, 'isp' : isp, 'locality' : locality, 'offers' : offers, 'tariff' : tariff, 'sdata' : sdata, 'encodedChannels' : encodedChannels, 'enabled' : enabled, 'order' : order}
         else:
             return None
 
-    def create_session(self):
+    def create_session(self, data = None):
         addon = xbmcaddon.Addon()
         if '@' in addon.getSetting('username'):
             self.get_auth_token()
         else:
             self.get_auth_password() 
+        order = 1
+        if self.services and len(self.services) > 0:
+            for service in self.services:
+                if data and len(data) > 0 and 'services' in data and service in data['services']:
+                    if 'enabled' in data['services'][service]:
+                        self.services[service].update({'enabled' : data['services'][service]['enabled']})
+                    else:
+                        self.services[service].update({'enabled' : 1})
+                    if 'order' in data['services'][service]:
+                        self.services[service].update({'order' : data['services'][service]['order']})    
+                        order = data['services'][service]['order'] + 1                   
+                    else:
+                        self.services[service].update({'order' : order})
+                        order = order + 1
+                else:
+                    self.services[service].update({'enabled' : 1})
+                    self.services[service].update({'order' : order})
+                    order = order + 1
+
 
         if self.valid_to > 0:
             self.save_session()
@@ -69,7 +116,11 @@ class Session:
                 self.services = data['services']
             else:
                 self.valid_to = -1
-                self.create_session()
+                if 'services' in data:
+                    self.create_session(data)
+                else:
+                    self.create_session()
+
         else:
             self.valid_to = -1
             self.create_session()
@@ -91,12 +142,20 @@ class Session:
         filename = os.path.join(addon_userdata_dir, 'session.txt')
         if os.path.exists(filename):
             try:
+                data = None
+                with codecs.open(filename, 'r', encoding='utf-8') as file:
+                    for row in file:
+                        data = row[:-1]
+                if data is not None:
+                    data = json.loads(data)
+                    if 'services' not in data:
+                        data = None
                 os.remove(filename) 
             except IOError:
-                xbmcgui.Dialog().notification('O2Sledování O2TV', 'Chyba při resetu session', xbmcgui.NOTIFICATION_ERROR, 5000)
+                xbmcgui.Dialog().notification('Sledování O2TV', 'Chyba při resetu session', xbmcgui.NOTIFICATION_ERROR, 5000)
         self.valid_to = -1
-        self.create_session()
-        xbmcgui.Dialog().notification('O2Sledování O2TV', 'Byla vytvořená nová session', xbmcgui.NOTIFICATION_INFO, 5000)
+        self.create_session(data)
+        xbmcgui.Dialog().notification('Sledování O2TV', 'Byla vytvořená nová session', xbmcgui.NOTIFICATION_INFO, 5000)
 
     def get_auth_token(self):
         addon = xbmcaddon.Addon()
@@ -111,6 +170,7 @@ class Session:
             remote_access_token = data['remote_access_token'] 
             for service in data['services']:
                 service_id = service['service_id']
+                service_desc = service['description']
 
                 post = {'service_id' : service_id, 'remote_access_token' : remote_access_token}
                 data = call_o2_api(url = 'https://ottmediator.o2tv.cz/ottmediator-war/loginChoiceService', data = post, header = get_header())
@@ -125,7 +185,7 @@ class Session:
                     else:
                         if 'access_token' in data and len(data['access_token']) > 0:
                             access_token = data['access_token']
-                            self.get_subscription(access_token, service_id)
+                            self.get_subscription(access_token, service_id, service_desc)
                         else:
                             xbmcgui.Dialog().notification('Sledování O2TV','Problém s příhlášením - token', xbmcgui.NOTIFICATION_ERROR, 5000)
         else:
@@ -145,12 +205,12 @@ class Session:
 
         if 'access_token' in data and len(data['access_token']) > 0:
             access_token = data['access_token']
-            self.get_subscription(access_token, 'password_authentication')
+            self.get_subscription(access_token, 'password_authentication', 'password_authentication')
         else:
             xbmcgui.Dialog().notification('Sledování O2TV','Problém s příhlášením - token', xbmcgui.NOTIFICATION_ERROR, 5000)
             sys.exit()            
 
-    def get_subscription(self, access_token, service_id):
+    def get_subscription(self, access_token, service_id, service_description):
         addon = xbmcaddon.Addon()
         header = get_header()
         header.update({'X-NanguTv-Access-Token' : str(access_token), 'X-NanguTv-Device-Id' : addon.getSetting('deviceid')})
@@ -174,7 +234,7 @@ class Session:
             encodedChannels = data['encodedChannels']
             channels = data['ottChannels']['live']  
             self.valid_to = int(time.time()) + 60*60*24
-            self.services.update({service_id : { 'access_token' : access_token, 'subscription' : subscription, 'isp' : isp, 'locality' : locality, 'offers' : offers, 'tariff' : tariff, 'sdata' : sdata, 'encodedChannels' : encodedChannels, 'channels' : channels}})
+            self.services.update({service_id : { 'description' : service_description, 'access_token' : access_token, 'subscription' : subscription, 'isp' : isp, 'locality' : locality, 'offers' : offers, 'tariff' : tariff, 'sdata' : sdata, 'encodedChannels' : encodedChannels, 'channels' : channels}})
         else:
             xbmcgui.Dialog().notification('Sledování O2TV','Problém s příhlášením - subskribce', xbmcgui.NOTIFICATION_ERROR, 5000)
             sys.exit()        
