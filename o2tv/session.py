@@ -28,7 +28,6 @@ class Session:
     def get_services(self, filtered = 1):
         services_order = {}
         services = []
-        order = 1
         for serviceid in self.services:
             if self.services[serviceid]['enabled'] == 1 or filtered == 0:
                 services_order.update({ self.services[serviceid]['order'] : serviceid})

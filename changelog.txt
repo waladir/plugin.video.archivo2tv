@@ -1,3 +1,6 @@
+v2.4.2 (2021-05-16)
+- úprava kvůli kompatibilitě s IPTV Merge 0.16.6 a vyšší    
+
 v2.4.1 (2021-05-08)
 - automatické rozšíření session.txt
 
@@ -10,6 +13,3 @@ v2.3.9 (2021-04-18)
 
 v2.3.8 (2021-04-04)
 - oprava reloadu kanálů 
-
-v2.3.7 (2021-04-04)
-- ošetření chyb při načtení služeb O2 
