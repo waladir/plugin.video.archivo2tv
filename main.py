@@ -197,14 +197,14 @@ def router(paramstring):
         elif params['action'] == 'generate_playlist':
             if 'output_file' in params:
                 generate_playlist(params['output_file'])
-                xbmcplugin.addDirectoryItem(_handle, 'ok', xbmcgui.ListItem())
+                xbmcplugin.addDirectoryItem(_handle, '1', xbmcgui.ListItem())
                 xbmcplugin.endOfDirectory(_handle, succeeded = True)
             else:
                 generate_playlist()
         elif params['action'] == 'generate_epg':
             if 'output_file' in params:
                 generate_epg(params['output_file'])
-                xbmcplugin.addDirectoryItem(_handle, 'ok', xbmcgui.ListItem())
+                xbmcplugin.addDirectoryItem(_handle, '1', xbmcgui.ListItem())
                 xbmcplugin.endOfDirectory(_handle, succeeded = True)
             else:
                 generate_epg()
