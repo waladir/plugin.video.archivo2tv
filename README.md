@@ -7,8 +7,11 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.4.3 (2021-06-19)<br>
+- doplnění atributu tvg-id do playlistu pro IPTV Simple Clienta<br><br>
+
 v2.4.2 (2021-05-16)<br>
-- úprava kvůli kompatibilitě s IPTV Merge 0.16.6 a vyšší<br><br>
+- úprava kvůli kompatibilitě s IPTV Merge 0.16.6 a vyšším<br><br>
 
 v2.4.1 (2021-05-08)<br>
 - automatické rozšíření session.txt<br><br>
@@ -20,6 +23,4 @@ v2.3.9 (2021-04-18)<br>
 - doplnění popisků k pořadům a jejich úprava u živého vysílání<br>
 - oprava generování EPG pro všechny kanály<br><br>
 
-v2.3.8 (2021-04-04)<br>
-- oprava reloadu kanálů<br><br>
 </p>

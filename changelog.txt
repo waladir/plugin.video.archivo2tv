@@ -1,5 +1,8 @@
+v2.4.3 (2021-06-19)
+- doplnění atributu tvg-id do playlistu pro IPTV Simple Clienta
+
 v2.4.2 (2021-05-16)
-- úprava kvůli kompatibilitě s IPTV Merge 0.16.6 a vyšší    
+- úprava kvůli kompatibilitě s IPTV Merge 0.16.6 a vyšším   
 
 v2.4.1 (2021-05-08)
 - automatické rozšíření session.txt
@@ -10,6 +13,3 @@ v2.4.0 (2021-05-08)
 v2.3.9 (2021-04-18)
 - doplnění popisků k pořadům a jejich úprava u živého vysílání
 - oprava generování EPG pro všechny kanály
-
-v2.3.8 (2021-04-04)
-- oprava reloadu kanálů 
