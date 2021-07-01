@@ -420,7 +420,7 @@ class Channels:
                 visible = True
                 serviceid = o2channels[channel]['serviceid']
                 self.channels.update({channel : {'channelKey' : channelKey, 'name' : name, 'available' : available, 'o2number' : o2number, 'number' : number, 'key' : key, 'logo' : logo, 'visible' : visible, 'serviceid' : serviceid}})
-        for channel in self.channels.keys():
+        for channel in list(self.channels):
             if channel not in o2channels:
                 del self.channels[channel]
     
