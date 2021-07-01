@@ -1,3 +1,6 @@
+v2.4.4 (2021-07-01)
+- oprava chyby při odstraňování kanálů (Kodi 19)
+
 v2.4.3 (2021-06-19)
 - doplnění atributu tvg-id do playlistu pro IPTV Simple Clienta
 
@@ -10,6 +13,3 @@ v2.4.1 (2021-05-08)
 v2.4.0 (2021-05-08)
 - přidány správa služeb
 
-v2.3.9 (2021-04-18)
-- doplnění popisků k pořadům a jejich úprava u živého vysílání
-- oprava generování EPG pro všechny kanály
