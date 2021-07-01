@@ -1,6 +1,6 @@
 ﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.4.4">
   <requires>
-    <import addon="xbmc.python" version="2.34.0"/>
+    <import addon="xbmc.python" version="2.24.0"/>
   </requires>
   <extension library="main.py" point="xbmc.python.pluginsource">
     <provides>video</provides>
