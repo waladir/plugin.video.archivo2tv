@@ -97,7 +97,7 @@ def get_event(epgId, pvrProgramId, title):
     channels = Channels()
     channels_list = channels.get_channels_list('name', visible_filter = False)
 
-    if event != None and current_ts < event['availableTo']:
+    if event != None and (current_ts < event['availableTo'] or pvrProgramId is not None):
         if event['startTime'] < current_ts:
             if event['endTime'] < current_ts:
                 if pvrProgramId == None:
@@ -171,6 +171,7 @@ def download_stream(epgId, url, event):
     close_db()
     ffmpeg_params = '-re -y -i ' + str(url) + ' -f mpegts -mpegts_service_type digital_tv -metadata service_provider=SledovaniO2TV -c:v copy -c:a copy -loglevel error ' + downloads_dir + filename
     cmd = ffmpeg_bin + ' ' + ffmpeg_params
+    print(cmd)
     osname = platform.system()
     xbmc.log(cmd)
     if osname == 'Windows':
