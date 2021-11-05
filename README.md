@@ -7,6 +7,11 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.4.6 (2021-11-07)<br>
+- oprava spouštení live TV u kanálů bez EPG a u nedostupných kanálů<br>
+- implementace refreshe sessiony<br>
+- přidání možnosti vybrat catchup mod (append nebo default) pro generování playlistu<br><br>
+
 v2.4.5 (2021-08-20)<br>
 - oprava stahování nahrávek s vysíláním pořadu starším než 7 dní<br><br>
 
@@ -18,8 +23,5 @@ v2.4.3 (2021-06-19)<br>
 
 v2.4.2 (2021-05-16)<br>
 - úprava kvůli kompatibilitě s IPTV Merge 0.16.6 a vyšším<br><br>
-
-v2.4.1 (2021-05-08)<br>
-- automatické rozšíření session.txt<br><br>
 
 </p>

@@ -182,9 +182,15 @@ def generate_playlist(output_file = ''):
             for number in sorted(channels_list.keys()):  
                 logo = channels_list[number]['logo']
                 if addon.getSetting('add_channel_numbers') == 'true':
-                    line = '#EXTINF:-1 catchup="append" catchup-days="7" catchup-source="&catchup_start_ts={utc}&catchup_end_ts={utcend}" tvg-chno="' + str(number) + '" tvg-id="' + channels_list[number]['name'] + '" tvh-epg="0" tvg-logo="' + logo + '",' + channels_list[number]['name']
+                    if addon.getSetting('catchup_mode') == 'default':
+                        line = '#EXTINF:-1 catchup="default" catchup-days="7" catchup-source="plugin://plugin.video.archivo2tv/?action=get_stream_url&channelKey=' + quote(encode(channels_list[number]['channelKey'])) + '&catchup_start_ts={utc}&catchup_end_ts={utcend}" tvg-chno="' + str(number) + '" tvg-id="' + channels_list[number]['name'] + '" tvh-epg="0" tvg-logo="' + logo + '",' + channels_list[number]['name']
+                    else:
+                        line = '#EXTINF:-1 catchup="append" catchup-days="7" catchup-source="&catchup_start_ts={utc}&catchup_end_ts={utcend}" tvg-chno="' + str(number) + '" tvg-id="' + channels_list[number]['name'] + '" tvh-epg="0" tvg-logo="' + logo + '",' + channels_list[number]['name']
                 else:
-                    line = '#EXTINF:-1 catchup="append" catchup-days="7" catchup-source="&catchup_start_ts={utc}&catchup_end_ts={utcend}" tvg-id="' + channels_list[number]['name'] + '" tvh-epg="0" tvg-logo="' + logo + '",' + channels_list[number]['name']
+                    if addon.getSetting('catchup_mode') == 'default':
+                        line = '#EXTINF:-1 catchup="default" catchup-days="7" catchup-source="plugin://plugin.video.archivo2tv/?action=get_stream_url&channelKey=' + quote(encode(channels_list[number]['channelKey'])) + '&catchup_start_ts={utc}&catchup_end_ts={utcend}" tvg-id="' + channels_list[number]['name'] + '" tvh-epg="0" tvg-logo="' + logo + '",' + channels_list[number]['name']
+                    else:
+                        line = '#EXTINF:-1 catchup="append" catchup-days="7" catchup-source="&catchup_start_ts={utc}&catchup_end_ts={utcend}" tvg-id="' + channels_list[number]['name'] + '" tvh-epg="0" tvg-logo="' + logo + '",' + channels_list[number]['name']
                 file.write(bytearray((line + '\n').encode('utf-8')))
                 line = 'plugin://' + plugin_id + '/?action=get_stream_url&channelKey=' + quote(encode(channels_list[number]['channelKey']))
                 if addon.getSetting('iptvsc_timeshift') == 'true':

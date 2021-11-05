@@ -43,6 +43,7 @@
                 <setting label="Automaticky generovat EPG" type="bool" id="autogen" default="false"/>
                 <setting label="Generovat EPG pro všechny kanály" type="bool" id="epg_for_all_channels" default="false"/>
                 <setting label="Přidávat čísla kanálů do playlistu" type="bool" id="add_channel_numbers" default="false"/>        
+                <setting label="Catchup mod" type="select" id="catchup_mode" values="append|default" default="append"/>
                 <setting label="Generovat playlist" type="action" action="RunPlugin(plugin://plugin.video.archivo2tv?action=generate_playlist)"/>
                 <setting label="Generovat EPG" type="action" action="RunPlugin(plugin://plugin.video.archivo2tv?action=generate_epg)"/>
 	</category>    

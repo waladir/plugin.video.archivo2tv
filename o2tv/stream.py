@@ -39,6 +39,10 @@ def play_video(type, channelKey, start, end, epgId, title):
     header_unity = get_header_unity(session.get_service(channels_list[channelKey]['serviceid']))
     header = get_header(session.get_service(channels_list[channelKey]['serviceid']))
 
+    if 'serviceid' not in channels_list[channelKey] or len(channels_list[channelKey]['serviceid']) == 0:
+        xbmcgui.Dialog().notification('Sledování O2TV', 'Pravděpodobně neaktivní kanál. Zkuste reset kanálů.', xbmcgui.NOTIFICATION_ERROR, 5000)
+        sys.exit()  
+
     subscription = session.get_service(channels_list[channelKey]['serviceid'])['subscription']
 
     if addon.getSetting('select_resolution') == 'true' and addon.getSetting('stream_type') == 'HLS' and addon.getSetting('only_sd') != 'true':
@@ -141,8 +145,11 @@ def play_video(type, channelKey, start, end, epgId, title):
     if type == 'archiv_iptv' or (type == 'live_iptv' and addon.getSetting('stream_type') != 'HLS' and addon.getSetting('startover') == 'true') or type == 'live_iptv_epg':
         playlist=xbmc.PlayList(1)
         playlist.clear()
-        event = get_epg_details([str(epgId)], update_from_api = 1)
-        list_item.setInfo('video', {'title' : event['title']}) 
+        if epgId is not None:
+            event = get_epg_details([str(epgId)], update_from_api = 1)
+            list_item.setInfo('video', {'title' : event['title']}) 
+        else:
+            list_item.setInfo('video', {'title' : channels_list[channelKey]['name']}) 
         xbmc.PlayList(1).add(url, list_item)
         xbmc.Player().play(playlist)
     else:

@@ -17,7 +17,7 @@ except ImportError:
 import json
 import time 
 import codecs
-
+from datetime import datetime
 from o2tv.o2api import call_o2_api, get_header, get_header_unity
 
 class Session:
@@ -55,6 +55,8 @@ class Session:
         if serviceid in self.services:
             description = self.services[serviceid]['description']
             access_token = self.services[serviceid]['access_token']
+            refresh_token = self.services[serviceid]['refresh_token']
+            expires_in = self.services[serviceid]['expires_in']
             subscription = self.services[serviceid]['subscription']
             isp = self.services[serviceid]['isp']
             locality = self.services[serviceid]['locality']
@@ -64,7 +66,7 @@ class Session:
             encodedChannels = self.services[serviceid]['encodedChannels']   
             enabled = self.services[serviceid]['enabled']         
             order = self.services[serviceid]['order']
-            return { 'description' : description, 'access_token' : access_token, 'subscription' : subscription, 'isp' : isp, 'locality' : locality, 'offers' : offers, 'tariff' : tariff, 'sdata' : sdata, 'encodedChannels' : encodedChannels, 'enabled' : enabled, 'order' : order}
+            return { 'description' : description, 'access_token' : access_token, 'refresh_token' : refresh_token, 'expires_in' : expires_in, 'subscription' : subscription, 'isp' : isp, 'locality' : locality, 'offers' : offers, 'tariff' : tariff, 'sdata' : sdata, 'encodedChannels' : encodedChannels, 'enabled' : enabled, 'order' : order}
         else:
             return None
 
@@ -92,8 +94,6 @@ class Session:
                     self.services[service].update({'enabled' : 1})
                     self.services[service].update({'order' : order})
                     order = order + 1
-
-
         if self.valid_to > 0:
             self.save_session()
 
@@ -117,6 +117,16 @@ class Session:
             if 'services' in data and self.valid_to and self.valid_to > 0 and self.valid_to > int(time.time()):
                 self.services = data['services']
                 for serviceid in self.services:
+                    service = self.services[serviceid]
+                    if 'expires_in' not in service or int(service['expires_in']) < int(time.time()):
+                        if 'refresh_token' not in service:
+                            service['refresh_token'] = ''
+                        access_token, refresh_token, expires_in = self.refresh_token(service['access_token'], service['refresh_token'])
+                        if access_token is not None:
+                            self.services[serviceid].update({'access_token' : access_token, 'refresh_token' : refresh_token, 'expires_in' : expires_in})
+                            self.save_session()
+                        else:
+                            reset = 1
                     if 'enabled' not in self.services[serviceid]:
                         reset = 1
                 if reset == 1:
@@ -195,7 +205,9 @@ class Session:
                     else:
                         if 'access_token' in data and len(data['access_token']) > 0:
                             access_token = data['access_token']
-                            self.get_subscription(access_token, service_id, service_desc)
+                            refresh_token = data['refresh_token']
+                            expires_in = 0
+                            self.get_subscription(access_token, refresh_token, expires_in, service_id, service_desc)
                         else:
                             xbmcgui.Dialog().notification('Sledování O2TV','Problém s příhlášením - token', xbmcgui.NOTIFICATION_ERROR, 5000)
         else:
@@ -212,15 +224,16 @@ class Session:
         if 'err' in data:
             xbmcgui.Dialog().notification('Sledování O2TV','Problém při přihlášení', xbmcgui.NOTIFICATION_ERROR, 5000)
             sys.exit()  
-
         if 'access_token' in data and len(data['access_token']) > 0:
             access_token = data['access_token']
-            self.get_subscription(access_token, 'password_authentication', 'password_authentication')
+            refresh_token = data['refresh_token']
+            expires_in = 0
+            self.get_subscription(access_token, refresh_token, expires_in, 'password_authentication', 'password_authentication')
         else:
             xbmcgui.Dialog().notification('Sledování O2TV','Problém s příhlášením - token', xbmcgui.NOTIFICATION_ERROR, 5000)
             sys.exit()            
 
-    def get_subscription(self, access_token, service_id, service_description):
+    def get_subscription(self, access_token, refresh_token, expires_in, service_id, service_description):
         addon = xbmcaddon.Addon()
         header = get_header()
         header.update({'X-NanguTv-Access-Token' : str(access_token), 'X-NanguTv-Device-Id' : addon.getSetting('deviceid')})
@@ -243,8 +256,8 @@ class Session:
             sdata = data['sdata']
             encodedChannels = data['encodedChannels']
             channels = data['ottChannels']['live']  
-            self.valid_to = int(time.time()) + 60*60*24
-            self.services.update({service_id : { 'description' : service_description, 'access_token' : access_token, 'subscription' : subscription, 'isp' : isp, 'locality' : locality, 'offers' : offers, 'tariff' : tariff, 'sdata' : sdata, 'encodedChannels' : encodedChannels, 'channels' : channels}})
+            self.valid_to = int(time.time()) + 60*60*24*7
+            self.services.update({service_id : { 'description' : service_description, 'access_token' : access_token, 'refresh_token' : refresh_token, 'expires_in' : expires_in, 'subscription' : subscription, 'isp' : isp, 'locality' : locality, 'offers' : offers, 'tariff' : tariff, 'sdata' : sdata, 'encodedChannels' : encodedChannels, 'channels' : channels}})
         else:
             xbmcgui.Dialog().notification('Sledování O2TV','Problém s příhlášením - subskribce', xbmcgui.NOTIFICATION_ERROR, 5000)
             sys.exit()        
@@ -289,7 +302,7 @@ class Session:
                     tariff = data['tariff']
                     encodedChannels = data['encodedChannels']
                     channels = data['ottChannels']['live']  
-                    self.valid_to = int(time.time()) + 60*60*24
+                    self.valid_to = int(time.time()) + 60*60*24*7
                     self.services.update({service_id : { 'access_token' : access_token, 'subscription' : subscription, 'isp' : isp, 'locality' : locality, 'offers' : offers, 'tariff' : tariff, 'sdata' : sdata, 'encodedChannels' : encodedChannels, 'channels' : channels}})
 
                 else:
@@ -297,4 +310,18 @@ class Session:
                     sys.exit()            
         else:
             xbmcgui.Dialog().notification('Sledování O2TV','Problém při přihlášení', xbmcgui.NOTIFICATION_ERROR, 5000)
-            sys.exit()    
+            sys.exit()
+
+    def refresh_token(self, access_token, refresh_token):
+        post = {'grant_type' : 'refresh_token', 'client_id' : 'tef-web-portal-etnetera', 'client_secret' : '2b16ac9984cd60dd0154f779ef200679', 'platform_id' : '231a7d6678d00c65f6f3b2aaa699a0d0', 'language' : 'cs', 'refresh_token' : str(refresh_token)}
+        data = call_o2_api(url = 'https://oauth.o2tv.cz/oauth/token', data = post, header = get_header())
+        if 'err' in data:
+            return None, None, -1
+
+        if 'access_token' in data and len(data['access_token']) > 0:
+            access_token = data['access_token']
+            refresh_token = data['refresh_token']
+            expires_in = int(time.time()) + int(data['expires_in'])
+            return access_token, refresh_token, expires_in
+        else:
+            return None, None, -1
