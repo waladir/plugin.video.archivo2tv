@@ -1,6 +1,6 @@
 v2.4.6 (2021-11-07)
 - oprava spouštení live TV u kanálů bez EPG a u nedostupných kanálů
-- implementace refreshe sessiony
+- implementace refreshe tokenu
 - přidání možnosti vybrat catchup mod (append nebo default) pro generování playlistu
 
 v2.4.5 (2021-08-20)

@@ -9,7 +9,7 @@ Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (ste
 
 v2.4.6 (2021-11-07)<br>
 - oprava spouštení live TV u kanálů bez EPG a u nedostupných kanálů<br>
-- implementace refreshe sessiony<br>
+- implementace refreshe tokenu<br>
 - přidání možnosti vybrat catchup mod (append nebo default) pro generování playlistu<br><br>
 
 v2.4.5 (2021-08-20)<br>
