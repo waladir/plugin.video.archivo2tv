@@ -513,7 +513,7 @@ def get_epg_details(epgIds, update_from_api = 0):
     return event
 
 def get_listitem_epg_details(list_item, epgId, img, update_from_api = 0):
-    if epgId == None:
+    if epgId == None or epgId == 'None':
         list_item.setInfo('video', {'mediatype':'movie'})
         return list_item
     event = get_epg_details([epgId], update_from_api = update_from_api)
