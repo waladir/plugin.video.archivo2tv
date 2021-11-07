@@ -171,7 +171,6 @@ def download_stream(epgId, url, event):
     close_db()
     ffmpeg_params = '-re -y -i ' + str(url) + ' -f mpegts -mpegts_service_type digital_tv -metadata service_provider=SledovaniO2TV -c:v copy -c:a copy -loglevel error ' + downloads_dir + filename
     cmd = ffmpeg_bin + ' ' + ffmpeg_params
-    print(cmd)
     osname = platform.system()
     xbmc.log(cmd)
     if osname == 'Windows':
