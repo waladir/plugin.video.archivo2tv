@@ -19,7 +19,7 @@ import time
 from o2tv.o2api import call_o2_api, get_header, get_header_unity
 from o2tv import o2api
 from o2tv.session import Session
-from o2tv.epg import get_listitem_epg_details, get_epg_live, get_epg_details
+from o2tv.epg import get_listitem_epg_details, get_epg_live, get_epg_details, get_epgId_iptvsc
 from o2tv.channels import Channels 
 from o2tv.utils import remove_diacritics, decode, encode
 
@@ -27,8 +27,12 @@ _url = sys.argv[0]
 if len(sys.argv) > 1:
     _handle = int(sys.argv[1])
 
-def play_catchup(channelKey, start_ts, end_ts):
-    play_video(type = 'archiv', channelKey = channelKey, start = start_ts, end = end_ts, epgId = None, title = None)
+def play_catchup(channelKey, start_ts):
+    event = get_epgId_iptvsc(channelKey, start_ts)
+    if event['end'] > int(time.mktime(datetime.now().timetuple()))-10:
+        play_video(type = 'live_iptv', channelKey = channelKey, start = event['start'], end = None, epgId = event['epgId'], title = None)
+    else:
+        play_video(type = 'archiv', channelKey = channelKey, start = event['start'], end = event['end'], epgId = event['epgId'], title = None)
 
 def play_video(type, channelKey, start, end, epgId, title):
     addon = xbmcaddon.Addon()

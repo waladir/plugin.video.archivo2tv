@@ -211,7 +211,7 @@ def router(paramstring):
 
         elif params['action'] == 'get_stream_url':
             if 'catchup_start_ts' in params and 'catchup_end_ts' in params:
-                play_catchup(channelKey = params['channelKey'], start_ts = params['catchup_start_ts'], end_ts = params['catchup_end_ts'])
+                play_catchup(channelKey = params['channelKey'], start_ts = params['catchup_start_ts'])
             else:
                 if addon.getSetting('switch_channel_archiv') == 'true' and len(xbmc.getInfoLabel('ListItem.ChannelName')) > 0 and len(xbmc.getInfoLabel('ListItem.Date')) > 0:
                     iptv_sc_play(xbmc.getInfoLabel('ListItem.ChannelName'), parsedatetime(xbmc.getInfoLabel('ListItem.Date'), xbmc.getInfoLabel('ListItem.StartDate')), 0)            

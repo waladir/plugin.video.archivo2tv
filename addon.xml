@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.4.6">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.4.7">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
   </requires>
@@ -51,6 +51,10 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v2.4.7 (2021-12-13)
+- oprava přehrávání live streamu přes catchup
+- oprava catchupu s MPEG-DASH-web
+
 v2.4.6 (2021-11-07)
 - oprava spouštení live TV u kanálů bez EPG a u nedostupných kanálů
 - implementace refreshe tokenu
@@ -64,10 +68,7 @@ v2.4.4 (2021-07-01)
 
 v2.4.3 (2021-06-19)
 - doplnění atributu tvg-id do playlistu pro IPTV Simple Clienta
-
-v2.4.2 (2021-05-16)
-- úprava kvůli kompatibilitě s IPTV Merge 0.16.6 a vyšším  
-
+  
     </news>
     <assets>
         <icon>icon.png</icon>
