@@ -29,8 +29,11 @@ if len(sys.argv) > 1:
 
 def play_catchup(channelKey, start_ts):
     event = get_epgId_iptvsc(channelKey, start_ts)
-    if event['end'] > int(time.mktime(datetime.now().timetuple()))-10:
-        play_video(type = 'live_iptv', channelKey = channelKey, start = event['start'], end = None, epgId = event['epgId'], title = None)
+    if event['epgId'] == -1 or event['end'] > int(time.mktime(datetime.now().timetuple()))-10:
+        if event['epgId'] == -1:
+            play_video(type = 'live_iptv', channelKey = channelKey, start = None, end = None, epgId = event['epgId'], title = None)
+        else:
+            play_video(type = 'live_iptv', channelKey = channelKey, start = event['start'], end = None, epgId = event['epgId'], title = None)
     else:
         play_video(type = 'archiv', channelKey = channelKey, start = event['start'], end = event['end'], epgId = event['epgId'], title = None)
 
@@ -58,6 +61,13 @@ def play_video(type, channelKey, start, end, epgId, title):
         stream_type = 'DASH'
     else:
         stream_type = 'HLS'
+
+    force_mpeg_dash = 0
+    if addon.getSetting('stream_type') == 'HLS' and xbmc.getCondVisibility('System.HasAddon(inputstream.adaptive)') and (type == 'live_iptv' or type == 'live_iptv_epg'): 
+        stream_type = 'DASH'
+        force_mpeg_dash = 1
+    print(stream_type)
+    print(force_mpeg_dash)
 
     if type == 'live' or type == 'live_iptv' or type == 'live_iptv_epg':
         startts = 0
@@ -101,19 +111,26 @@ def play_video(type, channelKey, start, end, epgId, title):
             end = int(float(end) * 1000)
             post = {'serviceType' : 'TIMESHIFT_TV', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type,  'subscriptionCode' : subscription, 'channelKey' : encode(channelKey), 'fromTimestamp' : str(start), 'toTimestamp' : str(end + (int(addon.getSetting('offset'))*60*1000)), 'id' : epgId, 'encryptionType' : 'NONE'}
         if type == 'live' or type == 'live_iptv' or type == 'live_iptv_epg':
-            if addon.getSetting('stream_type') == 'MPEG-DASH'  and startts > 0 and addon.getSetting('startover') == 'true':
+            if (addon.getSetting('stream_type') == 'MPEG-DASH' or force_mpeg_dash == 1) and startts > 0 and addon.getSetting('startover') == 'true':
                 startts = int(float(startts) * 1000 - 300000)
                 post = {'serviceType' : 'STARTOVER_TV', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type, 'subscriptionCode' : subscription, 'channelKey' : encode(channelKey), 'fromTimestamp' : startts, 'encryptionType' : 'NONE'}
             else:
                 post = {'serviceType' : 'LIVE_TV', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type, 'subscriptionCode' : subscription, 'channelKey' : encode(channelKey), 'encryptionType' : 'NONE'}
         if type == 'recording':
             post = {'serviceType' : 'NPVR', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type, 'subscriptionCode' : subscription, 'contentId' : epgId, 'encryptionType' : 'NONE'}
-        if addon.getSetting('stream_type') != 'MPEG-DASH' and (addon.getSetting('only_sd') == 'true' or resolution == 1):
+        if addon.getSetting('stream_type') != 'MPEG-DASH' and force_mpeg_dash == 0 and (addon.getSetting('only_sd') == 'true' or resolution == 1):
             post.update({'resolution' : 'SD'})
         data = call_o2_api(url = 'https://app.o2tv.cz/sws/server/streaming/uris.json', data = post, header = header)
         if 'err' in data:
-            xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s přehráním streamu', xbmcgui.NOTIFICATION_ERROR, 5000)
-            sys.exit()  
+            if data['err'] == 'Not Found':
+                post = {'serviceType' : 'LIVE_TV', 'deviceType' : addon.getSetting('devicetype'), 'streamingProtocol' : stream_type, 'subscriptionCode' : subscription, 'channelKey' : encode(channelKey), 'encryptionType' : 'NONE'}
+                data = call_o2_api(url = 'https://app.o2tv.cz/sws/server/streaming/uris.json', data = post, header = header)
+                if 'err' in data:
+                    xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s přehráním streamu', xbmcgui.NOTIFICATION_ERROR, 5000)
+                    sys.exit()
+            else:
+                xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s přehráním streamu', xbmcgui.NOTIFICATION_ERROR, 5000)
+                sys.exit()
         url = ''
         if 'uris' in data and len(data['uris']) > 0 and 'uri' in data['uris'][0] and len(data['uris'][0]['uri']) > 0 :
             for uris in data['uris']:
@@ -123,7 +140,7 @@ def play_video(type, channelKey, start, end, epgId, title):
                     url = uris['uri']
             if url == '':
                 url = data['uris'][0]['uri']
-            if addon.getSetting('stream_type') == 'MPEG-DASH':
+            if addon.getSetting('stream_type') == 'MPEG-DASH' or force_mpeg_dash == 1:
                 request = Request(url = url , data = None, headers = header)
                 response = urlopen(request)
                 url = response.geturl().replace('http:','https:').replace(':80/',':443/')
@@ -140,13 +157,12 @@ def play_video(type, channelKey, start, end, epgId, title):
     else:
         list_item = xbmcgui.ListItem(path = url)
 
-    if addon.getSetting('stream_type') == 'MPEG-DASH' or addon.getSetting('stream_type') == 'MPEG-DASH-web':
+    if addon.getSetting('stream_type') == 'MPEG-DASH' or addon.getSetting('stream_type') == 'MPEG-DASH-web' or force_mpeg_dash == 1:
         list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
         list_item.setProperty('inputstream', 'inputstream.adaptive')
         list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
         list_item.setMimeType('application/dash+xml')
-
-    if type == 'archiv_iptv' or (type == 'live_iptv' and addon.getSetting('stream_type') != 'HLS' and addon.getSetting('startover') == 'true') or type == 'live_iptv_epg':
+    if type == 'archiv_iptv' or (type == 'live_iptv' and (addon.getSetting('stream_type') != 'HLS' or force_mpeg_dash == 1) and addon.getSetting('startover') == 'true') or type == 'live_iptv_epg':
         playlist=xbmc.PlayList(1)
         playlist.clear()
         if epgId is not None:

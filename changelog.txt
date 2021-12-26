@@ -1,3 +1,7 @@
+v2.4.8 (2021-12-26)
+- spuštění živého vysílání, pokud není pořad dostupný pro zpětné přehrání (řeši chování u kanálů, u kterých zpětné přehrání není k dipozici) 
+- vynucení použití MPEG-DASH v IPTV Simple Clientovi i s nastaveným HLS
+
 v2.4.7 (2021-12-13)
 - oprava přehrávání live streamu přes catchup
 - oprava catchupu s MPEG-DASH-web
@@ -12,6 +16,3 @@ v2.4.5 (2021-08-20)
 
 v2.4.4 (2021-07-01)
 - oprava chyby při odstraňování kanálů (Kodi 19)
-
-v2.4.3 (2021-06-19)
-- doplnění atributu tvg-id do playlistu pro IPTV Simple Clienta
