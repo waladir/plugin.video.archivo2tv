@@ -63,11 +63,9 @@ def play_video(type, channelKey, start, end, epgId, title):
         stream_type = 'HLS'
 
     force_mpeg_dash = 0
-    if addon.getSetting('stream_type') == 'HLS' and xbmc.getCondVisibility('System.HasAddon(inputstream.adaptive)') and (type == 'live_iptv' or type == 'live_iptv_epg'): 
+    if addon.getSetting('stream_type') == 'HLS' and xbmc.getCondVisibility('System.HasAddon(inputstream.adaptive)') and (type == 'live_iptv' or type == 'live_iptv_epg') and addon.getSetting('force_mpeg_dash') == 'true': 
         stream_type = 'DASH'
         force_mpeg_dash = 1
-    print(stream_type)
-    print(force_mpeg_dash)
 
     if type == 'live' or type == 'live_iptv' or type == 'live_iptv_epg':
         startts = 0
@@ -134,6 +132,7 @@ def play_video(type, channelKey, start, end, epgId, title):
         url = ''
         if 'uris' in data and len(data['uris']) > 0 and 'uri' in data['uris'][0] and len(data['uris'][0]['uri']) > 0 :
             for uris in data['uris']:
+                print(uris)
                 if addon.getSetting('only_sd') != 'true' and resolution != 1 and uris['resolution'] == 'HD':
                     url = uris['uri']
                 if (addon.getSetting('only_sd') == 'true' or resolution == 1) and uris['resolution'] == 'SD': 
