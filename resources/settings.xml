@@ -40,8 +40,8 @@
                 <setting label="Adresář pro EPG (pokud se liší)" type="folder" id="output_epg_dir" default=""/>
                 <setting label="Přidávat informace pro timeshift do playlistu" type="bool" id="iptvsc_timeshift" default="true"/>
                 <setting label="Spouštění archivu přepnutím na kanál" type="bool" id="switch_channel_archiv" default="true"/>
-                <setting label="Automaticky generovat EPG" type="bool" id="autogen" default="false"/>
                 <setting label="Vynutit použití MPEG-DASH u živého vysílání" type="bool" id="force_mpeg_dash" default="true"/>
+                <setting label="Automaticky generovat EPG" type="bool" id="autogen" default="false"/>
                 <setting label="Generovat EPG pro všechny kanály" type="bool" id="epg_for_all_channels" default="false"/>
                 <setting label="Přidávat čísla kanálů do playlistu" type="bool" id="add_channel_numbers" default="false"/>        
                 <setting label="Catchup mod" type="select" id="catchup_mode" values="append|default" default="append"/>

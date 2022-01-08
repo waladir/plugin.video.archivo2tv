@@ -28,7 +28,9 @@ if len(sys.argv) > 1:
     _handle = int(sys.argv[1])
 
 def play_catchup(channelKey, start_ts):
-    event = get_epgId_iptvsc(channelKey, start_ts)
+    channels = Channels()
+    channels_list = channels.get_channels_list(visible_filter = False)
+    event = get_epgId_iptvsc(channels_list[channelKey]['name'], start_ts)
     if event['epgId'] == -1 or event['end'] > int(time.mktime(datetime.now().timetuple()))-10:
         if event['epgId'] == -1:
             play_video(type = 'live_iptv', channelKey = channelKey, start = None, end = None, epgId = event['epgId'], title = None)
