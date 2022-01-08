@@ -1,3 +1,6 @@
+v2.5.0 (2022-01-08)
+- oprava catchupu s rozdílným channelKey
+
 v2.4.9 (2022-01-01)
 - v nastavení lze vypnout vynucení použití MPEG-DASH v IPTV Simple Clientovi u živého vysílání
 
@@ -13,7 +16,3 @@ v2.4.6 (2021-11-07)
 - oprava spouštení live TV u kanálů bez EPG a u nedostupných kanálů
 - implementace refreshe tokenu
 - přidání možnosti vybrat catchup mod (append nebo default) pro generování playlistu
-
-v2.4.5 (2021-08-20)
-- oprava stahování nahrávek s vysíláním pořadu starším než 7 dní
-
