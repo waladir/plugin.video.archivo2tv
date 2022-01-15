@@ -19,6 +19,7 @@ except ImportError:
 import json
 import time
 import codecs
+from datetime import datetime
 
 from o2tv.session import Session
 from o2tv.o2api import call_o2_api, get_header, get_header_unity
@@ -41,6 +42,9 @@ def list_channels_list(label):
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     list_item = xbmcgui.ListItem(label='Resetovat seznam kanálů')
     url = get_url(action='reset_channels_list')  
+    xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+    list_item = xbmcgui.ListItem(label='Obnovit seznam kanálů')
+    url = get_url(action='list_channels_list_backups', label = label + ' / Obnova seznamu kanálů')  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
     xbmcplugin.endOfDirectory(_handle)
 
@@ -128,6 +132,23 @@ def load_o2_channels_list(serviceid, list):
         xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s načtením seznamu kanálů', xbmcgui.NOTIFICATION_ERROR, 5000)
         sys.exit()  
 
+def list_channels_list_backups(label):
+    xbmcplugin.setPluginCategory(_handle, label)
+    addon = xbmcaddon.Addon()
+    addon_userdata_dir = translatePath(addon.getAddonInfo('profile'))
+    channels = Channels()
+    backups = channels.get_backups()
+    if len(backups) > 0:
+        for backup in sorted(backups):
+            date_list = backup.replace(addon_userdata_dir, '').replace('channels_backup_', '').replace('.txt', '').split('-')
+            item = 'Záloha z ' + date_list[2] + '.' + date_list[1] + '.' + date_list[0] + ' ' + date_list[3] + ':' + date_list[4] + ':' + date_list[5]
+            list_item = xbmcgui.ListItem(label = item)
+            url = get_url(action='restore_channels', backup = backup)
+            xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+        xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)
+    else:
+        xbmcgui.Dialog().notification('Sledování O2TV', 'Neexistuje žádná záloha', xbmcgui.NOTIFICATION_INFO, 5000)          
+
 def list_channels_groups(label):
     xbmcplugin.setPluginCategory(_handle, label)    
     channels_groups = Channels_groups()
@@ -177,7 +198,6 @@ def add_channel_group(label):
         sys.exit()          
     channels_groups.add_channels_group(group)    
     xbmc.executebuiltin('Container.Refresh')
-
 
 def delete_channel_group(group):
     response = xbmcgui.Dialog().yesno('Smazání skupiny kanálů', 'Opravdu smazat skupinu kanálů ' + group + '?', nolabel = 'Ne', yeslabel = 'Ano')
@@ -330,6 +350,8 @@ class Channels:
         addon = xbmcaddon.Addon()
         addon_userdata_dir = translatePath(addon.getAddonInfo('profile'))
         filename = os.path.join(addon_userdata_dir, 'channels.txt')
+        if os.path.exists(filename):
+            self.backup_channels()            
         try:
             with codecs.open(filename, 'w', encoding='utf-8') as file:
                 file.write('%s\n' % data)
@@ -341,9 +363,63 @@ class Channels:
         addon_userdata_dir = translatePath(addon.getAddonInfo('profile')) 
         filename = os.path.join(addon_userdata_dir, 'channels.txt')
         if os.path.exists(filename):
+            self.backup_channels()            
             os.remove(filename) 
         self.load_channels()
         xbmcgui.Dialog().notification('Sledování O2TV', 'Seznam kanálů byl resetovaný', xbmcgui.NOTIFICATION_INFO, 5000) 
+
+    def backup_channels(self):
+        import glob, shutil
+        max_backups = 10
+        addon = xbmcaddon.Addon()
+        addon_userdata_dir = translatePath(addon.getAddonInfo('profile'))
+        channels = os.path.join(addon_userdata_dir, 'channels.txt')
+        suffix = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        filename = os.path.join(addon_userdata_dir, 'channels_backup_' + suffix + '.txt')
+        backups = sorted(glob.glob(os.path.join(addon_userdata_dir, 'channels_backup_*.txt')))
+        if len(backups) >= max_backups:
+            for i in range(len(backups) - max_backups + 1):
+                if os.path.exists(backups[i]):
+                    os.remove(backups[i]) 
+        shutil.copyfile(channels, filename)
+
+    def get_backups(self):
+        import glob
+        backups = []
+        addon = xbmcaddon.Addon()
+        addon_userdata_dir = translatePath(addon.getAddonInfo('profile'))
+        backups = sorted(glob.glob(os.path.join(addon_userdata_dir, 'channels_backup_*.txt')))
+        return backups
+
+    def restore_channels(self, backup):
+        if os.path.exists(backup):
+            try:
+                with codecs.open(backup, 'r', encoding='utf-8') as file:
+                    for row in file:
+                        data = row[:-1]
+            except IOError as error:
+                if error.errno != 2:
+                    xbmcgui.Dialog().notification('Sledování O2TV', 'Chyba při načtení zálohy', xbmcgui.NOTIFICATION_ERROR, 5000)
+            if data is not None:
+                try:            
+                    data = json.loads(data)
+                    if 'valid_to' in data:
+                        data['valid_to'] = int(time.time()) + 60*60*24
+                        data = json.dumps(data)
+                        addon = xbmcaddon.Addon()
+                        addon_userdata_dir = translatePath(addon.getAddonInfo('profile'))
+                        filename = os.path.join(addon_userdata_dir, 'channels.txt')
+                        try:
+                            with codecs.open(filename, 'w', encoding='utf-8') as file:
+                                file.write('%s\n' % data)
+                                xbmcgui.Dialog().notification('Sledování O2TV', 'Seznam kanálů byl obnovený', xbmcgui.NOTIFICATION_INFO, 5000) 
+                        except IOError:
+                            xbmcgui.Dialog().notification('Sledování O2TV', 'Chyba uložení kanálů', xbmcgui.NOTIFICATION_ERROR, 5000)      
+                except:
+                    xbmcgui.Dialog().notification('Sledování O2TV', 'Chyba při načtení zálohy', xbmcgui.NOTIFICATION_ERROR, 5000)
+
+        else:
+            xbmcgui.Dialog().notification('Sledování O2TV', 'Záloha nenalezena', xbmcgui.NOTIFICATION_ERROR, 5000)      
 
     def get_o2_channels(self):
         addon = xbmcaddon.Addon()

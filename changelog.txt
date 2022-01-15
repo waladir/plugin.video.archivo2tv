@@ -1,3 +1,7 @@
+v2.5.1 (2022-01-15)
+- vytváření automatických záloh seznamu kanálů
+- možnost obnovy
+
 v2.5.0 (2022-01-08)
 - oprava catchupu s rozdílným channelKey
 
@@ -11,8 +15,3 @@ v2.4.8 (2021-12-26)
 v2.4.7 (2021-12-13)
 - oprava přehrávání live streamu přes catchup
 - oprava catchupu s MPEG-DASH-web
-
-v2.4.6 (2021-11-07)
-- oprava spouštení live TV u kanálů bez EPG a u nedostupných kanálů
-- implementace refreshe tokenu
-- přidání možnosti vybrat catchup mod (append nebo default) pro generování playlistu

@@ -7,6 +7,10 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.5.1 (2022-01-15)<br>
+- vytváření automatických záloh seznamu kanálů<br>
+- možnost obnovy<br><br>
+
 v2.5.0 (2022-01-08)<br>
 - oprava catchupu s rozdílným channelKey<br><br>
 
@@ -20,9 +24,4 @@ v2.4.8 (2021-12-26)<br>
 v2.4.7 (2021-12-13)<br>
 - oprava přehrávání live streamu přes catchup<br>
 - oprava catchupu s MPEG-DASH-web<br><br>
-
-v2.4.6 (2021-11-07)<br>
-- oprava spouštení live TV u kanálů bez EPG a u nedostupných kanálů<br>
-- implementace refreshe tokenu<br>
-- přidání možnosti vybrat catchup mod (append nebo default) pro generování playlistu<br><br>
 </p>
