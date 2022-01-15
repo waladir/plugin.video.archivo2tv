@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.5.0">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.5.1">
   <requires>
     <import addon="xbmc.python" version="2.24.0"/>
   </requires>
@@ -51,6 +51,10 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v2.5.1 (2022-01-15)
+- vytváření automatických záloh seznamu kanálů
+- možnost obnovy
+
 v2.5.0 (2022-01-08)
 - oprava catchupu s rozdílným channelKey
     
@@ -64,11 +68,6 @@ v2.4.8 (2021-12-26)
 v2.4.7 (2021-12-13)
 - oprava přehrávání live streamu přes catchup
 - oprava catchupu s MPEG-DASH-web
-
-v2.4.6 (2021-11-07)
-- oprava spouštení live TV u kanálů bez EPG a u nedostupných kanálů
-- implementace refreshe tokenu
-- přidání možnosti vybrat catchup mod (append nebo default) pro generování playlistu
     </news>
     <assets>
         <icon>icon.png</icon>
