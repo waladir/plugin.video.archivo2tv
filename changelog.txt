@@ -1,3 +1,6 @@
+v2.5.2 (2022-01-21)
+- ošetření pořadů bez posteru při načítání detailních dat z EPG
+
 v2.5.1 (2022-01-15)
 - vytváření automatických záloh seznamu kanálů
 - možnost obnovy
@@ -11,7 +14,3 @@ v2.4.9 (2022-01-01)
 v2.4.8 (2021-12-26)
 - spuštění živého vysílání, pokud není pořad dostupný pro zpětné přehrání (řeši chování u kanálů, u kterých zpětné přehrání není k dipozici) 
 - vynucení použití MPEG-DASH v IPTV Simple Clientovi i s nastaveným HLS
-
-v2.4.7 (2021-12-13)
-- oprava přehrávání live streamu přes catchup
-- oprava catchupu s MPEG-DASH-web

@@ -219,7 +219,7 @@ def load_epg_details():
                         seasonName = ''
                         seriesName = ''    
                         contentType = ''        
-                        if 'images' in event and len(event['images']) > 0:
+                        if 'images' in event and len(event['images']) > 0 and 'cover' in event['images'][0]:
                             cover = event['images'][0]['cover']
                         elif 'picture' in event and len(event['picture']) > 0:
                             cover = event['picture']
@@ -462,7 +462,7 @@ def get_epg_details(epgIds, update_from_api = 0):
                           availableTo = data['availableTo']
                           db.execute('INSERT INTO epg VALUES(?, ?, ?, ?, ?, ?)', (epgId, startTime, endTime, channel, title, availableTo))      
                           db.commit
-                      if 'images' in data and len(data['images']) > 0:
+                      if 'images' in data and len(data['images']) > 0 and 'cover' in data['images'][0]:
                           cover = data['images'][0]['cover']
                       elif 'picture' in data and len(data['picture']) > 0:
                           cover = data['picture']
