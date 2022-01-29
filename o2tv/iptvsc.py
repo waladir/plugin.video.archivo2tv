@@ -231,7 +231,7 @@ def iptv_sc_play(channelName, startdatetime, epg):
         xbmcgui.Dialog().notification('Sledování O2TV', 'Nelze přehrát budoucí pořad!', xbmcgui.NOTIFICATION_ERROR, 5000)
         sys.exit()  
     else:
-        event = get_epgId_iptvsc(channelName, from_ts)
+        event = get_epgId_iptvsc(channelName, channelKey, from_ts)
         epgId = event['epgId']
         if epgId > 0:
             startts = event['start']
@@ -262,7 +262,7 @@ def iptv_sc_rec(channelName, startdatetime):
     channels_list = channels.get_channels_list('name')
     channelName = decode(channelName)
     from_ts = int(time.mktime(time.strptime(startdatetime, '%d.%m.%Y %H:%M')))
-    event = get_epgId_iptvsc(channelName, from_ts)
+    event = get_epgId_iptvsc(channelName, channels_list[channelName]['channelKey'], from_ts)
     epgId = event['epgId']
     if epgId > 0:
         add_recording(channels_list[channelName]['channelKey'], epgId)
@@ -276,7 +276,10 @@ def iptv_sc_download(channelName, startdatetime):
         from o2tv.downloader import add_to_queue
     epgId = -1
     from_ts = int(time.mktime(time.strptime(startdatetime, '%d.%m.%Y %H:%M')))
-    event = get_epgId_iptvsc(decode(channelName), from_ts)
+    channels = Channels()
+    channels_list = channels.get_channels_list('name')
+    channelName = decode(channelName)
+    event = get_epgId_iptvsc(channelName, channels_list[channelName]['channelKey'], from_ts)
     epgId = event['epgId']
     if epgId > 0:
         event = get_epg_details([epgId], update_from_api = 1)
