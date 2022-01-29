@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.5.3 (2022-01-29)<br>
+- při nenalezení pořadu přehraného s IPTV SC v EPG se pokusí doplněk pořad najít přes O2 API<br><br>
+
 v2.5.2 (2022-01-21)<br>
 - ošetření pořadů bez posteru při načítání detailních dat z EPG<br><br>
 
@@ -19,8 +22,4 @@ v2.5.0 (2022-01-08)<br>
 
 v2.4.9 (2022-01-01)<br>
 - v nastavení lze vypnout vynucení použití MPEG-DASH v IPTV Simple Clientovi u živého vysílání<br><br>
-
-v2.4.8 (2021-12-26)<br>
-- spuštění živého vysílání, pokud není pořad dostupný pro zpětné přehrání (řeši chování u kanálů, u kterých zpětné přehrání není k dipozici)<br>
-- vynucení použití MPEG-DASH v IPTV Simple Clientovi i s nastaveným HLS<br><br>
 </p>

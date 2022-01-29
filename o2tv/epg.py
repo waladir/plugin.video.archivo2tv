@@ -309,6 +309,7 @@ def load_epg_ts(channelKeys, from_ts, to_ts):
         params = params + ('&channelKey=' + quote(encode(channelKey)))
     try: 
         url = 'https://api.o2tv.cz/unity/api/v1/epg/depr/?forceLimit=true&limit=500' + params + '&from=' + str(from_ts*1000) + '&to=' + str(to_ts*1000) 
+        print(url)
         data = call_o2_api(url = url, data = None, header = get_header_unity())
         if 'err' in data:
             xbmcgui.Dialog().notification('Sledování O2TV', 'Chyba API O2 při načítání EPG!', xbmcgui.NOTIFICATION_ERROR, 5000)
@@ -656,16 +657,26 @@ def get_epg_live(min_limit):
     close_db()
     return events_data
 
-def get_epgId_iptvsc(channel, starttime):
+def get_epgId_iptvsc(channelName, channelKey, starttime):
     open_db()
     result = { 'epgId' : -1}    
-    for row in db.execute('SELECT epgId, title, startTime, endTime FROM epg WHERE channel = ? AND startTime = ?', [channel, starttime]):
+    for row in db.execute('SELECT epgId, title, startTime, endTime FROM epg WHERE channel = ? AND startTime = ?', [channelName, starttime]):
         epgId = int(row[0])
         title = row[1]
         startts = int(row[2])
         endts = int(row[3])
         result = { 'epgId' : epgId, 'title' : title, 'start' : startts, 'end' : endts}
     close_db()
+    if result['epgId'] == -1:
+        load_epg_ts([channelKey], int(starttime), int(starttime))
+        open_db()
+        for row in db.execute('SELECT epgId, title, startTime, endTime FROM epg WHERE channel = ? AND startTime = ?', [channelName, starttime]):
+            epgId = int(row[0])
+            title = row[1]
+            startts = int(row[2])
+            endts = int(row[3])
+            result = { 'epgId' : epgId, 'title' : title, 'start' : startts, 'end' : endts}
+        close_db()
     return result  
 
 
