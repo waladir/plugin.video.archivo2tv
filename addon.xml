@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.5.3">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.5.4">
   <requires>
     <import addon="xbmc.python" version="2.24.0"/>
   </requires>
@@ -51,6 +51,9 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v2.5.4 (2022-02-07)
+- přidáno mazání pořadů odstraněných z EPG O2TV
+
 v2.5.3 (2022-01-29)
 - při nenalezení pořadu přehraného s IPTV SC v EPG se pokusí doplněk pořad najít přes O2 API
 
@@ -63,9 +66,6 @@ v2.5.1 (2022-01-15)
 
 v2.5.0 (2022-01-08)
 - oprava catchupu s rozdílným channelKey
-    
-v2.4.9 (2022-01-01)
-- v nastavení lze vypnout vynucení použití MPEG-DASH v IPTV Simple Clientovi u živého vysílání
     </news>
     <assets>
         <icon>icon.png</icon>
