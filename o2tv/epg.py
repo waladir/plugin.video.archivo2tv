@@ -162,6 +162,9 @@ def load_cached_epg():
             cdb_version = row[0]
 
         if db_version == cdb_version:
+            xbmc.log('Odstraňování pořadů, které chybí ve staženém EPG')  
+            db.execute('DELETE FROM epg WHERE starttime > (SELECT min(starttime) FROM cdb.epg) AND epgId not in (SELECT epgId FROM cdb.epg)')
+            db.commit()
             xbmc.log('Odstraňování pořadů s odlišnými daty')  
             db.execute('DELETE FROM epg WHERE epgId in (SELECT a.epgId FROM epg a, cdb.epg b WHERE (a.startTime<>b.startTime OR a.endTime<>b.endTime OR a.channel<>b.channel OR a.title<>b.title OR a.availableTo<>b.availableTo) AND a.epgId=b.epgId)')
             db.commit()
