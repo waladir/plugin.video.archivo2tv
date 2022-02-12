@@ -221,7 +221,7 @@ def iptv_sc_play(channelName, startdatetime, epg):
         from_ts = int(time.mktime(datetime.now().timetuple()))
 
     channels = Channels()
-    channels_list = channels.get_channels_list('name')
+    channels_list = channels.get_channels_list('name', visible_filter = False)
     if channelName not in  channels_list:
         xbmcgui.Dialog().notification('Sledování O2TV', 'Kanál přehrávaný z IPTV SC nebyl nalezený!', xbmcgui.NOTIFICATION_ERROR, 5000)
         sys.exit()          
@@ -259,7 +259,7 @@ def iptv_sc_play(channelName, startdatetime, epg):
 def iptv_sc_rec(channelName, startdatetime):
     epgId = -1
     channels = Channels()
-    channels_list = channels.get_channels_list('name')
+    channels_list = channels.get_channels_list('name', visible_filter = False)
     channelName = decode(channelName)
     from_ts = int(time.mktime(time.strptime(startdatetime, '%d.%m.%Y %H:%M')))
     event = get_epgId_iptvsc(channelName, channels_list[channelName]['channelKey'], from_ts)
@@ -277,7 +277,7 @@ def iptv_sc_download(channelName, startdatetime):
     epgId = -1
     from_ts = int(time.mktime(time.strptime(startdatetime, '%d.%m.%Y %H:%M')))
     channels = Channels()
-    channels_list = channels.get_channels_list('name')
+    channels_list = channels.get_channels_list('name', visible_filter = False)
     channelName = decode(channelName)
     event = get_epgId_iptvsc(channelName, channels_list[channelName]['channelKey'], from_ts)
     epgId = event['epgId']
