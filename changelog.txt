@@ -1,3 +1,6 @@
+v2.5.5 (2022-02-12)
+- přehrávání z IPTV Simple Clienta i u kanálů, které nejsou ve vybraném seznamu kanálů
+
 v2.5.4 (2022-02-07)
 - přidáno mazání pořadů odstraněných z EPG O2TV
 
@@ -10,6 +13,3 @@ v2.5.2 (2022-01-21)
 v2.5.1 (2022-01-15)
 - vytváření automatických záloh seznamu kanálů
 - možnost obnovy
-
-v2.5.0 (2022-01-08)
-- oprava catchupu s rozdílným channelKey
