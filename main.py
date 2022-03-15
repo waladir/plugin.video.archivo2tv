@@ -21,7 +21,7 @@ from o2tv.stream import play_video, play_catchup
 from o2tv.search import list_search, program_search, delete_search
 from o2tv.channels import Channels 
 from o2tv.channels import list_channels_groups, add_channel_group, delete_channel_group, select_channel_group, edit_channel_group, edit_channel_group_list_channels, edit_channel_group_add_channel, edit_channel_group_add_all_channels, edit_channel_group_delete_channel, change_channels_numbers
-from o2tv.channels import list_channels_list, list_channels_edit, edit_channel, get_o2_channels_lists, load_o2_channels_list, list_channels_list_backups
+from o2tv.channels import list_channels_list, list_channels_edit, edit_channel, get_o2_channels_lists, load_o2_channels_list, list_channels_list_backups, delete_channel
 from o2tv.iptvsc import generate_playlist, generate_epg, iptv_sc_play, iptv_sc_rec, iptv_sc_download
 from o2tv.settings import list_settings, list_devices, unpair_device, list_services, enable_service, disable_service, move_service
 
@@ -171,8 +171,8 @@ def router(paramstring):
             list_channels_edit(params['label'])
         elif params['action'] == 'edit_channel':
             edit_channel(params['channelKey'])
-        elif params['action'] == 'edit_channel':
-            edit_channel(params['channelKey'])
+        elif params['action'] == 'delete_channel':
+            delete_channel(params['channelKey'])
         elif params['action'] == 'change_channels_numbers':
             change_channels_numbers(params['from_number'], params['direction'])
 

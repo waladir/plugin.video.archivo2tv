@@ -60,6 +60,12 @@ def edit_channel(channelKey):
         else:  
             channels.set_number(channelKey, new_num)
 
+def delete_channel(channelKey):
+    channelKey = decode(channelKey)
+    channels = Channels()
+    channels.delete_channel(channelKey)
+    xbmc.executebuiltin('Container.Refresh')
+
 def list_channels_edit(label):
     xbmcplugin.setPluginCategory(_handle, label)
     channels = Channels()
@@ -72,7 +78,8 @@ def list_channels_edit(label):
                 list_item = xbmcgui.ListItem(label='[COLOR=gray]' + str(number) + ' ' + channels_list[number]['name'] + '[/COLOR]')
             url = get_url(action='edit_channel', channelKey = encode(channels_list[number]['channelKey']))
             list_item.addContextMenuItems([('Zvýšit čísla kanálů', encode('RunPlugin(plugin://' + plugin_id + '?action=change_channels_numbers&from_number=' + str(number) + '&direction=increase)')),       
-                                            ('Snížit čísla kanálů', encode('RunPlugin(plugin://' + plugin_id + '?action=change_channels_numbers&from_number=' + str(number) + '&direction=decrease)'))])       
+                                            ('Snížit čísla kanálů', encode('RunPlugin(plugin://' + plugin_id + '?action=change_channels_numbers&from_number=' + str(number) + '&direction=decrease)')),
+                                            ('Odstranit kanál', encode('RunPlugin(plugin://' + plugin_id + '?action=delete_channel&channelKey='  + quote(encode(channels_list[number]['channelKey'])) + ')'))])       
             xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
         xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)
 
@@ -274,6 +281,10 @@ class Channels:
         self.channels[channelKey].update({'number' : int(number)})
         self.save_channels()
 
+    def delete_channel(self, channelKey):
+        del self.channels[channelKey]
+        self.save_channels()
+
     def change_channels_numbers(self, from_number, change):
         from_number = int(from_number)
         change = int(change)
@@ -451,6 +462,7 @@ class Channels:
         return channels
 
     def merge_channels(self, o2channels, channels_nums = {}):
+        print(o2channels)
         if len(channels_nums) > 0:
             for number in sorted(channels_nums.keys()):
                 max_number = number
@@ -470,8 +482,21 @@ class Channels:
                     self.channels[channel].update({'key' : o2channels[channel]['key']})
                 if self.channels[channel]['available'] != o2channels[channel]['available']:
                     self.channels[channel].update({'available' : o2channels[channel]['available']})
-                # if self.channels[channel]['serviceid'] != o2channels[channel]['serviceid']:
-                #     self.channels[channel].update({'serviceid' : o2channels[channel]['serviceid']})
+                if self.channels[channel]['serviceid'] == '' and self.channels[channel]['serviceid'] != o2channels[channel]['serviceid']:
+                    self.channels[channel].update({'serviceid' : o2channels[channel]['serviceid']})
+                    if self.channels[channel]['available'] == True and self.channels[channel]['number'] == -1:
+                        if len(channels_nums) > 0:
+                            number = -1
+                            for num in sorted(channels_nums.keys()):
+                                if channels_nums[num] == name:
+                                    number = num
+                            if number == -1:
+                                max_number = max_number + 1
+                                number = max_number
+                        else:
+                            max_number = max_number + 1
+                            number = max_number
+                        self.channels[channel].update({'number' : number})
             else:
                 channelKey = channel
                 name = o2channels[channel]['name']

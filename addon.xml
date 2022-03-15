@@ -1,4 +1,4 @@
-﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.5.5">
+﻿<addon id="plugin.video.archivo2tv" name="Sledování O2TV" provider-name="waladir" version="2.5.6">
   <requires>
     <import addon="xbmc.python" version="2.24.0"/>
   </requires>
@@ -51,6 +51,10 @@ Další informace a podporu najdete na fóru www.xbmc-kodi.cz (https://www.xbmc-
     <platform>all</platform>
     <source>https://github.com/waladir/plugin.video.archivo2tv</source>
     <news>
+v2.5.6 (2022-03-15)
+- přidána možnost odstranit kanál v seznamu kanálů. Pokud je v nabídce, znovu se přidá na konec
+- ošetření přidání v minulosti odstraněných kanálů
+
 v2.5.5 (2022-02-12)
 - přehrávání z IPTV Simple Clienta i u kanálů, které nejsou ve vybraném seznamu kanálů
 
@@ -62,10 +66,6 @@ v2.5.3 (2022-01-29)
 
 v2.5.2 (2022-01-21)
 - ošetření pořadů bez posteru při načítání detailních dat z EPG
-
-v2.5.1 (2022-01-15)
-- vytváření automatických záloh seznamu kanálů
-- možnost obnovy
     </news>
     <assets>
         <icon>icon.png</icon>
