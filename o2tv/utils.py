@@ -93,10 +93,19 @@ def parsedatetime(_short, _long):
     day = formatnum(day)
     month = formatnum(min(snums))
     day_formated = '%s.%s.%i' % (day, month, year)
-    time_formated = _short[ix + 1:]
-    time_formated = time_formated if len(time_formated) == 5 else '0' + time_formated
+    time_formated = parsetime(_short[ix + 1:])
     return '%s %s' % (day_formated, time_formated)
 
+def parsetime(txt):
+    merid = xbmc.getRegion('meridiem')
+    h, m = getNumbers(txt)
+    if merid.__len__() > 2:
+        AM, PM = merid.split('/')
+        if txt.endswith(AM) and h == 12:
+            h = 0
+        elif txt.endswith(PM) and h < 12:
+            h += 12
+    return '%02d:%02d' % (h, m)
 
 day_translation = {'1' : 'Pondělí', '2' : 'Úterý', '3' : 'Středa', '4' : 'Čtvrtek', '5' : 'Pátek', '6' : 'Sobota', '0' : 'Neděle'}  
 day_translation_short = {'1' : 'Po', '2' : 'Út', '3' : 'St', '4' : 'Čt', '5' : 'Pá', '6' : 'So', '0' : 'Ne'}  
