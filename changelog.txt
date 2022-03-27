@@ -1,3 +1,6 @@
+v2.5.7 (2022-03-27)
+- implementace vylepšené funkce na parsování datumu od listenera
+
 v2.5.6 (2022-03-15)
 - přidána možnost odstranit kanál v seznamu kanálů. Pokud je v nabídce, znovu se přidá na konec
 - ošetření přidání v minulosti odstraněných kanálů
@@ -10,6 +13,3 @@ v2.5.4 (2022-02-07)
 
 v2.5.3 (2022-01-29)
 - při nenalezení pořadu přehraného s IPTV SC v EPG se pokusí doplněk pořad najít přes O2 API
-
-v2.5.2 (2022-01-21)
-- ošetření pořadů bez posteru při načítání detailních dat z EPG
