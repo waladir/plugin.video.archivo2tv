@@ -85,6 +85,7 @@ def router(paramstring):
     check_settings() 
     session = Session()
     if params:
+        print(params)
         if params['action'] == 'list_live':
             list_live(params['page'], params['label'])
         elif params['action'] == 'play_live':
