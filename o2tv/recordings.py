@@ -93,7 +93,7 @@ def list_recordings(label):
     addon = xbmcaddon.Addon()
 
     channels = Channels()
-    channels_list = channels.get_channels_list()
+    channels_list = channels.get_channels_list(visible_filter = False)
     session = Session()
     recordings = {}
 
@@ -114,17 +114,18 @@ def list_recordings(label):
                     recordings.update({program['program']['start']+random.randint(0,100) : {'pvrProgramId' : program['pvrProgramId'], 'name' : program['program']['name'], 'channelKey' : program['program']['channelKey'], 'start' : decode(utils.day_translation_short[datetime.fromtimestamp(program['program']['start']/1000).strftime('%w')]) + ' ' + datetime.fromtimestamp(program['program']['start']/1000).strftime('%d.%m %H:%M'), 'end' : datetime.fromtimestamp(program['program']['end']/1000).strftime('%H:%M'), 'epgId' : program['program']['epgId']}}) 
 
     for recording in sorted(recordings.keys(), reverse = True):
-        list_item = xbmcgui.ListItem(label = recordings[recording]['name'] + ' (' + recordings[recording]['channelKey'] + ' | ' + recordings[recording]['start'] + ' - ' + recordings[recording]['end'] + ')')
-        list_item.setProperty('IsPlayable', 'true')
-        list_item.setInfo('video', {'mediatype':'movie', 'title': recordings[recording]['name'] + ' (' + recordings[recording]['channelKey'] + ')'}) 
-        list_item = get_listitem_epg_details(list_item, recordings[recording]['epgId'], channels_list[recordings[recording]['channelKey']]['logo'])
-        list_item.setContentLookup(False) 
-        menus = [('Smazat nahrávku', 'RunPlugin(plugin://' + plugin_id + '?action=delete_recording&channelKey=' + recordings[recording]['channelKey'] + '&pvrProgramId=' + str(recordings[recording]['pvrProgramId']) + ')')]
-        if addon.getSetting('download_streams') == 'true': 
-            menus.append(('Stáhnout', 'RunPlugin(plugin://' + plugin_id + '?action=add_to_queue&epgId=' + str(recordings[recording]['epgId']) + '&pvrProgramId=' + str(recordings[recording]['pvrProgramId']) + ')'))      
-        list_item.addContextMenuItems(menus)         
-        url = get_url(action='play_recording', channelKey = encode(recordings[recording]['channelKey']), pvrProgramId = recordings[recording]['pvrProgramId'], title = encode(recordings[recording]['name']))
-        xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+        if recordings[recording]['channelKey'] in channels_list:
+            list_item = xbmcgui.ListItem(label = recordings[recording]['name'] + ' (' + recordings[recording]['channelKey'] + ' | ' + recordings[recording]['start'] + ' - ' + recordings[recording]['end'] + ')')
+            list_item.setProperty('IsPlayable', 'true')
+            list_item.setInfo('video', {'mediatype':'movie', 'title': recordings[recording]['name'] + ' (' + recordings[recording]['channelKey'] + ')'}) 
+            list_item = get_listitem_epg_details(list_item, recordings[recording]['epgId'], channels_list[recordings[recording]['channelKey']]['logo'])
+            list_item.setContentLookup(False) 
+            menus = [('Smazat nahrávku', 'RunPlugin(plugin://' + plugin_id + '?action=delete_recording&channelKey=' + recordings[recording]['channelKey'] + '&pvrProgramId=' + str(recordings[recording]['pvrProgramId']) + ')')]
+            if addon.getSetting('download_streams') == 'true': 
+                menus.append(('Stáhnout', 'RunPlugin(plugin://' + plugin_id + '?action=add_to_queue&epgId=' + str(recordings[recording]['epgId']) + '&pvrProgramId=' + str(recordings[recording]['pvrProgramId']) + ')'))      
+            list_item.addContextMenuItems(menus)         
+            url = get_url(action='play_recording', channelKey = encode(recordings[recording]['channelKey']), pvrProgramId = recordings[recording]['pvrProgramId'], title = encode(recordings[recording]['name']))
+            xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = False)
 
 def list_future_recordings(label):
@@ -140,7 +141,7 @@ def list_future_recordings(label):
             xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s načtením nahrávek', xbmcgui.NOTIFICATION_ERROR, 5000)
         if 'result' in data and len(data['result']) > 0:
             for program in data['result']:
-                if program['state'] != 'DONE':
+                if program['state'] != 'DONE' and  program['program']['channelKey'] in channels_list:
                     recordings.update({program['program']['start']+random.randint(0,100) : {'pvrProgramId' : program['pvrProgramId'], 'name' : program['program']['name'], 'channelKey' : program['program']['channelKey'], 'start' : decode(utils.day_translation_short[datetime.fromtimestamp(program['program']['start']/1000).strftime('%w')]) + ' ' + datetime.fromtimestamp(program['program']['start']/1000).strftime('%d.%m %H:%M'), 'end' : datetime.fromtimestamp(program['program']['end']/1000).strftime('%H:%M'), 'epgId' : program['program']['epgId']}}) 
 
         if len(recordings) > 0:

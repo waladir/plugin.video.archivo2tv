@@ -1,3 +1,6 @@
+v2.5.8 (2022-04-03)
+- skrytí nahrávek z kanálů, které nejsou k dispozici
+
 v2.5.7 (2022-03-27)
 - implementace vylepšené funkce na parsování datumu od listenera
 
@@ -10,6 +13,3 @@ v2.5.5 (2022-02-12)
 
 v2.5.4 (2022-02-07)
 - přidáno mazání pořadů odstraněných z EPG O2TV
-
-v2.5.3 (2022-01-29)
-- při nenalezení pořadu přehraného s IPTV SC v EPG se pokusí doplněk pořad najít přes O2 API
