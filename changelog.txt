@@ -1,3 +1,6 @@
+v2.6.0 (2022-04-03)
+- úprava addon.xml
+
 v2.5.9 (2022-04-03)
 - přidáná možnost nastavit nahrávek v kategoriích
 
@@ -10,6 +13,3 @@ v2.5.7 (2022-03-27)
 v2.5.6 (2022-03-15)
 - přidána možnost odstranit kanál v seznamu kanálů. Pokud je v nabídce, znovu se přidá na konec
 - ošetření přidání v minulosti odstraněných kanálů
-
-v2.5.5 (2022-02-12)
-- přehrávání z IPTV Simple Clienta i u kanálů, které nejsou ve vybraném seznamu kanálů

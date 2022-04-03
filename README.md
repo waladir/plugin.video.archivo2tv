@@ -6,6 +6,8 @@ Kodi doplňek Sledování O2TV umožňuje sledovaní O2TV.
 Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se snažil udělat něco podobného pro OTT O2TV. Doplněk umožnuje zpětné přehrávání pořadů a základní práci s nahrávkami.
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
+v2.6.0 (2022-04-03)<br>
+- úprava addon.xml<br><br>
 
 v2.5.9 (2022-04-03)<br>
 - přidáná možnost nastavit nahrávek v kategoriích<br><br>
@@ -19,7 +21,4 @@ v2.5.7 (2022-03-27)<br>
 v2.5.6 (2022-03-15)<br>
 - přidána možnost odstranit kanál v seznamu kanálů. Pokud je v nabídce, znovu se přidá na konec<br>
 - ošetření přidání v minulosti odstraněných kanálů<br><br>
-
-v2.5.5 (2022-02-12)<br>
-- přehrávání z IPTV Simple Clienta i u kanálů, které nejsou ve vybraném seznamu kanálů<br><br>
 </p>
