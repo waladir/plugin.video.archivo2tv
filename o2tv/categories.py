@@ -228,7 +228,7 @@ def list_category(category, dataSource, filtr, page, label):
                             list_item.setInfo('video', {'genre' : genres})     
                         menus = [('Související pořady', 'Container.Update(plugin://' + plugin_id + '?action=list_related&epgId=' + str(epgId) + '&label=Související / ' + encode(event['name']) + ')'), 
                                 ('Vysílání pořadu', 'Container.Update(plugin://' + plugin_id + '?action=list_same&epgId=' + str(epgId) + '&label=' + encode(event['name']) + ')'),
-                                ('Přidat nahrávku', 'RunPlugin(plugin://' + plugin_id + '?action=add_recording&channelKey=' + event['channelKey'] + '&epgId=' + str(epgId) + ')'),]
+                                ('Přidat nahrávku', 'RunPlugin(plugin://' + plugin_id + '?action=add_recording&channelKey=' + event['channelKey'] + '&epgId=' + str(epgId) + ')')]
                         if addon.getSetting('download_streams') == 'true': 
                             menus.append(('Stáhnout', 'RunPlugin(plugin://' + plugin_id + '?action=add_to_queue&epgId=' + str(epgId) + ')'))      
                         list_item.addContextMenuItems(menus)       
