@@ -225,9 +225,10 @@ def list_category(category, dataSource, filtr, page, label):
                         if 'genreInfo' in event and len(event['genreInfo']) > 0 and 'genres' in event['genreInfo'] and len(event['genreInfo']['genres']) > 0:
                             for genre in event['genreInfo']['genres']:      
                                 genres.append(encode(genre['name']))
-                            list_item.setInfo('video', {'genre' : genres})    
+                            list_item.setInfo('video', {'genre' : genres})     
                         menus = [('Související pořady', 'Container.Update(plugin://' + plugin_id + '?action=list_related&epgId=' + str(epgId) + '&label=Související / ' + encode(event['name']) + ')'), 
-                                ('Vysílání pořadu', 'Container.Update(plugin://' + plugin_id + '?action=list_same&epgId=' + str(epgId) + '&label=' + encode(event['name']) + ')')]
+                                ('Vysílání pořadu', 'Container.Update(plugin://' + plugin_id + '?action=list_same&epgId=' + str(epgId) + '&label=' + encode(event['name']) + ')'),
+                                ('Přidat nahrávku', 'RunPlugin(plugin://' + plugin_id + '?action=add_recording&channelKey=' + event['channelKey'] + '&epgId=' + str(epgId) + ')')]
                         if addon.getSetting('download_streams') == 'true': 
                             menus.append(('Stáhnout', 'RunPlugin(plugin://' + plugin_id + '?action=add_to_queue&epgId=' + str(epgId) + ')'))      
                         list_item.addContextMenuItems(menus)       
