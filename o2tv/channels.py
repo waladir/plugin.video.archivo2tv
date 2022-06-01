@@ -441,7 +441,11 @@ class Channels:
             sys.exit()           
         if 'result' in data and len(data['result']) > 0:
             for channel in data['result']:        
-                channels.update({channel['channel']['channelKey'] : { 'name' : channel['channel']['name'], 'number' : int(channel['channel']['weight']), 'logo' : 'https://assets.o2tv.cz' + channel['channel']['images']['color']['url'], 'key' : channel['channel']['keyForCache'], 'available' : False, 'serviceid' : ''}})
+                if 'color' in channel['channel']['images']:
+                    logo = 'https://assets.o2tv.cz' + channel['channel']['images']['color']['url']
+                else:
+                    logo = ''
+                channels.update({channel['channel']['channelKey'] : { 'name' : channel['channel']['name'], 'number' : int(channel['channel']['weight']), 'logo' : logo, 'key' : channel['channel']['keyForCache'], 'available' : False, 'serviceid' : ''}})
 
         session = Session()
         for serviceid in session.get_services():
