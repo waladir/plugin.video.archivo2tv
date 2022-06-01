@@ -1,3 +1,6 @@
+v2.6.1 (2022-06-01)
+- ošetření kanálů s chybějícím logem
+
 v2.6.0 (2022-04-03)
 - úprava addon.xml
 
@@ -9,8 +12,3 @@ v2.5.8 (2022-04-03)
 
 v2.5.7 (2022-03-27)
 - implementace vylepšené funkce na parsování datumu od listenera
-
-v2.5.6 (2022-03-15)
-- přidána možnost odstranit kanál v seznamu kanálů. Pokud je v nabídce, znovu se přidá na konec
-- ošetření přidání v minulosti odstraněných kanálů
-
