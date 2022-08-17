@@ -37,7 +37,7 @@ def get_header_unity(service = None):
 
 def get_header(service = None):
     addon = xbmcaddon.Addon()
-    header = {'X-NanguTv-App-Version' : 'Android#6.4.1', 'User-Agent' : 'Dalvik/2.1.0', 'Accept-Encoding' : 'gzip', 'Connection' : 'Keep-Alive', 'Content-Type' : 'application/x-www-form-urlencoded;charset=UTF-8', 'X-NanguTv-Device-Id' : addon.getSetting('deviceid'), 'X-NanguTv-Device-Name' : addon.getSetting('devicename')}
+    header = {'X-NanguTv-App-Version' : 'Android#6.4.1', 'User-Agent' : 'Dalvik/2.1.0', 'Connection' : 'Keep-Alive', 'Content-Type' : 'application/x-www-form-urlencoded;charset=UTF-8', 'X-NanguTv-Device-Id' : addon.getSetting('deviceid'), 'X-NanguTv-Device-Name' : addon.getSetting('devicename')}
     if service != None:
          header.update({'X-NanguTv-Access-Token' : str(service['access_token']), 'X-NanguTv-Device-Id' : addon.getSetting('deviceid')})
     return header

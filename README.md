@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.6.2 (2022-08-17)<br>
+- oprava hlavičky při volání API<br><br>
+
 v2.6.1 (2022-06-01)<br>
 - ošetření kanálů s chybějícím logem<br><br>
 
@@ -18,7 +21,4 @@ v2.5.9 (2022-04-03)<br>
 
 v2.5.8 (2022-04-03)<br>
 - skrytí nahrávek z kanálů, které nejsou k dispozici<br><br>
-
-v2.5.7 (2022-03-27)<br>
-- implementace vylepšené funkce na parsování datumu od listenera<br><br>
 </p>
