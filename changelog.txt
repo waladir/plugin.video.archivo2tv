@@ -1,3 +1,6 @@
+v2.6.4 (2022-08-20)
+- oprava překlepu, který způsoboval chybu při generování EPG pro IPTV Simple Client
+
 v2.6.3 (2022-08-20)
 - úprava zjištování timestampů
 
@@ -9,6 +12,3 @@ v2.6.1 (2022-06-01)
 
 v2.6.0 (2022-04-03)
 - úprava addon.xml
-
-v2.5.9 (2022-04-03)
-- přidáná možnost nastavit nahrávek v kategoriích
