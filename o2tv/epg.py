@@ -361,9 +361,11 @@ def load_epg_all():
     if  cached_epg == 0:
         if addon.getSetting('info_enabled') == 'true' and addon.getSetting('cached_epg') == 'true':
             xbmcgui.Dialog().notification('Sledování O2TV', 'Došlo k chybě s EPG keší, stahuji z O2', xbmcgui.NOTIFICATION_INFO, 5000)  
+        today_date = datetime.today() 
+        today_start_ts = int(time.mktime(datetime(today_date.year, today_date.month, today_date.day) .timetuple()))
+        today_end_ts = today_start_ts + 60*60*24 -1
         for day in range(-8,8,1):
-            from_datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days = -1*int(day))
-            from_ts = int(time.mktime(from_datetime.timetuple()))
+            from_ts = today_start_ts + int(day)*60*60*24
             to_ts = from_ts+(24*60*60)-1
             if to_ts > min_ts:
                 if from_ts < min_ts:
@@ -571,7 +573,7 @@ def get_epg_all():
     events_detailed_data = {}
     
     limit = 8
-    limit_ts = int(time.mktime(datetime.now().timetuple())) - 60*60*24*limit
+    limit_ts = int(time.mktime(datetime.now().time.tuple())) - 60*60*24*limit
 
     open_db()
     row = None
