@@ -573,7 +573,7 @@ def get_epg_all():
     events_detailed_data = {}
     
     limit = 8
-    limit_ts = int(time.mktime(datetime.now().time.tuple())) - 60*60*24*limit
+    limit_ts = int(time.mktime(datetime.now().timetuple())) - 60*60*24*limit
 
     open_db()
     row = None

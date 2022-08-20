@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.6.4 (2022-08-20)<br>
+- oprava překlepu, který způsoboval chybu při generování EPG pro IPTV Simple Client<br><br>
+
 v2.6.3 (2022-08-20)<br>
 - úprava zjištování timestampů<br><br>
 
@@ -18,7 +21,4 @@ v2.6.1 (2022-06-01)<br>
 
 v2.6.0 (2022-04-03)<br>
 - úprava addon.xml<br><br>
-
-v2.5.9 (2022-04-03)<br>
-- přidáná možnost nastavit nahrávek v kategoriích<br><br>
 </p>
