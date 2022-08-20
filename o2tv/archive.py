@@ -60,14 +60,16 @@ def list_program(channelKey, day_min, label):
     channelKey = decode(channelKey)
     channels = Channels()
     channels_list = channels.get_channels_list()
+    today_date = datetime.today() 
+    today_start_ts = int(time.mktime(datetime(today_date.year, today_date.month, today_date.day) .timetuple()))
+    today_end_ts = today_start_ts + 60*60*24 -1
     if int(day_min) == 0:
-        from_datetime = datetime.combine(date.today(), datetime.min.time())
-        to_datetime = datetime.now()
+        from_ts = today_start_ts - int(day_min)*60*60*24
+        to_ts = int(time.mktime(datetime.now().timetuple()))
+    
     else:
-        from_datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days = int(day_min))
-        to_datetime = datetime.combine(from_datetime, datetime.max.time())
-    from_ts = int(time.mktime(from_datetime.timetuple()))
-    to_ts = int(time.mktime(to_datetime.timetuple()))
+        from_ts = today_start_ts - int(day_min)*60*60*24
+        to_ts = today_end_ts - int(day_min)*60*60*24
 
     events = {}
     events = get_epg_ts(channelKey, from_ts, to_ts, 8)

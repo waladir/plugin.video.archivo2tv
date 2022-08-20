@@ -1,3 +1,6 @@
+v2.6.3 (2022-08-20)
+- úprava zjištování timestampů
+
 v2.6.2 (2022-08-17)
 - oprava hlavičky při volání API
 
@@ -9,7 +12,3 @@ v2.6.0 (2022-04-03)
 
 v2.5.9 (2022-04-03)
 - přidáná možnost nastavit nahrávek v kategoriích
-
-v2.5.8 (2022-04-03)
-- skrytí nahrávek z kanálů, které nejsou k dispozici
-
