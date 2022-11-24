@@ -131,14 +131,14 @@ def load_cached_epg():
     close_db()
     try:
         if addon.getSetting('uncompressed_cached_epg') == 'true':
-            cached_epg_db_url = 'http://176.114.248.168:1080/epg_dump.db'
+            cached_epg_db_url = 'http://141.147.29.158:1080/epg_dump.db'
             cached_epg_db = urlopen(cached_epg_db_url, timeout = 10)
             content = cached_epg_db.read()
             with open(addon_userdata_dir + 'cached_epg.db', 'wb') as f:
                 f.write(content)
                 f.close() 
         else:
-            cached_epg_db_url = 'http://176.114.248.168:1080/epg_dump.db.gz'
+            cached_epg_db_url = 'http://141.147.29.158:1080/epg_dump.db.gz'
             cached_epg_db = urlopen(cached_epg_db_url, timeout = 10)
             content = cached_epg_db.read()
             with open(addon_userdata_dir + 'cached_epg.db.gz', 'wb') as f:
