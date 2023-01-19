@@ -15,6 +15,7 @@ except ImportError:
 
 from datetime import datetime 
 import time
+import ssl
 
 from o2tv.o2api import call_o2_api, get_header, get_header_unity
 from o2tv import o2api
@@ -142,8 +143,10 @@ def play_video(type, channelKey, start, end, epgId, title):
             if url == '':
                 url = data['uris'][0]['uri']
             if addon.getSetting('stream_type') == 'MPEG-DASH' or force_mpeg_dash == 1:
+                context=ssl.create_default_context()
+                context.set_ciphers('DEFAULT')
                 request = Request(url = url , data = None, headers = header)
-                response = urlopen(request)
+                response = urlopen(request, context = context)
                 url = response.geturl().replace('http:','https:').replace(':80/',':443/')
         else:
             xbmcgui.Dialog().notification('Sledování O2TV', 'Problém s přehráním streamu', xbmcgui.NOTIFICATION_ERROR, 5000)
