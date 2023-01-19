@@ -107,5 +107,8 @@ def parsetime(txt):
             h += 12
     return '%02d:%02d' % (h, m)
 
+def get_kodi_version():
+    return int(xbmc.getInfoLabel('System.BuildVersion').split('.')[0])
+    
 day_translation = {'1' : 'Pondělí', '2' : 'Úterý', '3' : 'Středa', '4' : 'Čtvrtek', '5' : 'Pátek', '6' : 'Sobota', '0' : 'Neděle'}  
 day_translation_short = {'1' : 'Po', '2' : 'Út', '3' : 'St', '4' : 'Čt', '5' : 'Pá', '6' : 'So', '0' : 'Ne'}  
