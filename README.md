@@ -7,6 +7,9 @@ Inspirovaný addonem pro zpětné sledování ze SledovaniTV od @Saros  jsem se 
 
 Po instalaci doplňku je potřeba v nastavení zadat přihlašovací údaje (stejné jako na webu www.o2tv.cz), do Device Id libovolnou změť alfanumerických znaků, Device Name a Device Type budou předvyplněné.<br><br>
 
+v2.6.7 (2023-01-22)<br>
+- oprava přehrávání v Kodi Nexus na Androidu u MPEG-DASH-web<br><br>
+
 v2.6.6 (2023-01-19)<br>
 - oprava přehrávání v Kodi Nexus na Androidu<br><br>
 
@@ -18,7 +21,4 @@ v2.6.4 (2022-08-20)<br>
 
 v2.6.3 (2022-08-20)<br>
 - úprava zjištování timestampů<br><br>
-
-v2.6.2 (2022-08-17)<br>
-- oprava hlavičky při volání API<br><br>
 </p>

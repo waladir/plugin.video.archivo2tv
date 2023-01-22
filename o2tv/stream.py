@@ -100,6 +100,8 @@ def play_video(type, channelKey, start, end, epgId, title):
                 url = data['playlist'][0]['streamUrls']['timeshift']
             else:
                 url = data['playlist'][0]['streamUrls']['main']
+            context=ssl.create_default_context()
+            context.set_ciphers('DEFAULT')
             request = Request(url = url , data = None, headers = header)
             response = urlopen(request)
             url = response.geturl()
