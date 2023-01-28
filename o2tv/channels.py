@@ -466,7 +466,6 @@ class Channels:
         return channels
 
     def merge_channels(self, o2channels, channels_nums = {}):
-        print(o2channels)
         if len(channels_nums) > 0:
             for number in sorted(channels_nums.keys()):
                 max_number = number

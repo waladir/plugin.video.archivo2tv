@@ -1,3 +1,6 @@
+v2.6.8 (2023-01-29)
+- oprava generování EPG pro všechny kanály
+
 v2.6.7 (2023-01-22)
 - oprava přehrávání v Kodi Nexus na Androidu u MPEG-DASH-web
 
@@ -9,6 +12,3 @@ v2.6.5 (2022-11-24)
 
 v2.6.4 (2022-08-20)
 - oprava překlepu, který způsoboval chybu při generování EPG pro IPTV Simple Client
-
-v2.6.3 (2022-08-20)
-- úprava zjištování timestampů

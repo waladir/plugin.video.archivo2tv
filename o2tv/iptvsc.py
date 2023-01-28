@@ -65,10 +65,9 @@ def load_epg_db(output_file = ''):
 
     channels = Channels()
     if addon.getSetting('epg_for_all_channels') == 'true':
-        channels_list = channels.get_channels_list('number', available_filter = False, visible_filter = False)
+        channels_list = channels.get_channels_list('o2number', available_filter = False, visible_filter = False)
     else:
         channels_list = channels.get_channels_list('number', visible_filter = True)
-    
     if len(channels_list) > 0:
         if save_file_test(epg = 1) == 0:
             xbmcgui.Dialog().notification('Sledování O2TV', 'Chyba při uložení EPG', xbmcgui.NOTIFICATION_ERROR, 5000)

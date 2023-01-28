@@ -312,7 +312,6 @@ def load_epg_ts(channelKeys, from_ts, to_ts):
         params = params + ('&channelKey=' + quote(encode(channelKey)))
     try: 
         url = 'https://api.o2tv.cz/unity/api/v1/epg/depr/?forceLimit=true&limit=500' + params + '&from=' + str(from_ts*1000) + '&to=' + str(to_ts*1000) 
-        print(url)
         data = call_o2_api(url = url, data = None, header = get_header_unity())
         if 'err' in data:
             xbmcgui.Dialog().notification('Sledování O2TV', 'Chyba API O2 při načítání EPG!', xbmcgui.NOTIFICATION_ERROR, 5000)
