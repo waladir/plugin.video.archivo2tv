@@ -1,3 +1,6 @@
+v2.6.9 (2023-07-17)
+- možnost zakázat použití playlistu při přehrávání
+
 v2.6.8 (2023-01-29)
 - oprava generování EPG pro všechny kanály
 
@@ -9,6 +12,3 @@ v2.6.6 (2023-01-19)
 
 v2.6.5 (2022-11-24)
 - přesun generového EPG do cloudu
-
-v2.6.4 (2022-08-20)
-- oprava překlepu, který způsoboval chybu při generování EPG pro IPTV Simple Client
