@@ -30,6 +30,7 @@
                 <setting label="Typ streamu" type="select" id="stream_type" values="HLS|MPEG-DASH|MPEG-DASH-web" default="HLS"/>
                 <setting label="Přetáčení u živého vysílání (pouze s MPEG-DASH a MPEG-DASH-web)" type="bool" id="startover" default="true"/>
                 <setting label="Přehrávat i po konci pořadu (minut)" type="slider" id="offset" range="0,5,120" option="int"/>
+                <setting label="Nepoužívat pro přehrávání playlisty " type="bool" id="not_use_playlists" default="false"/>
                 <setting label="Stahování streamů" type="lsep"/>
                 <setting label="Povolit stahování streamů" type="bool" id="download_streams" default="false"/>
                 <setting label="Cesta k ffmpeg" type="executable" id="ffmpeg_bin"/>

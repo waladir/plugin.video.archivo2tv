@@ -167,7 +167,7 @@ def play_video(type, channelKey, start, end, epgId, title):
         list_item.setProperty('inputstream', 'inputstream.adaptive')
         list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
         list_item.setMimeType('application/dash+xml')
-    if type == 'archiv_iptv' or (type == 'live_iptv' and (addon.getSetting('stream_type') != 'HLS' or force_mpeg_dash == 1) and addon.getSetting('startover') == 'true') or type == 'live_iptv_epg':
+    if (type == 'archiv_iptv' or (type == 'live_iptv' and (addon.getSetting('stream_type') != 'HLS' or force_mpeg_dash == 1) and addon.getSetting('startover') == 'true') or type == 'live_iptv_epg') and (addon.getSetting('not_use_playlists') == 'false'):
         playlist=xbmc.PlayList(1)
         playlist.clear()
         if epgId is not None:
