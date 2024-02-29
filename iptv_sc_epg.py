@@ -38,7 +38,7 @@ if addon.getSetting('download_streams') == 'true':
     dt = DownloaderThreadClass()
     dt.start()
 
-while not xbmc.Monitor().abortRequested():
+while not xbmc.Monitor().abortRequested() and 1 == 0:
     if(next < time.time()):
         time.sleep(3)
         if addon.getSetting('username') and len(addon.getSetting('username')) > 0 and addon.getSetting('password') and len(addon.getSetting('password')) > 0:

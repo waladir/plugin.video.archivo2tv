@@ -249,6 +249,8 @@ def router(paramstring):
         list_menu()
 
 if __name__ == '__main__':
-    router(sys.argv[2][1:])
+    # router(sys.argv[2][1:])
+    dialog = xbmcgui.Dialog()
+    dialog.textviewer(heading = 'Sledování O2TV - důležité', text = 'Vzhledem k tomu, že O2 ukončilo provoz původní O2TV platformy, přestává fungovat i doplněk Sledování O2TV, který je na ní založený. V XBMC-Kodi CZ/SK repozitáři najdete jako alternativu doplněk O2TV, který využívá novou O2TV 2.0. Jediným podstatnějším omezením je, že doplněk vyžaduje Kodi 19 (Matrix) a vyšší. V Kodi 18 (Leia) tedy bohužel fungovat nebude.', usemono = False)
 
 addon = None
